@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi import Depends
 from sqlmodel import Session, select
-from app.database import get_session
+from app.core.database import get_session
 from app.models.user import User
 
 router = APIRouter()

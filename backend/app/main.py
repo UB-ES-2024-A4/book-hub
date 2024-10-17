@@ -1,4 +1,4 @@
-from .database import engine
+from .core.database import engine
 from .models import SQLModel
 from .api.main import api_router
 from .core.config import settings

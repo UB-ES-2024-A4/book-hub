@@ -5,7 +5,7 @@ from sqlmodel import SQLModel
 from alembic import context
 
 # Importa el motor de base de datos y los modelos
-from app.database import DATABASE_URL
+from app.core.database import DATABASE_URL
 
 # Esta configuración carga el archivo alembic.ini
 config = context.config
