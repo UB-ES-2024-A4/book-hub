@@ -1,9 +1,11 @@
-from fastapi import FastAPI, Depends
-from sqlmodel import Session, select
-from .database import get_session, engine
-from .models import User, SQLModel
+from .database import engine
+from .models import SQLModel
+from .api.main import api_router
+from .core.config import settings
 
-app = FastAPI()
+from fastapi import FastAPI
+
+app = FastAPI(title=settings.APP_NAME)
 
 # Crear la base de datos y las tablas
 def on_startup():
@@ -11,11 +13,4 @@ def on_startup():
 
 app.add_event_handler("startup", on_startup)
 
-# Endpoint para obtener el primer usuario
-# Este es un endpoint dummy, para probar que la API funciona.
-@app.get("/")
-def get_first_user(session: Session = Depends(get_session)):
-    result = session.exec(select(User)).first()
-    if result:
-        return {"name": result.name}
-    return {"error": "No users found"}
+app.include_router(api_router)
