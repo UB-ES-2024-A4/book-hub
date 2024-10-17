@@ -12,10 +12,10 @@ def on_startup():
 app.add_event_handler("startup", on_startup)
 
 # Endpoint para obtener el primer usuario
+# Este es un endpoint dummy, para probar que la API funciona.
 @app.get("/")
 def get_first_user(session: Session = Depends(get_session)):
-    statement = select(User)
-    result = session.exec(statement).first()
+    result = session.exec(select(User)).first()
     if result:
         return {"name": result.name}
     return {"error": "No users found"}
