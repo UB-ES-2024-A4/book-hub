@@ -5,13 +5,13 @@ from sqlmodel import SQLModel
 from alembic import context
 
 # Importa el motor de base de datos y los modelos
-from app.core.database import DATABASE_URL
+from app.core.config import settings
 
 # Esta configuración carga el archivo alembic.ini
 config = context.config
 
 # Establece la URL de la base de datos
-config.set_main_option('sqlalchemy.url', DATABASE_URL)
+config.set_main_option('sqlalchemy.url', settings.DATABASE_URL)
 
 # Interpretar el archivo de configuración de logging config file
 if config.config_file_name is not None:
