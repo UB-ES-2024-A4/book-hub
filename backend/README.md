@@ -1,8 +1,73 @@
 # Backend
 
 ## Entorno Virtual [Poetry]
+Esta sección guía al usuario a través de la instalación de MySQL, la creación de la base de datos `bookhubdb` y la configuración del archivo `.env`.
+### Configuración de MySQL en Windows
 
-### Instalación
+#### Instalación de MySQL
+
+1. **Descargar MySQL Installer**:
+   Ve al [sitio oficial de MySQL](https://dev.mysql.com/downloads/installer/) y descarga el MySQL Installer para Windows.
+
+2. **Ejecutar el Instalador**:
+   Abre el instalador y selecciona la opción "Custom" para tener control sobre los componentes que deseas instalar.
+
+3. **Seleccionar Componentes**:
+   En la lista de productos, selecciona los siguientes componentes:
+   - **MySQL Server**: Este es el servidor de base de datos.
+   - **MySQL Workbench**: Una herramienta GUI para gestionar la base de datos.
+   - **MySQL Shell**: Una herramienta de línea de comandos para interactuar con MySQL.
+   - **MySQL Connector/Python o Router**: El conector para Python, si no lo tienes ya instalado.
+
+4. **Configurar MySQL Server**:
+   Durante la instalación, se te pedirá que configures el servidor MySQL:
+   - **Tipo de Configuración**: Elige "Development Machine/Computer" para un entorno de desarrollo.
+   - **Puerto**: 3306
+   - **Autenticación**: Poner el usuario y contraseña de tu elección.
+5. **Finalizar la Instalación**
+### Creación de la Base de Datos
+
+1. **Conectar a MySQL**:
+   Abre una terminal y conecta a tu servidor MySQL usando el usuario root:
+   ```bash
+   mysql -u root -p
+   ```
+   o
+   ```bash
+      mysqlsh -u root -p
+   ```
+2. **Cambiar a SQL CODE**:
+   ```bash
+   \sql
+   ```   
+
+3. **Crear la Base de Datos**:
+   Una vez conectado, crea la base de datos `bookhubdb`:
+   ```sql
+   CREATE DATABASE bookhubdb;
+   ```
+
+4. **Verificar la Base de Datos**:
+   Asegúrate de que la base de datos ha sido creada listando todas las bases de datos:
+   ```sql
+   SHOW DATABASES;
+   ```
+Así se vería la terminal si siguen los pasos:
+
+<img src="./mysql-u-root-p.png" alt="Creación de la base de datos" width="600"/>
+
+### Configuración del Archivo `.env`
+
+Tienes que crear un archivo `.env` fuera de las carpetas backend o frontend. Debe estar correctamente 
+configurado con los detalles de conexión a la base de datos. Un ejemplo válido sería:
+
+Aquí usarás el nombre de usuario y contraseña que configuraste durante la instalación de MySQL y el puerto por defecto (3306).
+```bash
+APP_NAME='BookHub_API'
+DATABASE_URL='mysql+pymysql://MyUsername:MyPassword@localhost:3306/bookhubdb'
+```
+
+### Instalación de Poetry
 Usaremos la última versión de Poetry (1.8.2 a la fecha de este documento). Si no lo tienes instalado, puedes seguir la guía de instalación [aquí](https://python-poetry.org/docs/#installing-with-pipx).
 
 ### Instalación de dependencias
