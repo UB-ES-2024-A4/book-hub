@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 
 export default function SignUpPage() {
   return (
-      <div className="min-h-screen flex items-center justify-center p-10 md:p-2
+      <div className="min-h-screen flex items-center justify-center p-3 md:p-2
             bg-gradient-to-br from-blue-950 to-blue-200 ">
           <Card className="w-full max-w-4xl overflow-hidden">
               <div className="flex flex-col md:flex-row">
@@ -20,7 +20,7 @@ export default function SignUpPage() {
                   </div>
 
                   {/* SignUp Form Container */}
-                  <div className="w-full md:w-1/2 p-6 md:p-8">
+                  <div className="w-full px-1 md:w-1/2 p-6 md:p-8">
                       <SignUpForm/>
                   </div>
               </div>

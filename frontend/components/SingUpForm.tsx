@@ -27,7 +27,7 @@ export default function SignUpForm() {
 
 
     return (
-        <div className="w-full h-full  flex flex-col justify-center py-12">
+        <div className="w-full h-full  flex flex-col justify-center md:py12 py-4">
                     <div className="sm:mx-auto sm:w-full sm:max-w-md">
                         <div className="flex justify-center">
                             <LibraryBig className="h-12 w-12 text-blue-500"/>
@@ -65,7 +65,7 @@ export default function SignUpForm() {
                                     >{fields.username.errors}</p>
                                 </div>
 
-                                <div className="flex flex-row justify-between">
+                                <div className="flex flex-col md:flex-row justify-between">
                                     <div>
                                         <label htmlFor="first-name" className="block text-sm font-medium text-gray-300">
                                             First name
@@ -162,7 +162,8 @@ export default function SignUpForm() {
                                 <div className="mt-6">
                                     <Link type="button"
                                           className="w-full inline-flex justify-center py-2 px-4 border-2
-                                           border-gray-500 rounded-md shadow-sm bg-[#3B4C79] text-sm font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                           border-gray-500 rounded-md shadow-sm bg-[#3B4C79] text-sm font-medium
+                                           text-white hover:bg-gray-600 "
                                           href="/auth/login">
                                         Sign in
                                     </Link>
