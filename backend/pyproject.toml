@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = "Backend project for book-hub web page."
+authors = ["AlejandroDS1 <acantelo7@alumnes.ub.edu>, gmarvega <mvegagar30@alumnes.ub.edu>, agelonca7 <agelonca7@alumnes.ub.edu>, malikmati90 <mmatiurr8@alumnes.ub.edu>, vparri08 <vparriol39@alumnes.ub.edu>, Soliam006 <wsottoja7@alumnes.ub.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+alembic = "^1.13.3"
+fastapi = "^0.115.2"
+uvicorn = "^0.32.0"
+sqlmodel = "^0.0.22"
+pymysql = "^1.1.1"
+python-dotenv = "^1.0.1"
+pytest = "^8.3.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
