@@ -43,6 +43,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd backend          
+        poetry lock
         poetry install --all-extras
     - name: Lint
       id: lint
