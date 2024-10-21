@@ -1,0 +1,35 @@
+# Compilaciones de python
+__pycache__/
+__pypackages__/
+
+# Archivos del IDE IDEA y VSCODE
+.vscode/
+.idea
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+.idea_modules/
+
+# misc
+.DS_Store
+# Archivos de compilación
+*.o
+*.exe
+*.dll
+build/
+dist/
+
+# Archivos de logs
+*.log
+debug.log
+
+# Archivos de empaquetado
+*.zip
+*.tar.gz
