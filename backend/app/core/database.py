@@ -14,11 +14,15 @@ def init_db(session: Session) -> None:
     # TODO Variables van al .env
     username = "TEST_NAME"
 
+    email = "test@test.com"
+
+    password = "TestPassword"
+
     user = session.exec(
-        select(User).where(User.name == username)
+        select(User).where(User.username == username)
     ).first()
 
     if not user:
-        session.add(User(name=username))
+        session.add(User(username=username, email=email, password=password))
         session.commit()
     

@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from sqlmodel import SQLModel
+from app.models import SQLModel
 from alembic import context
 
 # Importa el motor de base de datos y los modelos

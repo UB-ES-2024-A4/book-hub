@@ -7,13 +7,13 @@ def test_dbb_check(db : Session) -> None:
 
     username = "TEST_NAME"
 
-    # Comprobamos que el user esta en la base de datos.
+    # Comprobamos que el user esta xen la base de datos.
     user = db.exec(
-        select(User).where(User.name == username)
+        select(User).where(User.username == username)
     ).first()
 
     assert user != None
-    assert str(user.name) == username
+    assert str(user.username) == username
 
 def test_api_check(client: TestClient) -> None:
 
@@ -22,4 +22,4 @@ def test_api_check(client: TestClient) -> None:
 
     print("User: ", user)
 
-    assert user["name"] == "TEST_NAME"
+    assert user["username"] == "TEST_NAME"
