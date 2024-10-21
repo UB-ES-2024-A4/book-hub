@@ -41,7 +41,7 @@ export default function SignUpForm() {
                     </div>
 
                     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                        <div className="bg-[#1D2B5A] py-8 px-6 shadow rounded-lg md:px-10">
+                        <div className="bg-[#1D2B5A] py-8 px-6 shadow rounded-lg ">
                             <form className="space-y-6"
                                   id={form.id}
                                   onSubmit={form.onSubmit}

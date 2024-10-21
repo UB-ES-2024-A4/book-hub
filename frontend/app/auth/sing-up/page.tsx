@@ -12,10 +12,10 @@ export default function SignUpPage() {
                   {/* Image Container */}
                   <div className="relative w-full md:w-1/2 h-52 md:h-auto md:border-r border-gray-200">
                       <Image
-                          src="/coffebook.jpg"
+                          src="/book.jpg"
                           alt="Coffee Book"
-                          layout="fill"
-                          objectFit="cover"
+                          fill
+                          style={{ objectFit: 'cover'}}
                       />
                   </div>
 
