@@ -64,7 +64,11 @@ configurado con los detalles de conexión a la base de datos. Un ejemplo válido
 Aquí usarás el nombre de usuario y contraseña que configuraste durante la instalación de MySQL y el puerto por defecto (3306).
 ```bash
 APP_NAME='BookHub_API'
-DATABASE_URL='mysql+pymysql://MyUsername:MyPassword@localhost:3306/bookhubdb'
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=YourUser
+DB_PASSWORD=YourPassword
+DB_NAME=bookhubdb
 ```
 
 ### Instalación de Poetry

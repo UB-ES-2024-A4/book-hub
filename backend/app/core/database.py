@@ -3,7 +3,7 @@ from app.core.config import settings
 
 from app.models.user import User
 # Creamos el engine conectando con la base de datos.
-engine = create_engine(settings.DATABASE_URL)
+engine = create_engine(str(settings.SQLALCHEMY_URI))
 
 def get_session():
     with Session(engine) as session:
