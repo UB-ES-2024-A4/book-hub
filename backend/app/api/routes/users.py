@@ -93,6 +93,12 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
             detail="Username, first name and last name must contain at most 20 characters.",
         )
     
+    if not (8 <= len(user.password) <= 28):
+        raise HTTPException(
+            status_code=400,
+            detail="Password must contain between 8 and 28 characters.",
+        )
+    
     user = crud.user.update_user(session=session, user_id=user_id, user=user)
     if user:
         return user
