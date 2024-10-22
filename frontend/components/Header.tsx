@@ -15,7 +15,7 @@ export default function Header() {
             <div className="container mx-auto flex justify-between items-center p-4">
                 <Link href="/" className="text-[#4066cf] text-2xl font-bold">BookHub</Link>
                 <nav className="hidden md:flex space-x-8">
-                    <Link href="/" className="path text-gray-600 transition-colors duration-300">Home</Link>
+                    <Link href="/home" className="path text-gray-600 transition-colors duration-300">Home</Link>
                     <Link href="/explorer" className="path text-gray-600 transition-colors duration-300">Explorer</Link>
                     <Link href="/account" className="path text-gray-600 transition-colors duration-300">Account</Link>
                 </nav>

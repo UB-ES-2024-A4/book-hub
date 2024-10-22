@@ -1,15 +1,10 @@
+// frontend/components/ProfileDialog.tsx
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-
-type User = {
-  fullName: string;
-  username: string;
-  email: string;
-  bio: string;
-};
+import { User } from "@/app/types/User";
 
 type ProfileDialogProps = {
   isEditing: boolean;
@@ -19,7 +14,7 @@ type ProfileDialogProps = {
   setUserData: React.Dispatch<React.SetStateAction<User>>;
 };
 
-const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, editedUser, setEditedUser, setUserData}) => {
+const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, editedUser, setEditedUser, setUserData }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditedUser((prev) => ({
@@ -29,11 +24,7 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, 
   };
 
   const handleSave = () => {
-    // DATOS A BACKEND-----------------------
     console.log('Saving user data:', editedUser);
-    //FOr now, just change the user data information
-
-    // Actualizar la información del usuario
     setUserData((prev) => ({
       ...prev,
       fullName: editedUser.fullName,
@@ -41,7 +32,6 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, 
       email: editedUser.email,
       bio: editedUser.bio,
     }));
-
     setIsEditing(false);
   };
 
