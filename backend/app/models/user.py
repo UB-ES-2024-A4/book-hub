@@ -2,10 +2,6 @@ from sqlmodel import Field
 from typing import Optional
 from .base import SQLModel
 
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
-
 # Shared properties
 class UserBase(SQLModel):
     email: str = Field(unique=True, index=True)
