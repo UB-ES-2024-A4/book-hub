@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException
 from sqlmodel import Session, select
+from sqlalchemy import or_
 from app.core.database import get_session
 from app.models.user import User
 
@@ -42,6 +43,26 @@ def create_user(user: User, session: Session = Depends(get_session)):
             detail="This username is already in use.",
         )
     
+    if len(user.username) < 3:
+        raise HTTPException(
+            status_code=400,
+            detail="Username must contain at least 3 characters.",
+        )
+    
+    max_length = 20
+    if (len(user.username) > max_length or len(user.first_name) > max_length or len(user.laset_name) > max_length):
+        raise HTTPException(
+            status_code=400,
+            detail="Username, first name and last name must contain at most 20 characters.",
+        )
+    
+    if not (8 <= len(user.password) <= 28):
+        raise HTTPException(
+            status_code=400,
+            detail="Password must contain between 8 and 28 characters.",
+        )
+
+    
     if user.id == 0: user.id = None
     session.add(user)
     session.commit()
@@ -59,6 +80,18 @@ def update_user(user_id: int, user: User, session: Session = Depends(get_session
         raise HTTPException(
             status_code=400,
             detail="This username is already in use.",
+        )
+    
+    if len(user.username) < 3:
+        raise HTTPException(
+            status_code=400,
+            detail="Username must contain at least 3 characters.",
+        )
+    
+    if (len(user.username) > 20 or len(user.first_name) > 20 or len(user.laset_name) > 20):
+        raise HTTPException(
+            status_code=400,
+            detail="Username, first name and last name must contain at most 20 characters.",
         )
     
     if db_user:
