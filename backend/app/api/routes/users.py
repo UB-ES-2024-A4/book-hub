@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlmodel import Session, select
 from app.core.database import get_session
 from app.models.user import User
@@ -24,6 +24,25 @@ def get_all_users(session: Session = Depends(get_session)):
 # Endpoint para crear un usuario
 @router.post("/")
 def create_user(user: User, session: Session = Depends(get_session)):
+    statement = select(User).where(User.email == user.email)
+    session_user = session.exec(statement).first()
+
+    if session_user:
+        raise HTTPException(
+            status_code=400,
+            detail="This email is already in use.",
+        )
+    
+    statement = select(User).where(User.username == user.username)
+    session_user = session.exec(statement).first()
+
+    if session_user:
+        raise HTTPException(
+            status_code=400,
+            detail="This username is already in use.",
+        )
+    
+    if user.id == 0: user.id = None
     session.add(user)
     session.commit()
     session.refresh(user)
@@ -32,7 +51,16 @@ def create_user(user: User, session: Session = Depends(get_session)):
 # Endpoint para actualizar un usuario
 @router.put("/{user_id}")
 def update_user(user_id: int, user: User, session: Session = Depends(get_session)):
-    db_user : User= session.get(User, user_id)
+    db_user : User = session.get(User, user_id)
+    statement = select(User).where(User.username == user.username)
+    session_user = session.exec(statement).first()
+
+    if session_user:
+        raise HTTPException(
+            status_code=400,
+            detail="This username is already in use.",
+        )
+    
     if db_user:
         db_user.id = user.id
         db_user.username = user.username
