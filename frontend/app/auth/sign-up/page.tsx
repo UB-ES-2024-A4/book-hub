@@ -1,5 +1,5 @@
 
-import SignUpForm from '@/components/SingUpForm';
+import SignUpForm from '@/components/SignUpForm';
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 
@@ -12,7 +12,7 @@ export default function SignUpPage() {
                   {/* Image Container */}
                   <div className="relative w-full md:w-1/2 h-52 md:h-auto md:border-r border-gray-200">
                       <Image
-                          src="/book.jpg"
+                          src="/book-signup.jpg"
                           alt="Coffee Book"
                           fill
                           style={{ objectFit: 'cover'}}
