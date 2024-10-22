@@ -6,7 +6,7 @@ import { CreateUser } from "@/app/actions";
 import { useFormState  } from 'react-dom';
 import {useForm} from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
-import {singUpSchema} from "@/app/lib/zodSchemas";
+import {signUpSchema} from "@/app/lib/zodSchemas";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -19,7 +19,7 @@ export default function SignUpForm() {
         lastResult, // Passes the last result from the action state to the form
         onValidate({ formData }) {
             // Parses and validates the form data using the Zod schema
-            return parseWithZod(formData, { schema: singUpSchema });
+            return parseWithZod(formData, { schema: signUpSchema });
         },
         shouldValidate: "onBlur", // Validate when an input loses focus
         shouldRevalidate: "onInput", // Revalidate when the user inputs or modifies the form
