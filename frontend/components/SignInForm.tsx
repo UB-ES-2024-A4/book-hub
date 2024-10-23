@@ -1,6 +1,6 @@
 "use client";
 import { Lock, Mail, User, LibraryBig } from "lucide-react";
-import Input from "./Input";
+import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
 import { CreateUser, SignIn } from "@/app/actions";
 import { useFormState  } from 'react-dom';
@@ -50,7 +50,7 @@ export default function SignInForm() {
                                 Email address
                             </label>
                             <div className="mt-1">
-                                <Input
+                                <InputAuth
                                     key={fields.email.key}
                                     name={fields.email.name}
                                     defaultValue={fields.email.initialValue}
@@ -70,7 +70,7 @@ export default function SignInForm() {
                                 Password
                             </label>
                             <div className="mt-1">
-                                <Input
+                                <InputAuth
                                     id="password"
                                     name="password"
                                     type="password"

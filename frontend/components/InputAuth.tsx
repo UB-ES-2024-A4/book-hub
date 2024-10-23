@@ -1,4 +1,4 @@
-// app/components/Input.tsx
+// app/components/InputAuth.tsx
 'use client';
 
 import React from 'react';
@@ -8,7 +8,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon: LucideIcon;
 }
 
-const Input: React.FC<InputProps> = ({ icon: Icon, ...props }) => (
+const InputAuth: React.FC<InputProps> = ({ icon: Icon, ...props }) => (
   <div className="relative">
     <input
       {...props}
@@ -19,4 +19,4 @@ const Input: React.FC<InputProps> = ({ icon: Icon, ...props }) => (
   </div>
 );
 
-export default Input;
+export default InputAuth;

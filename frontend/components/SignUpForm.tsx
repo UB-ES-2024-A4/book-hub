@@ -1,6 +1,6 @@
 "use client";
 import { Lock, Mail, User, LibraryBig } from "lucide-react";
-import Input from "./Input";
+import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
 import { CreateUser } from "@/app/actions";
 import { useFormState  } from 'react-dom';
@@ -51,7 +51,7 @@ export default function SignUpForm() {
                                         Username
                                     </label>
                                     <div className="mt-1">
-                                        <Input
+                                        <InputAuth
                                             key={fields.username.key}
                                             name={fields.username.name}
                                             defaultValue={fields.username.initialValue}
@@ -71,7 +71,7 @@ export default function SignUpForm() {
                                             First name
                                         </label>
                                         <div className="mt-1 mr-1">
-                                            <Input
+                                            <InputAuth
                                                 key={fields.firstName.key}
                                                 name={fields.firstName.name}
                                                 defaultValue={fields.firstName.initialValue}
@@ -88,7 +88,7 @@ export default function SignUpForm() {
                                             Last name
                                         </label>
                                         <div className="mt-1">
-                                            <Input
+                                            <InputAuth
                                                 key={fields.lastName.key}
                                                 name={fields.lastName.name}
                                                 defaultValue={fields.lastName.initialValue}
@@ -106,7 +106,7 @@ export default function SignUpForm() {
                                         Email address
                                     </label>
                                     <div className="mt-1">
-                                        <Input
+                                        <InputAuth
                                             key={fields.email.key}
                                             name={fields.email.name}
                                             defaultValue={fields.email.initialValue}
@@ -126,7 +126,7 @@ export default function SignUpForm() {
                                         Password
                                     </label>
                                     <div className="mt-1">
-                                        <Input
+                                        <InputAuth
                                             id="password"
                                             name="password"
                                             type="password"
