@@ -11,8 +11,12 @@ on:
       - synchronize
 
 env:
-  APP_NAME: BookHub_AP
-  DATABASE_URL: mysql+pymysql://testuser:psswd@localhost:3306/bookhubdb
+  APP_NAME: BookHub
+  DB_HOST: localhost
+  DB_PORT: 3306
+  DB_USER: testuser
+  DB_PASSWORD: psswd
+  DB_NAME: bookhubdb
 
 jobs:
 
