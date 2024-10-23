@@ -1,4 +1,5 @@
 import os
+import secrets
 
 from pydantic import (
     MySQLDsn,
@@ -33,10 +34,16 @@ class Settings(BaseSettings):
 
     APP_NAME: str = "UnSet"
     DB_HOST: str = "localhost"
-    DB_PORT: int = 3307
+    DB_PORT: int = 3306
     DB_USER: str = "user"
     DB_PASSWORD: str | None = None
     DB_NAME: str | None = None
+
+    # TODO: SECRET_KEY, TOKEN_EXPIRE_TIME variables del .env
+    # Token creation
+    # 60 minutes * 24 hours * 8 days = 8 days
+    TOKEN_EXPIRE_TIME: int = 60 * 24 * 2
+    SECRET_KEY: str = secrets.token_urlsafe(32)
 
     @computed_field  # type: ignore[misc]
     @property

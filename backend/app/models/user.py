@@ -18,6 +18,15 @@ class User(UserBase, table=True):
 class UserCreate(UserBase):
     password: str
 
+class Token(SQLModel):
+    acces_token: str
+    token_type: str = "bearer"
+
+class UserLogin(SQLModel):
+    username: str | None = None
+    email: str | None = None
+    password: str
+
 
 class UserUpdate(SQLModel):
     username: str | None = None

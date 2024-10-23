@@ -2,6 +2,7 @@ from sqlmodel import Session, create_engine, select
 from app.core.config import settings
 
 from app.models.user import User
+
 # Creamos el engine conectando con la base de datos.
 engine = create_engine(str(settings.SQLALCHEMY_URI))
 

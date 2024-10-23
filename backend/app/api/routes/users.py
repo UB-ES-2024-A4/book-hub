@@ -1,8 +1,15 @@
 from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlmodel import Session, select
 from app.core.database import get_session
-from app.models.user import User, UserCreate, UserUpdate
+from app.core.security import create_access_token
+from app.models.user import (
+    User,
+    UserCreate,
+    UserUpdate,
+    UserLogin,
+    Token
+)
 from app import crud
 
 router = APIRouter()
@@ -59,3 +66,27 @@ def get_user_by_name(name: str, session: Session = Depends(get_session)):
     if user:
         return user
     return {"error": "User not found"}
+
+
+# Login
+@router.post("/login")
+def login_user(userLogin : UserLogin, session: Session = Depends(get_session)):
+    
+    # TODO: Password encryption
+    
+    user : User = None
+
+    if userLogin.username:
+        user = session.exec(select(User).where(User.username == userLogin.username)).first()
+    elif userLogin.email:
+        user = session.exec(select(User).where(User.email == userLogin.email)).first()
+    else:
+        raise HTTPException(status_code=400, detail="Username or email has to be provided.")
+    
+    if not user:
+        raise HTTPException(status_code=400, detail="User with this email or username do not exists.")
+
+    if user.password == userLogin.password:
+        return Token(acces_token=create_access_token(user.id))
+    else: 
+        raise HTTPException(status_code=400, detail="Password incorrect.")
