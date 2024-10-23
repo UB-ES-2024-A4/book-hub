@@ -14,16 +14,14 @@ from app.models import User
 def db() -> Generator[Session, None, None]:
     with Session(engine) as session:
         existing_user_ids = {user for user in session.execute(select(User.id)).scalars().unique()}
-        print('Existing users A:', existing_user_ids)
+
         init_db(session)
 
         yield session
 
         # Erase users created during testing
         new_users = session.execute(select(User).filter(~User.id.in_(existing_user_ids))).scalars().unique().all()
-        a = {user for user in session.execute(select(User.id)).scalars().unique()}
-        print('All users:', a)
-        print('New', new_users)
+
         for user in new_users:
             session.delete(user)
 
