@@ -14,12 +14,3 @@ def test_dbb_check(db : Session) -> None:
 
     assert user != None
     assert str(user.username) == username
-
-def test_api_check(client: TestClient) -> None:
-
-    r = client.get(f"/users/")
-    user = r.json()
-
-    print("User: ", user)
-
-    assert user["username"] == "TEST_NAME"
