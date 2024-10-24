@@ -54,9 +54,7 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
         utils.check_existence_usrname(user.username, session)
     
     utils.check_email_name_length(user.username, user.first_name, user.last_name)
-    
-    utils.check_pwd_length(user.password)
-    
+        
     user = crud.user.update_user(session=session, user_id=user_id, user=user)
     if user:
         return user
