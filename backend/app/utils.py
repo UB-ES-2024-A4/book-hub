@@ -18,6 +18,12 @@ def check_email_name_length(username: str, first_name: str, last_name: str):
             detail="Username, first name and last name must contain at most 20 characters.",
         )
     
+    if (len(first_name) < 1 or len(last_name) < 1):
+        raise HTTPException(
+            status_code=400,
+            detail="First name and last name required.",
+        )
+    
 def check_existence_email(email: str, session):
     statement = select(User).where(User.email == email)
     session_user = session.exec(statement).first()

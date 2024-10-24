@@ -5,6 +5,8 @@ from sqlmodel import Session, select
 from app.core.config import settings
 from app import crud
 
+## TESTS FOR ENDPOINT CREATE
+
 def test_create_user_length_username(
     client: TestClient, db: Session
 ) -> None:
@@ -161,3 +163,42 @@ def test_create_user_existing_username(
     created_user = r.json()
     assert r.status_code == 400
     assert created_user['detail'] == 'This username is already in use.'
+
+## TESTS FOR UPDATE ENDPOINT
+
+## TESTS FOR DELETE ENDPOINT
+def test_delete_user(
+    client: TestClient, db: Session
+) -> None:
+    username = settings.USERNAME_TEST_USER
+    password = settings.PASSWORD_TEST_USER
+    email = settings.EMAIL_TEST_USER
+    first_name = settings.FIRST_NAME_TEST_USER
+    last_name = settings.LAST_NAME_TEST_USER
+
+    data = {"email": email, "username": username, "first_name": first_name, "last_name": last_name, "password": password}
+    r = client.post(
+        f"/users/",
+        json=data,
+    )
+
+    user = crud.user.get_user_by_name(session=db, name=username)
+
+    r = client.delete(
+        f"/users/{user.id}"
+    )
+
+    assert r.status_code == 200
+    deleted_user = r.json()
+    assert deleted_user["message"] == "User deleted successfully"
+
+def test_delete_user_not_found(
+    client: TestClient, db: Session
+) -> None:
+    r = client.delete(
+        f"/users/99999999",
+    )
+    
+    assert r.status_code == 404
+    assert r.json()["detail"] == "User not found."
+
