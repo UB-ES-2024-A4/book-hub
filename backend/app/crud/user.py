@@ -15,12 +15,12 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
     return user
 
 def update_user(*, session: Session, user_id: int, user: UserUpdate) -> Any:
-    db_user : User= session.get(User, user_id)
+    db_user : User = session.get(User, user_id)
+
     if db_user:
-        db_user.username = user.username if user.username is not None else db_user.username
-        db_user.first_name = user.first_name if user.first_name is not None else db_user.first_name
-        db_user.last_name = user.last_name if user.last_name is not None else db_user.last_name
-        db_user.biography = user.biography if user.biography is not None else db_user.biography
+        user_data = user.model_dump(exclude_unset=True)
+        db_user.sqlmodel_update(user_data)
+        session.add(db_user)
         session.commit()
         session.refresh(db_user)
         return db_user
