@@ -33,18 +33,17 @@ def client() -> Generator[TestClient, None, None]:
     with TestClient(app) as c:
         yield c
 
-# Fixture to provide a test client and override get_session globally for this test file
+# Fixture para hacer un override de la función get_session y compartir la sesión
 @pytest.fixture(scope="module", autouse=True)
 def override_get_session(db: Session) -> None:
     # Override FastAPI's get_session dependency to use the test session
     def _override_get_session():
         yield db
 
-    # Apply the override globally for all tests in this module
+    # El override se aplica en todos los tests
     app.dependency_overrides[get_session] = _override_get_session
 
-    # Yield to allow tests to run
     yield
 
-    # Cleanup: Remove overrides after tests are done
+    # Cuando se acaban los tests eliminamos el override
     app.dependency_overrides = {}

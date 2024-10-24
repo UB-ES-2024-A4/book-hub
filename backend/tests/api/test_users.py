@@ -1,20 +1,20 @@
 from fastapi.testclient import TestClient
 
 from app.models.user import User, UserCreate
-from sqlmodel import Session, select
+from sqlmodel import Session, select, text
 from app.core.config import settings
 from app import crud
+
+username = settings.USERNAME_TEST_USER
+password = settings.PASSWORD_TEST_USER
+email = settings.EMAIL_TEST_USER
+first_name = settings.FIRST_NAME_TEST_USER
+last_name = settings.LAST_NAME_TEST_USER
 
 ## TESTS FOR ENDPOINT CREATE
 def test_create_user_length_username(
     client: TestClient, db: Session
 ) -> None:
-    
-    password = settings.PASSWORD_TEST_USER
-    email = settings.EMAIL_TEST_USER
-    first_name = settings.FIRST_NAME_TEST_USER
-    last_name = settings.LAST_NAME_TEST_USER
-
     data = {"email": email, "username": 'a'*21, "first_name": first_name, "last_name": last_name, "password": password}
     r = client.post(
         f"/users/",
@@ -38,12 +38,6 @@ def test_create_user_length_username(
 def test_create_user_length_name(
     client: TestClient, db: Session
 ) -> None:
-    username = settings.USERNAME_TEST_USER
-    password = settings.PASSWORD_TEST_USER
-    email = settings.EMAIL_TEST_USER
-    first_name = settings.FIRST_NAME_TEST_USER
-    last_name = settings.LAST_NAME_TEST_USER
-
     data = {"email": email, "username": username, "first_name": 'a'*21, "last_name": last_name, "password": password}
     r = client.post(
         f"/users/",
@@ -69,12 +63,6 @@ def test_create_user_length_name(
 def test_create_user_missing_name(
     client: TestClient, db: Session
 ) -> None:
-    username = settings.USERNAME_TEST_USER
-    password = settings.PASSWORD_TEST_USER
-    email = settings.EMAIL_TEST_USER
-    first_name = settings.FIRST_NAME_TEST_USER
-    last_name = settings.LAST_NAME_TEST_USER
-
     data = {"email": email, "username": username, "last_name": last_name, "password": password}
     r = client.post(
         f"/users/",
@@ -98,11 +86,6 @@ def test_create_user_missing_name(
 def test_create_user_length_pwd(
     client: TestClient, db: Session
 ) -> None:
-    username = settings.USERNAME_TEST_USER
-    email = settings.EMAIL_TEST_USER
-    first_name = settings.FIRST_NAME_TEST_USER
-    last_name = settings.LAST_NAME_TEST_USER
-
     data = {"email": email, "username": username, "first_name": first_name, "last_name": last_name, "password": 'a'}
     r = client.post(
         f"/users/",
@@ -127,12 +110,6 @@ def test_create_user_length_pwd(
 def test_create_user_new_email(
     client: TestClient, db: Session
 ) -> None:
-    username = settings.USERNAME_TEST_USER
-    password = settings.PASSWORD_TEST_USER
-    email = settings.EMAIL_TEST_USER
-    first_name = settings.FIRST_NAME_TEST_USER
-    last_name = settings.LAST_NAME_TEST_USER
-
     data = {"email": email,"username": username, "first_name": first_name, "last_name": last_name, "password": password}
     r = client.post(
         f"/users/",
@@ -147,12 +124,6 @@ def test_create_user_new_email(
 def test_create_user_existing_email(
     client: TestClient, db: Session
 ) -> None:
-    username = settings.USERNAME_TEST_USER
-    password = settings.PASSWORD_TEST_USER
-    email = settings.EMAIL_TEST_USER
-    first_name = settings.FIRST_NAME_TEST_USER
-    last_name = settings.LAST_NAME_TEST_USER
-
     data = {"email": email, "username": username, "first_name": first_name, "last_name": last_name, "password": password}
     r = client.post(
         f"/users/",
@@ -170,12 +141,6 @@ def test_create_user_existing_email(
 def test_create_user_existing_username(
     client: TestClient, db: Session
 ) -> None:
-    username = settings.USERNAME_TEST_USER
-    password = settings.PASSWORD_TEST_USER
-    email = settings.EMAIL_TEST_USER
-    first_name = settings.FIRST_NAME_TEST_USER
-    last_name = settings.LAST_NAME_TEST_USER
-
     data = {"email": email, "username": username, "first_name": first_name, "last_name": last_name, "password": password}
     r = client.post(
         f"/users/",
@@ -198,12 +163,6 @@ def test_create_user_existing_username(
 def test_delete_user(
     client: TestClient, db: Session
 ) -> None:
-    username = settings.USERNAME_TEST_USER
-    password = settings.PASSWORD_TEST_USER
-    email = settings.EMAIL_TEST_USER
-    first_name = settings.FIRST_NAME_TEST_USER
-    last_name = settings.LAST_NAME_TEST_USER
-
     data = {"email": email, "username": username, "first_name": first_name, "last_name": last_name, "password": password}
     r = client.post(
         f"/users/",
@@ -230,3 +189,99 @@ def test_delete_user_not_found(
     assert r.status_code == 404
     assert r.json()["detail"] == "User not found."
 
+def test_get_user_not_found_by_name(
+    client: TestClient, db: Session
+) -> None:
+    r = client.get(
+        f"/users/name/aaaaaaaaaaaaaaaaaaaaa",
+    )
+    
+    assert r.status_code == 404
+    assert r.json()["detail"] == "User not found."
+
+def test_get_user_not_found_by_id(
+    client: TestClient, db: Session
+) -> None:
+    r = client.get(
+        f"/users/99999999",
+    )
+    
+    assert r.status_code == 404
+    assert r.json()["detail"] == "User not found."
+
+def test_get_all_users(
+    client: TestClient, db: Session
+) -> None:
+    user_in = UserCreate(email='test', username='test', first_name='test', last_name='test', password='test_test')
+    crud.user.create_user(session=db, user_create=user_in)
+
+    user_in2 = UserCreate(email='test2', username='test2', first_name='test2', last_name='test2', password='test_test2')
+    crud.user.create_user(session=db, user_create=user_in2)
+
+    r = client.get(
+        "/users/all"
+    )
+
+    all_users = r.json()
+
+    assert len(all_users) > 1
+    for item in all_users:
+        assert "username" in item
+        assert "email" in item
+        assert "first_name" in item
+        assert "last_name" in item
+
+def test_get_user_by_id(
+    client: TestClient, db: Session
+) -> None:
+    user_in = UserCreate(email='test_id', username='test_id', first_name=first_name, last_name=last_name, password=password)
+    crud.user.create_user(session=db, user_create=user_in)
+
+    user = crud.user.get_user_by_name(session=db, name='test_id')
+
+    r = client.get(
+        f'/users/{user.id}'
+    )
+
+    assert r.status_code == 200
+    retrieved_user = r.json()
+    assert retrieved_user
+    assert user.email == retrieved_user["email"]
+    assert user.username == retrieved_user["username"]
+    assert user.first_name == retrieved_user["first_name"]
+    assert user.last_name == retrieved_user["last_name"]
+
+def test_get_user_by_name(
+    client: TestClient, db: Session
+) -> None:
+    user_in = UserCreate(email='testName', username='testName', first_name=first_name, last_name=last_name, password=password)
+    crud.user.create_user(session=db, user_create=user_in)
+
+    user = crud.user.get_user_by_name(session=db, name='testName')
+
+    r = client.get(
+        f'/users/name/{user.username}'
+    )
+
+    assert r.status_code == 200
+    retrieved_user = r.json()
+    assert retrieved_user
+    assert user.email == retrieved_user["email"]
+    assert user.username == retrieved_user["username"]
+    assert user.first_name == retrieved_user["first_name"]
+    assert user.last_name == retrieved_user["last_name"]
+
+def test_get_users_empty(
+    client: TestClient, db: Session
+) -> None:
+    with db.begin_nested():
+        db.execute(text('DELETE FROM user'))
+
+        r = client.get(
+            "/users/all"
+        )
+
+        all_users = r.json()
+
+        assert r.status_code == 200
+        assert all_users == []
