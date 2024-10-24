@@ -20,6 +20,7 @@ def update_user(*, session: Session, user_id: int, user: UserUpdate) -> Any:
         db_user.username = user.username if user.username is not None else db_user.username
         db_user.first_name = user.first_name if user.first_name is not None else db_user.first_name
         db_user.last_name = user.last_name if user.last_name is not None else db_user.last_name
+        db_user.biography = user.biography if user.biography is not None else db_user.biography
         session.commit()
         session.refresh(db_user)
         return db_user
