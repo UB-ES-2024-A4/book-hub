@@ -18,7 +18,8 @@ def check_email_name_length(username: str, first_name: str, last_name: str):
             detail="Username, first name and last name must contain at most 20 characters.",
         )
     
-    if (len(first_name) < 1 or len(last_name) < 1):
+def check_missing_fields(first_name: str, last_name: str):
+    if (not first_name or not last_name):
         raise HTTPException(
             status_code=400,
             detail="First name and last name required.",

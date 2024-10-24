@@ -37,6 +37,8 @@ def create_user(new_user: UserCreate, session: Session = Depends(get_session)):
     
     utils.check_existence_usrname(new_user.username, session)
 
+    utils.check_missing_fields(new_user.first_name, new_user.last_name)
+
     utils.check_email_name_length(new_user.username, new_user.first_name, new_user.last_name)
     
     utils.check_pwd_length(new_user.password)
