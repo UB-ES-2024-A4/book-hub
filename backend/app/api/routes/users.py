@@ -51,21 +51,22 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
     # Get current user
     session_user = crud.user.get_user(session=session, user_id=user_id)
 
+    if not session_user: 
+        raise HTTPException(
+        status_code=404,
+        detail="User not found.",
+    )
+
     # Check if the username is to be updated
     if session_user.username != user.username:
         utils.check_existence_usrname(user.username, session)
     
     utils.check_email_name_length(user.username, user.first_name, user.last_name)
-    
-    utils.check_pwd_length(user.password)
-    
+        
     user = crud.user.update_user(session=session, user_id=user_id, user=user)
     if user:
         return user
-    raise HTTPException(
-        status_code=404,
-        detail="User not found.",
-    )
+    
 
 
 # Endpoint para eliminar un usuario
