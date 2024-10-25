@@ -27,7 +27,8 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, 
     console.log('Saving user data:', editedUser);
     setUserData((prev) => ({
       ...prev,
-      fullName: editedUser.fullName,
+      firstName: editedUser.firstName,
+      lastName: editedUser.lastName,
       username: editedUser.username,
       email: editedUser.email,
       bio: editedUser.bio,
@@ -46,16 +47,20 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, 
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">Full Name</label>
-            <Input id="fullName" name="fullName" value={editedUser.fullName} onChange={handleChange} />
+            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
+            <Input id="firstName" name="firstName" value={editedUser.firstName} onChange={handleChange}/>
+          </div>
+          <div>
+            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
+            <Input id="lastName" name="lastName" value={editedUser.lastName} onChange={handleChange}/>
           </div>
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-            <Input id="username" name="username" value={editedUser.username} onChange={handleChange} />
+            <Input id="username" name="username" value={editedUser.username} onChange={handleChange}/>
           </div>
           <div>
             <label htmlFor="bio" className="block text-sm font-medium text-gray-700">Bio</label>
-            <Textarea id="bio" name="bio" value={editedUser.bio} onChange={handleChange} />
+            <Textarea id="bio" name="bio" value={editedUser.bio} onChange={handleChange}/>
           </div>
         </div>
         <div className="mt-4 flex justify-end space-x-2">

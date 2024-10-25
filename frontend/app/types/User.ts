@@ -1,6 +1,7 @@
 // types/User.ts
 export type User = {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   username: string;
   email: string;
   bio: string;

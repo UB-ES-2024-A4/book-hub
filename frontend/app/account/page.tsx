@@ -5,12 +5,13 @@ import Tabs from "./components/Tabs";
 
 // Mock data for demonstration
 const userDataMock: User = {
-  fullName: "Penny Smith",
+  firstName: "Penny",
+  lastName: "Smith",
   username: "pennyreads",
   email: "penny@example.com",
   bio: "Bookworm and coffee addict. Always looking for the next great read!",
   profilePicture: "/book.jpg",
-  coverPhoto: "/book.jpg",
+  coverPhoto: "/book-signup.jpg",
 }
 
 export default function AccountPage() {
@@ -20,13 +21,13 @@ export default function AccountPage() {
         <Header></Header>
 
         <main className="container mx-auto pt-16 ">
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div className="mx-2 " >
-              <ProfileHeader userData={userDataMock} />
-            </div>
-          <div className="pt-4">
-            <Tabs userData={userDataMock}></Tabs>
-          </div>
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden md:mt-5 md:mx-2 ">
+              <div className="" >
+                  <ProfileHeader userData={userDataMock} />
+              </div>
+              <div className="pt-4">
+                  <Tabs userData={userDataMock}></Tabs>
+              </div>
           </div>
 
         </main>

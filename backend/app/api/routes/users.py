@@ -52,6 +52,7 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
     # Check if the username is to be updated
     if session_user.username != user.username:
         utils.check_existence_usrname(user.username, session)
+
     
     utils.check_email_name_length(user.username, user.first_name, user.last_name)
     

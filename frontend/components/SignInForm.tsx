@@ -8,6 +8,7 @@ import {useForm} from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
 import {signInSchema} from "@/app/lib/zodSchemas";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function SignInForm() {
     // Using useActionState hook to manage the state of CreateUser action
@@ -29,18 +30,18 @@ export default function SignInForm() {
         <div className="w-full h-full  flex flex-col justify-center md:py12 py-4">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
-                    <LibraryBig className="h-12 w-12 text-blue-500"/>
+                    <Image src="/logo.png" alt="Book Image" width={50} height={50} />
                 </div>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-blue-900">
+                <h2 className="mt-6 text-center text-3xl font-extrabold text-blue-500">
                     Sign In
                 </h2>
-                <p className="mt-2 text-center text-sm text-gray-400">
+                <p className="mt-2 text-center text-sm text-gray-500">
                     Please log in to discover and explore your next favorite read
                 </p>
             </div>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-[#1D2B5A] py-8 px-6 shadow rounded-lg ">
+                <div className="bg-[#1D2B5A] py-1 px-6 shadow rounded-lg ">
                     <form className="space-y-6"
                         id={form.id}
                         onSubmit={form.onSubmit}
@@ -91,7 +92,7 @@ export default function SignInForm() {
                         </div>
                     </form>
 
-                    <div className="mt-6">
+                    <div className="mt-6 pb-3">
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-gray-600"></div>
