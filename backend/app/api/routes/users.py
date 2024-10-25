@@ -13,6 +13,16 @@ from app.models.user import (
 from app import crud
 from app import utils
 
+# Imports para profile pictures
+from fastapi import UploadFile, File
+from fastapi.responses import FileResponse
+from pathlib import Path
+import os
+
+# Directorio para guardar las imágenes
+UPLOAD_DIR = Path("profile_pictures")
+UPLOAD_DIR.mkdir(exist_ok=True)
+
 router = APIRouter()
 
 # Endpoint para obtener el primer usuario
@@ -110,3 +120,39 @@ def login_user(userLogin : UserLogin, session: Session = Depends(get_session)):
         return Token(acces_token=create_access_token(user.id))
     else: 
         raise HTTPException(status_code=400, detail="Password incorrect.")
+    
+
+@router.put("/pfp/{username}")
+async def update_profile_picture(username: str, file: UploadFile = File(...)):
+    # Validar formato de archivo
+    if not file.filename.endswith(("jpg", "jpeg", "png")):
+        raise HTTPException(status_code=400, detail="Invalid file format. Only jpg, jpeg, and png are allowed.")
+    
+    # Definir la ruta del archivo a guardar
+    file_path = UPLOAD_DIR / f"{username}.{file.filename.split('.')[-1]}"
+    # Guardar la imagen en el directorio
+    with file_path.open("wb") as buffer:
+        buffer.write(await file.read())
+
+    return {"message": "Profile picture updated successfully", "file_path": str(file_path)}
+
+@router.get("/pfp/{username}")
+async def get_profile_picture(username: str):    
+    # Buscar la imagen del perfil del usuario
+    for ext in ["jpg", "jpeg", "png"]:
+        file_path = UPLOAD_DIR / f"{username}.{ext}"
+        if file_path.exists():
+            return FileResponse(path=str(file_path))
+    
+    raise HTTPException(status_code=404, detail="Profile picture not found")
+
+@router.delete("/pfp/{username}")
+async def delete_profile_picture(username: str):
+    # Buscar y eliminar la imagen del perfil del usuario
+    for ext in ["jpg", "jpeg", "png"]:
+        file_path = UPLOAD_DIR / f"{username}.{ext}"
+        if file_path.exists():
+            os.remove(file_path)
+            return {"message": "Profile picture deleted successfully"}
+    
+    raise HTTPException(status_code=404, detail="Profile picture not found")
