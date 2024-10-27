@@ -45,6 +45,13 @@ class Settings(BaseSettings):
     TOKEN_EXPIRE_TIME: int = 60 * 24 * 2
     SECRET_KEY: str = secrets.token_urlsafe(32)
 
+    # Parameters for the tests
+    EMAIL_TEST_USER: str = "test@example.com"
+    USERNAME_TEST_USER: str = "test_user"
+    FIRST_NAME_TEST_USER: str = "test"
+    LAST_NAME_TEST_USER: str = "test"
+    PASSWORD_TEST_USER: str = "password"
+
     @computed_field  # type: ignore[misc]
     @property
     def SQLALCHEMY_URI(self) -> MySQLDsn:
