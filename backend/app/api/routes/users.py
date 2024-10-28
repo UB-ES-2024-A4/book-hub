@@ -31,7 +31,7 @@ router = APIRouter()
 def get_first_user(session: Session = Depends(get_session)):
     result = crud.user.get_user(session=session, user_id=1)
     if result:
-        return {"username": result.username}
+        return {"user_id": result.user_id}
     return {"error": "No users found"}
 
 # Endpoint para obtener todos los usuarios
@@ -45,9 +45,9 @@ def get_all_users(session: Session = Depends(get_session)):
 def create_user(new_user: UserCreate, session: Session = Depends(get_session)):
     utils.check_existence_email(new_user.email, session)
     
-    utils.check_existence_usrname(new_user.username, session)
+    utils.check_existence_usrname(new_user.user_id, session)
 
-    utils.check_email_name_length(new_user.username, new_user.first_name, new_user.last_name)
+    utils.check_email_name_length(new_user.user_id, new_user.first_name, new_user.last_name)
     
     utils.check_pwd_length(new_user.password)
     
@@ -59,11 +59,11 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
     # Get current user
     session_user = crud.user.get_user(session=session, user_id=user_id)
 
-    # Check if the username is to be updated
-    if session_user.username != user.username:
-        utils.check_existence_usrname(user.username, session)
+    # Check if the user_id is to be updated
+    if session_user.user_id != user.user_id:
+        utils.check_existence_usrname(user.user_id, session)
     
-    utils.check_email_name_length(user.username, user.first_name, user.last_name)
+    utils.check_email_name_length(user.user_id, user.first_name, user.last_name)
     
     utils.check_pwd_length(user.password)
     
@@ -97,7 +97,6 @@ def get_user_by_name(name: str, session: Session = Depends(get_session)):
         return user
     return {"error": "User not found"}
 
-
 # Login
 @router.post("/login")
 def login_user(userLogin : UserLogin, session: Session = Depends(get_session)):
@@ -106,51 +105,54 @@ def login_user(userLogin : UserLogin, session: Session = Depends(get_session)):
     
     user : User = None
 
-    if userLogin.username:
-        user = session.exec(select(User).where(User.username == userLogin.username)).first()
+    if userLogin.user_id:
+        user = session.exec(select(User).where(User.user_id == userLogin.user_id)).first()
     elif userLogin.email:
         user = session.exec(select(User).where(User.email == userLogin.email)).first()
     else:
-        raise HTTPException(status_code=400, detail="Username or email has to be provided.")
+        raise HTTPException(status_code=400, detail="user_id or email has to be provided.")
     
     if not user:
-        raise HTTPException(status_code=400, detail="User with this email or username do not exists.")
+        raise HTTPException(status_code=400, detail="User with this email or user_id do not exists.")
 
     if user.password == userLogin.password:
         return Token(acces_token=create_access_token(user.id))
     else: 
         raise HTTPException(status_code=400, detail="Password incorrect.")
-    
 
-@router.put("/pfp/{username}")
-async def update_profile_picture(username: str, file: UploadFile = File(...)):
+
+# These are the endpoints of profile picture, that now are stored in the backend api server.
+# When we perform deployment these methods will be erased and the requests go directly to the storage server (Azure) 
+
+@router.put("/pfp/{user_id}")
+async def update_profile_picture(user_id: int, file: UploadFile = File(...)):
     # Validar formato de archivo
     if not file.filename.endswith(("jpg", "jpeg", "png")):
         raise HTTPException(status_code=400, detail="Invalid file format. Only jpg, jpeg, and png are allowed.")
     
     # Definir la ruta del archivo a guardar
-    file_path = UPLOAD_DIR / f"{username}.{file.filename.split('.')[-1]}"
+    file_path = UPLOAD_DIR / f"{user_id}.{file.filename.split('.')[-1]}"
     # Guardar la imagen en el directorio
     with file_path.open("wb") as buffer:
         buffer.write(await file.read())
 
     return {"message": "Profile picture updated successfully", "file_path": str(file_path)}
 
-@router.get("/pfp/{username}")
-async def get_profile_picture(username: str):    
+@router.get("/pfp/{user_id}")
+async def get_profile_picture(user_id: int):    
     # Buscar la imagen del perfil del usuario
     for ext in ["jpg", "jpeg", "png"]:
-        file_path = UPLOAD_DIR / f"{username}.{ext}"
+        file_path = UPLOAD_DIR / f"{user_id}.{ext}"
         if file_path.exists():
             return FileResponse(path=str(file_path))
     
     raise HTTPException(status_code=404, detail="Profile picture not found")
 
-@router.delete("/pfp/{username}")
-async def delete_profile_picture(username: str):
+@router.delete("/pfp/{user_id}")
+async def delete_profile_picture(user_id: int):
     # Buscar y eliminar la imagen del perfil del usuario
     for ext in ["jpg", "jpeg", "png"]:
-        file_path = UPLOAD_DIR / f"{username}.{ext}"
+        file_path = UPLOAD_DIR / f"{user_id}.{ext}"
         if file_path.exists():
             os.remove(file_path)
             return {"message": "Profile picture deleted successfully"}
