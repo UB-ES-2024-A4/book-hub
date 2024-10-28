@@ -33,3 +33,6 @@ debug.log
 # Archivos de empaquetado
 *.zip
 *.tar.gz
+
+# Carpeta temporal de profile_pictures
+backend/profile_pictures/
