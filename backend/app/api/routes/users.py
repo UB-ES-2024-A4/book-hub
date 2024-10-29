@@ -1,15 +1,15 @@
+from typing import Any
 from fastapi import APIRouter
-from fastapi import Depends, HTTPException
-from sqlmodel import Session, select
+from fastapi import Depends
+from sqlmodel import Session
 from app.core.database import get_session
-from app.core.security import create_access_token
 from app.models.user import (
     User,
     UserCreate,
     UserUpdate,
-    UserLogin,
-    Token
+    UserOut
 )
+from app.api.deps import get_current_user
 from app import crud
 from app import utils
 
@@ -17,12 +17,17 @@ router = APIRouter()
 
 # Endpoint para obtener el primer usuario
 # Este es un endpoint dummy, para probar que la API funciona.
-@router.get("/")
+@router.get("/", response_model=UserOut)
 def get_first_user(session: Session = Depends(get_session)):
     result = crud.user.get_user(session=session, user_id=1)
     if result:
         return {"username": result.username}
     return {"error": "No users found"}
+
+@router.get("/me")
+def read_user_me(current_user: User = Depends(get_current_user)) -> Any:
+    # Get current user.
+    return current_user
 
 # Endpoint para obtener todos los usuarios
 @router.get("/all")
@@ -86,27 +91,3 @@ def get_user_by_name(name: str, session: Session = Depends(get_session)):
     if user:
         return user
     return {"error": "User not found"}
-
-
-# Login
-@router.post("/login")
-def login_user(userLogin : UserLogin, session: Session = Depends(get_session)):
-    
-    # TODO: Password encryption
-    
-    user : User = None
-
-    if userLogin.username:
-        user = session.exec(select(User).where(User.username == userLogin.username)).first()
-    elif userLogin.email:
-        user = session.exec(select(User).where(User.email == userLogin.email)).first()
-    else:
-        raise HTTPException(status_code=400, detail="Username or email has to be provided.")
-    
-    if not user:
-        raise HTTPException(status_code=400, detail="User with this email or username do not exists.")
-
-    if user.password == userLogin.password:
-        return Token(acces_token=create_access_token(user.id))
-    else: 
-        raise HTTPException(status_code=400, detail="Password incorrect.")

@@ -4,6 +4,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { signInSchema, signUpSchema } from "@/app/lib/zodSchemas";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 
 export async function CreateUser(prevState: unknown, formData: FormData) {
@@ -58,12 +59,17 @@ export async function SignIn(prevState: unknown, formData: FormData) {
     let redirectPath: string | null = null
 
     try {
-        // Convert formData to JSON
-        const data = Object.fromEntries(formData);
-        const response = await fetch('http://localhost:8000/users/login', {
+        // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
+        const data = new URLSearchParams();
+        data.append("username", formData.get("email"));
+        data.append("password", formData.get("password"));
+        
+        const response = await fetch('http://localhost:8000/login/access-token', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: data.toString(),  // Use URL-encoded string
         });
         
         // Handle the backend's response
@@ -71,7 +77,22 @@ export async function SignIn(prevState: unknown, formData: FormData) {
             const errorMessage = await response.text();
             throw new Error(errorMessage || "LogIn failed");
         }
-        redirectPath = '/home'; // Redirect upon successful logIn
+
+        const responseData = await response.json();
+        const { access_token, token_type } = responseData;
+
+        // Set the access token in an HTTP-only cookie
+        cookies().set({
+            name: 'accessToken',
+            value: access_token,
+            httpOnly: true, // Ensures the cookie is only accessible by the server
+            secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
+            maxAge: 60 * 60 * 24, // 1 day
+            path: '/',
+        });
+        
+        // Redirect upon successful logIn
+        redirectPath = '/home';
 
     } catch (error) {
         console.error("Error:", error);
