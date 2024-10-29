@@ -15,12 +15,16 @@ export async function CreateUser(prevState: unknown, formData: FormData) {
     if (submission.status !== "success") {
         return submission.reply();
     }
+
+    console.log(submission);
+    console.log(formData);
+
     let redirectPath: string | null = null
 
     try {
         // Convert formData to JSON
         const data = Object.fromEntries(formData);
-        const response = await fetch('http://localhost:8000/users/', {
+        const response = await fetch('http://127.0.0.1:8000/users/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -61,10 +65,10 @@ export async function SignIn(prevState: unknown, formData: FormData) {
     try {
         // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
         const data = new URLSearchParams();
-        data.append("username", formData.get("email"));
-        data.append("password", formData.get("password"));
+        data.append("username", formData.get("user") as string);
+        data.append("password", formData.get("password") as string);
         
-        const response = await fetch('http://localhost:8000/login/access-token', {
+        const response = await fetch('http://127.0.0.1:8000/users/login/access-token', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

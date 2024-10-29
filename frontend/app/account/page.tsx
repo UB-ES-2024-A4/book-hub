@@ -22,7 +22,7 @@ const AccountPage = async () => {
     let error: string | null = null;
 
     try {
-        const response = await fetch("http://localhost:8000/users/me", {
+        const response = await fetch("http://127.0.0.1:8000/users/me", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
@@ -42,7 +42,7 @@ const AccountPage = async () => {
             fullName: `${userData.first_name} ${userData.last_name}`,
             username: userData.username,
             email: userData.email,
-            bio: "Este lunes, me voy para el balón de oro",
+            bio: userData.biography ?? "Add your bio!",
             profilePicture: "/vini.jpg",
             coverPhoto: "/book.jpg",
         };

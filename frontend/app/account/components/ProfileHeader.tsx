@@ -35,7 +35,7 @@ export default function ProfileHeader({ userData }: PropsUser) {
                           <p className="mt-2 text-gray-700">{userDataMock.bio}</p>
                       </div>
                       <div className="flex flex-col space-y-2 lg:items-end ">
-                          <Button className="w-full lg:w-auto">Follow</Button>
+                          {/* <Button className="w-full lg:w-auto">Follow</Button> */}
                           <Button variant="outline" onClick={handleEdit} className="w-full lg:w-auto">
                               <Edit2 className="mr-2 h-4 w-4"/> Edit Profile
                           </Button>
