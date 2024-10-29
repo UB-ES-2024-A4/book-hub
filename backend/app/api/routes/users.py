@@ -132,6 +132,16 @@ async def update_profile_picture(user_id: int, file: UploadFile = File(...)):
 
     # Definir la ruta del archivo a guardar
     file_path = UPLOAD_DIR / f"{user_id}.{file.filename.split('.')[-1]}"
+
+    if file_path.exists():
+        os.remove(file_path)
+    else:
+        #Verificar todas las demás extensiones
+        for ext in ["jpg", "jpeg", "png"]:
+            file_path = UPLOAD_DIR / f"{user_id}.{ext}"
+            if file_path.exists():
+                os.remove(file_path)
+
     # Guardar la imagen en el directorio
     with file_path.open("wb") as buffer:
         buffer.write(await file.read())

@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import {User} from "@/app/types/User";
 import ProfileHeader from "@/app/account/components/ProfileHeader";
-import Tabs from "./components/Tabs";
+//import Tabs from "./components/Tabs";
 
 // Mock data for demonstration
 const userDataMock: User = {
@@ -27,7 +27,7 @@ export default function AccountPage() {
                   <ProfileHeader userData={userDataMock} />
               </div>
               <div className="pt-4">
-                  <Tabs userData={userDataMock}></Tabs>
+                  {/* <Tabs userData={userDataMock}></Tabs>*/}
               </div>
           </div>
 

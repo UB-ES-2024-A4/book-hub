@@ -1,11 +1,11 @@
 // types/User.ts
 export type User = {
-  id?: number;
+  id: number;
   firstName: string;
   lastName: string;
   username: string;
   email: string;
   bio: string;
-  profilePicture: string | null;
+  profilePicture: string;
   coverPhoto: string | null;
 };

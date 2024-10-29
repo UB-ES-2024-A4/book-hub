@@ -4,8 +4,19 @@ from .api.main import api_router
 from .core.config import settings
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI(title=settings.APP_NAME)
+
+# Allow all origins for simplicity, but you should restrict this in production
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Crear la base de datos y las tablas
 def on_startup():

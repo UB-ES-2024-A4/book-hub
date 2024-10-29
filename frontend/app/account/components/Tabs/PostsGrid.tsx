@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { Heart, MessageCircle } from 'lucide-react';
-import PostDialog from "@/app/account/components/PostDialog";
+import PostDialog from "@/app/account/components/Dialogs/PostDialog";
 import React, {useState} from "react";
 import {Post} from "@/app/types/Post";
 import {PropsUser} from "@/app/types/PropsUser";
