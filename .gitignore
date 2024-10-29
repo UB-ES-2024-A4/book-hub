@@ -33,3 +33,5 @@ debug.log
 # Archivos de empaquetado
 *.zip
 *.tar.gz
+
+backend/.coverage
