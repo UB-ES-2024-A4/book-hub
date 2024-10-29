@@ -5,6 +5,7 @@ import Tabs from "./components/Tabs";
 
 // Mock data for demonstration
 const userDataMock: User = {
+    id: 1,
   firstName: "Penny",
   lastName: "Smith",
   username: "pennyreads",

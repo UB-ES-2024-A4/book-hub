@@ -31,7 +31,7 @@ router = APIRouter()
 def get_first_user(session: Session = Depends(get_session)):
     result = crud.user.get_user(session=session, user_id=1)
     if result:
-        return {"user_id": result.user_id}
+        return {"user_id": result.id}
     return {"error": "No users found"}
 
 # Endpoint para obtener todos los usuarios
@@ -45,9 +45,9 @@ def get_all_users(session: Session = Depends(get_session)):
 def create_user(new_user: UserCreate, session: Session = Depends(get_session)):
     utils.check_existence_email(new_user.email, session)
     
-    utils.check_existence_usrname(new_user.user_id, session)
+    utils.check_existence_usrname(new_user.id, session)
 
-    utils.check_email_name_length(new_user.user_id, new_user.first_name, new_user.last_name)
+    utils.check_email_name_length(new_user.id, new_user.first_name, new_user.last_name)
     
     utils.check_pwd_length(new_user.password)
     
@@ -60,10 +60,10 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
     session_user = crud.user.get_user(session=session, user_id=user_id)
 
     # Check if the user_id is to be updated
-    if session_user.user_id != user.user_id:
-        utils.check_existence_usrname(user.user_id, session)
+    if session_user.id != user.id:
+        utils.check_existence_usrname(user.id, session)
     
-    utils.check_email_name_length(user.user_id, user.first_name, user.last_name)
+    utils.check_email_name_length(user.id, user.first_name, user.last_name)
     
     utils.check_pwd_length(user.password)
     
@@ -106,7 +106,7 @@ def login_user(userLogin : UserLogin, session: Session = Depends(get_session)):
     user : User = None
 
     if userLogin.user_id:
-        user = session.exec(select(User).where(User.user_id == userLogin.user_id)).first()
+        user = session.exec(select(User).where(User.id == userLogin.id)).first()
     elif userLogin.email:
         user = session.exec(select(User).where(User.email == userLogin.email)).first()
     else:
