@@ -403,3 +403,82 @@ def test_get_users_empty(
         assert all_users == []
     finally:
         db.rollback()
+
+def test_login_user_by_email(
+    client: TestClient, db: Session
+) -> None:
+    user_in = UserCreate(email='login_email', username='login_email', first_name=first_name, last_name=last_name, password=password)
+    crud.user.create_user(session=db, user_create=user_in)
+
+    data = {"username": 'login_email', "password": password}
+
+    r = client.post(
+        f"/users/login",
+        json=data,
+    )
+
+    assert r.status_code == 200
+    logged_user = r.json()
+    assert logged_user['acces_token']
+
+def test_login_user_by_username(
+    client: TestClient, db: Session
+) -> None:
+    user_in = UserCreate(email='login_username', username='login_username', first_name=first_name, last_name=last_name, password=password)
+    crud.user.create_user(session=db, user_create=user_in)
+
+    data = {"username": 'login_username', "password": password}
+
+    r = client.post(
+        f"/users/login",
+        json=data,
+    )
+
+    assert r.status_code == 200
+    logged_user = r.json()
+    assert logged_user['acces_token']
+
+def test_login_user_missing_fields(
+    client: TestClient, db: Session
+) -> None:
+    data = {"password": password}
+
+    r = client.post(
+        f"/users/login",
+        json=data,
+    )
+
+    assert r.status_code == 400
+    logged_user = r.json()
+    assert logged_user['detail'] == 'Username or email has to be provided.'
+
+def test_login_user_not_found(
+    client: TestClient, db: Session
+) -> None:
+    data = {"username": 'NO', "email": 'NO', "password": password}
+
+    r = client.post(
+        f"/users/login",
+        json=data,
+    )
+
+    assert r.status_code == 400
+    logged_user = r.json()
+    assert logged_user['detail'] == 'User with this email or username do not exists.'
+
+def test_login_user_incorrect_pwd(
+    client: TestClient, db: Session
+) -> None:
+    user_in = UserCreate(email='login_pwd', username='login_pwd', first_name=first_name, last_name=last_name, password=password)
+    crud.user.create_user(session=db, user_create=user_in)
+
+    data = {"username": 'login_pwd', "email": 'login_pwd', "password": 'incorrect'}
+
+    r = client.post(
+        f"/users/login",
+        json=data,
+    )
+
+    assert r.status_code == 400
+    logged_user = r.json()
+    assert logged_user['detail'] == 'Password incorrect.'
