@@ -1,5 +1,5 @@
 "use client";
-import { Lock, Mail, User, LibraryBig } from "lucide-react";
+import { Lock, LibraryBig, User2 } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
 import { CreateUser, SignIn } from "@/app/actions";
@@ -47,22 +47,22 @@ export default function SignInForm() {
                         action={action}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                                Email address
+                                Email or Username
                             </label>
                             <div className="mt-1">
                                 <InputAuth
-                                    key={fields.email.key}
-                                    name={fields.email.name}
-                                    defaultValue={fields.email.initialValue}
-                                    id="email"
-                                    type="email"
+                                    key={fields.user.key}
+                                    name={fields.user.name}
+                                    defaultValue={fields.user.initialValue}
+                                    id="user"
+                                    type="text"
                                     autoComplete="email"
-                                    icon={Mail}
+                                    icon={User2}
                                     placeholder="zoro3@gmail.com"
                                 />
                             </div>
                             <p className="pt-2 text-red-500 text-sm"
-                            >{fields.email.errors}</p>
+                            >{fields.user.errors}</p>
                         </div>
 
                         <div>
