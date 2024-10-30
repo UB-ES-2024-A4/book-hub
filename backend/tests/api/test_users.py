@@ -413,13 +413,13 @@ def test_login_user_by_email(
     data = {"username": 'login_email', "password": password}
 
     r = client.post(
-        f"/users/login",
-        json=data,
+        f"/users/login/access-token",
+        data=data,
     )
 
     assert r.status_code == 200
     logged_user = r.json()
-    assert logged_user['acces_token']
+    assert "access_token" in logged_user
 
 def test_login_user_by_username(
     client: TestClient, db: Session
@@ -430,13 +430,13 @@ def test_login_user_by_username(
     data = {"username": 'login_username', "password": password}
 
     r = client.post(
-        f"/users/login",
-        json=data,
+        f"/users/login/access-token",
+        data=data,
     )
 
     assert r.status_code == 200
     logged_user = r.json()
-    assert logged_user['acces_token']
+    assert "access_token" in logged_user
 
 def test_login_user_missing_fields(
     client: TestClient, db: Session
@@ -444,13 +444,13 @@ def test_login_user_missing_fields(
     data = {"password": password}
 
     r = client.post(
-        f"/users/login",
-        json=data,
+        f"/users/login/access-token",
+        data=data,
     )
 
-    assert r.status_code == 400
+    assert r.status_code == 422
     logged_user = r.json()
-    assert logged_user['detail'] == 'Username or email has to be provided.'
+    assert logged_user['detail'][0]['msg'] == 'Field required'
 
 def test_login_user_not_found(
     client: TestClient, db: Session
@@ -458,13 +458,13 @@ def test_login_user_not_found(
     data = {"username": 'NO', "email": 'NO', "password": password}
 
     r = client.post(
-        f"/users/login",
-        json=data,
+        f"/users/login/access-token",
+        data=data,
     )
 
     assert r.status_code == 400
     logged_user = r.json()
-    assert logged_user['detail'] == 'User with this email or username do not exists.'
+    assert logged_user['detail'] == 'Either a user with this email or username does not exist or the password is incorrect.'
 
 def test_login_user_incorrect_pwd(
     client: TestClient, db: Session
@@ -475,10 +475,10 @@ def test_login_user_incorrect_pwd(
     data = {"username": 'login_pwd', "email": 'login_pwd', "password": 'incorrect'}
 
     r = client.post(
-        f"/users/login",
-        json=data,
+        f"/users/login/access-token",
+        data=data,
     )
 
     assert r.status_code == 400
     logged_user = r.json()
-    assert logged_user['detail'] == 'Password incorrect.'
+    assert logged_user['detail'] == 'Either a user with this email or username does not exist or the password is incorrect.'

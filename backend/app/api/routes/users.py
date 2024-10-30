@@ -124,7 +124,7 @@ def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sessi
     )
     
     if not user:
-        raise HTTPException(status_code=400, detail="User with this email or username do not exists.")
+        raise HTTPException(status_code=400, detail="Either a user with this email or username does not exist or the password is incorrect.")
     
     access_token_expires = timedelta(minutes=settings.TOKEN_EXPIRE_TIME)
     
