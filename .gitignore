@@ -36,3 +36,4 @@ debug.log
 
 # Carpeta temporal de profile_pictures
 backend/profile_pictures/
+backend/.coverage
