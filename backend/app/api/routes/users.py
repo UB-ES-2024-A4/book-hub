@@ -1,28 +1,38 @@
-from fastapi import APIRouter
-from fastapi import Depends, HTTPException
-from sqlmodel import Session, select
-from app.core.database import get_session
+from typing import Any, Annotated
 from app.core.security import create_access_token
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import (APIRouter, HTTPException, Depends)
+from sqlmodel import Session
+from datetime import timedelta
+
+from app.core.database import get_session
+from app.core.config import settings
 from app.models.user import (
+    Token,
     User,
     UserCreate,
     UserUpdate,
-    UserLogin,
-    Token
+    UserOut,
+    UserLogin
 )
-from app import crud
-from app import utils
+from app.api.deps import get_current_user
+from app import crud, utils
 
 router = APIRouter()
 
 # Endpoint para obtener el primer usuario
 # Este es un endpoint dummy, para probar que la API funciona.
-@router.get("/")
+@router.get("/", response_model=UserOut)
 def get_first_user(session: Session = Depends(get_session)):
     result = crud.user.get_user(session=session, user_id=1)
     if result:
         return {"username": result.username}
     return {"error": "No users found"}
+
+@router.get("/me")
+def read_user_me(current_user: User = Depends(get_current_user)) -> Any:
+    # Get current user.
+    return current_user
 
 # Endpoint para obtener todos los usuarios
 @router.get("/all")
@@ -104,24 +114,23 @@ def get_user_by_name(name: str, session: Session = Depends(get_session)):
 
 
 # Login
-@router.post("/login")
-def login_user(userLogin : UserLogin, session: Session = Depends(get_session)):
+@router.post("/login/access-token")
+def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: Session = Depends(get_session)) -> Token:
     
     # TODO: Password encryption
-    
-    user : User = None
 
-    if userLogin.username:
-        user = session.exec(select(User).where(User.username == userLogin.username)).first()
-    elif userLogin.email:
-        user = session.exec(select(User).where(User.email == userLogin.email)).first()
-    else:
-        raise HTTPException(status_code=400, detail="Username or email has to be provided.")
+    user = crud.user.authenticate(
+        session=session, email=form_data.username, password=form_data.password
+    )
     
     if not user:
-        raise HTTPException(status_code=400, detail="User with this email or username do not exists.")
-
-    if user.password == userLogin.password:
-        return Token(acces_token=create_access_token(user.id))
-    else: 
-        raise HTTPException(status_code=400, detail="Password incorrect.")
+        raise HTTPException(status_code=400, detail="Either a user with this email or username does not exist or the password is incorrect.")
+    
+    access_token_expires = timedelta(minutes=settings.TOKEN_EXPIRE_TIME)
+    
+    return Token(
+        access_token=create_access_token(
+            user.id,
+            expires_delta=access_token_expires
+            )
+        )

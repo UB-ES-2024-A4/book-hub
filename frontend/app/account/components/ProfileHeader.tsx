@@ -20,10 +20,10 @@ export default function ProfileHeader({ userData }: PropsUser) {
       <div>
           <div className="bg-white shadow-lg rounded-lg overflow-hidden">
               <div className="relative">
-                  <Image src={userDataMock.coverPhoto || "book.jpeg"} alt="Cover" width={500} height={200}
+                  <Image src={userDataMock.coverPhoto || "/book.jpeg"} alt="Cover" width={500} height={200}
                          className="w-full h-48 object-cover"/>
                   <div className="absolute bottom-0 left-8 transform translate-y-1/2">
-                      <Image src={userDataMock.profilePicture || "book.jpeg"} alt={userDataMock.fullName} width={100} height={100}
+                      <Image src={userDataMock.profilePicture || "/book.jpeg"} alt={userDataMock.fullName} width={100} height={100}
                            className="w-24 h-24 rounded-full border-4 border-white"/>
                   </div>
               </div>
@@ -35,7 +35,7 @@ export default function ProfileHeader({ userData }: PropsUser) {
                           <p className="mt-2 text-gray-700">{userDataMock.bio}</p>
                       </div>
                       <div className="flex flex-col space-y-2 lg:items-end ">
-                          <Button className="w-full lg:w-auto">Follow</Button>
+                          {/* <Button className="w-full lg:w-auto">Follow</Button> */}
                           <Button variant="outline" onClick={handleEdit} className="w-full lg:w-auto">
                               <Edit2 className="mr-2 h-4 w-4"/> Edit Profile
                           </Button>

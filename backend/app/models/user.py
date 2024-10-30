@@ -20,8 +20,12 @@ class UserCreate(UserBase):
     password: str
 
 class Token(SQLModel):
-    acces_token: str
+    access_token: str
     token_type: str = "bearer"
+    
+# Contents of JWT token
+class TokenPayload(SQLModel):
+    sub: int | None = None
 
 class UserLogin(SQLModel):
     username: str | None = None
