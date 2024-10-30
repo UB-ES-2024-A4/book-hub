@@ -135,3 +135,5 @@ export async function fetchProfilePictureA(userId: number): Promise<string> {
           console.error("Failed to upload the image", error);
         }
   }
+
+
