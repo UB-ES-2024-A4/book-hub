@@ -8,6 +8,7 @@ import {parseWithZod} from "@conform-to/zod";
 import {signUpSchema} from "@/app/lib/zodSchemas";
 import Link from "next/link";
 import { useFormState } from "react-dom";
+import Image from "next/image"
 
 export default function SignUpForm() {
     // Using useActionState hook to manage the state of CreateUser action
@@ -29,18 +30,18 @@ export default function SignUpForm() {
         <div className="w-full h-full  flex flex-col justify-center md:py12 py-4">
                     <div className="sm:mx-auto sm:w-full sm:max-w-md">
                         <div className="flex justify-center">
-                            <LibraryBig className="h-12 w-12 text-blue-500"/>
+                            <Image src="/logo.png" alt="Book Image" width={50} height={50} />
                         </div>
-                        <h2 className="mt-6 text-center text-3xl font-extrabold text-blue-900">
+                        <h2 className="mt-6 text-center text-3xl font-extrabold text-blue-500">
                             Join BookHub
                         </h2>
-                        <p className="mt-2 text-center text-sm text-gray-400">
+                        <p className="mt-2 text-center text-sm text-gray-500">
                             Your personal book community awaits!
                         </p>
                     </div>
 
                     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                        <div className="bg-[#1D2B5A] py-8 px-6 shadow rounded-lg ">
+                        <div className="bg-[#1D2B5A] pt-8 pb-4 px-6 shadow rounded-lg ">
                             <form className="space-y-6"
                                   id={form.id}
                                   onSubmit={form.onSubmit}
@@ -138,7 +139,7 @@ export default function SignUpForm() {
                                 </div>
                                 <div>
                                     <Button type="submit"
-                                            className="w-full px-4 py-2 bg-blue-500 text-white rounded-md border-2
+                                            className="w-full mt-2 px-4 py-2 bg-blue-500 text-white rounded-md border-2
                                             border-gray-300 hover:bg-blue-600
                                              ">
                                         Sign up

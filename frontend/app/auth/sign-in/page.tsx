@@ -12,15 +12,15 @@ export default function SignInPage() {
                   {/* Image Container */}
                   <div className="relative w-full md:w-1/2 h-52 md:h-auto md:border-r border-gray-200">
                       <Image
-                          src="/book-signin.jpg"
-                          alt="Coffee Book"
+                          src="/book-blue.png"
+                          alt="Book Image"
                           fill
                           style={{ objectFit: 'cover'}}
                       />
                   </div>
 
                   {/* SignIn Form Container */}
-                  <div className="w-full px-1 md:w-1/2 p-6 md:p-8">
+                  <div className="w-full px-1 md:w-1/2 p-6 md:px-8">
                       <SignInForm/>
                   </div>
               </div>

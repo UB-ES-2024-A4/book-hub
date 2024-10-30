@@ -39,7 +39,9 @@ const AccountPage = async () => {
 
         // Create user object if user data is successfully fetched
         user = {
-            fullName: `${userData.first_name} ${userData.last_name}`,
+            id: userData.id,
+            firstName: `${userData.first_name}`,
+            lastName: `${userData.last_name}`,
             username: userData.username,
             email: userData.email,
             bio: userData.biography ?? "Add your bio!",
