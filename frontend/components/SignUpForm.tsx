@@ -3,12 +3,12 @@ import { Lock, Mail, User, LibraryBig } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
 import { CreateUser } from "@/app/actions";
-import { useFormState  } from 'react-dom';
-import {useForm} from "@conform-to/react";
+import { useForm } from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
 import {signUpSchema} from "@/app/lib/zodSchemas";
 import Link from "next/link";
-import Image from "next/image";
+import { useFormState } from "react-dom";
+import Image from "next/image"
 
 export default function SignUpForm() {
     // Using useActionState hook to manage the state of CreateUser action
@@ -25,7 +25,7 @@ export default function SignUpForm() {
         shouldRevalidate: "onInput", // Revalidate when the user inputs or modifies the form
     });
 
-
+    
     return (
         <div className="w-full h-full  flex flex-col justify-center md:py12 py-4">
                     <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -41,7 +41,7 @@ export default function SignUpForm() {
                     </div>
 
                     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                        <div className="bg-[#1D2B5A] pt-4 pb-4 px-6 shadow rounded-lg ">
+                        <div className="bg-[#1D2B5A] pt-8 pb-4 px-6 shadow rounded-lg ">
                             <form className="space-y-6"
                                   id={form.id}
                                   onSubmit={form.onSubmit}
@@ -72,15 +72,15 @@ export default function SignUpForm() {
                                         </label>
                                         <div className="mt-1 mr-1">
                                             <InputAuth
-                                                key={fields.firstName.key}
-                                                name={fields.firstName.name}
-                                                defaultValue={fields.firstName.initialValue}
+                                                key={fields.first_name.key}
+                                                name={fields.first_name.name}
+                                                defaultValue={fields.first_name.initialValue}
                                                 id="username" type="text" icon={User}
                                                 placeholder="Zoro"
                                             />
                                         </div>
                                         <p className="pt-2 text-red-500 text-sm"
-                                        >{fields.firstName.errors}</p>
+                                        >{fields.first_name.errors}</p>
                                     </div>
 
                                     <div>
@@ -89,15 +89,15 @@ export default function SignUpForm() {
                                         </label>
                                         <div className="mt-1">
                                             <InputAuth
-                                                key={fields.lastName.key}
-                                                name={fields.lastName.name}
-                                                defaultValue={fields.lastName.initialValue}
+                                                key={fields.last_name.key}
+                                                name={fields.last_name.name}
+                                                defaultValue={fields.last_name.initialValue}
                                                 id="username" type="text" icon={User}
                                                 placeholder="Roronoa"
                                             />
                                         </div>
                                         <p className="pt-2 text-red-500 text-sm"
-                                        >{fields.lastName.errors}</p>
+                                        >{fields.last_name.errors}</p>
                                     </div>
                                 </div>
 

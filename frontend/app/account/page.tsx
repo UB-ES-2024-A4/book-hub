@@ -1,37 +1,80 @@
+"use server";
+
+import { cookies } from 'next/headers';
 import Header from "@/components/Header";
-import {User} from "@/app/types/User";
 import ProfileHeader from "@/app/account/components/ProfileHeader";
-//import Tabs from "./components/Tabs";
+import Tabs from "./components/Tabs";
+import { User } from "@/app/types/User";
+import { redirect } from "next/navigation";
 
-// Mock data for demonstration
-const userDataMock: User = {
-    id: 1,
-  firstName: "Penny",
-  lastName: "Smith",
-  username: "pennyreads",
-  email: "penny@example.com",
-  bio: "Bookworm and coffee addict. Always looking for the next great read!",
-  profilePicture: "/book.jpg",
-  coverPhoto: "/book-signup.jpg",
-}
+const AccountPage = async () => {
+    const cookieStore = cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
 
-export default function AccountPage() {
+    if (!accessToken) {
+        // Redirect to sign-in if no access token is found
+        redirect('/auth/sign-in');
+        return null;
+    }
 
-  return (
-      <div className={"min-h-screen bg-gray-100 bg-gradient-to-br from-blue-950 to-blue-200"}>
-        <Header></Header>
+    // Fetch user data
+    let user: User | null = null;
+    let error: string | null = null;
 
-        <main className="container mx-auto pt-16 ">
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden md:mt-5 md:mx-2 ">
-              <div className="" >
-                  <ProfileHeader userData={userDataMock} />
-              </div>
-              <div className="pt-4">
-                  {/* <Tabs userData={userDataMock}></Tabs>*/}
-              </div>
-          </div>
+    try {
+        const response = await fetch("http://127.0.0.1:8000/users/me", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Accept": "application/json"
+            },
+            credentials: 'include'
+        });
 
-        </main>
-      </div>
-  )
-}
+        if (!response.ok) {
+            throw new Error("Failed to fetch user data.");
+        }
+
+        const userData = await response.json();
+
+        // Create user object if user data is successfully fetched
+        user = {
+            id: userData.id,
+            firstName: `${userData.first_name}`,
+            lastName: `${userData.last_name}`,
+            username: userData.username,
+            email: userData.email,
+            bio: userData.biography ?? "Add your bio!",
+            profilePicture: "/vini.jpg",
+            coverPhoto: "/book.jpg",
+        };
+
+    } catch (err) {
+        console.error(err);
+        error = "Failed to load user information.";
+    }
+
+    // Handle error state
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    // Return page content with user data
+    return (
+        <div className="min-h-screen bg-gray-100 bg-gradient-to-br from-blue-950 to-blue-200">
+            <Header />
+            <main className="container mx-auto pt-16">
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                    <div className="mx-2">
+                        {user && <ProfileHeader userData={user} />}
+                    </div>
+                    {/* <div className="pt-4">
+                        {user && <Tabs userData={user} />}
+                    </div> */}
+                </div>
+            </main>
+        </div>
+    );
+};
+
+export default AccountPage;

@@ -46,7 +46,6 @@ export default function ProfileHeader({ userData }: PropsUser) {
       await fetchProfilePicture();
     }
   }
-
   return (
     <div>
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
