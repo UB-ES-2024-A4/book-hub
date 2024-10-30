@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { User } from "@/app/types/User";
+import EditProfileForm from "@/app/account/components/EditProfileForm";
 
 type ProfileDialogProps = {
   isEditing: boolean;
@@ -15,13 +16,6 @@ type ProfileDialogProps = {
 };
 
 const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, editedUser, setEditedUser, setUserData }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setEditedUser((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const handleSave = () => {
     console.log('Saving user data:', editedUser);
@@ -45,28 +39,7 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, 
             Make changes to your profile here. Click save when you&#39;re done.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
-            <Input id="firstName" name="firstName" value={editedUser.firstName} onChange={handleChange}/>
-          </div>
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
-            <Input id="lastName" name="lastName" value={editedUser.lastName} onChange={handleChange}/>
-          </div>
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-            <Input id="username" name="username" value={editedUser.username} onChange={handleChange}/>
-          </div>
-          <div>
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700">Bio</label>
-            <Textarea id="bio" name="bio" value={editedUser.bio} onChange={handleChange}/>
-          </div>
-        </div>
-        <div className="mt-4 flex justify-end space-x-2">
-          <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-          <Button onClick={handleSave}>Save Changes</Button>
-        </div>
+        <EditProfileForm editedUser={editedUser} setIsEditing={setIsEditing} setUserData={setUserData} />
       </DialogContent>
     </Dialog>
   );

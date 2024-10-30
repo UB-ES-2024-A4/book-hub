@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from app.models.user import User
 from sqlmodel import select
 
-def check_email_name_length(username: str, first_name: str, last_name: str):
+def check_username_length(username: str, first_name: str, last_name: str):
     max_length = 20
     min_length = 3
 

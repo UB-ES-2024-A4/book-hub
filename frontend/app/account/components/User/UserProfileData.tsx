@@ -17,12 +17,12 @@ export default function UserProfileData ({userDataMock, handleEdit}: Props) {
                     <p className="text-gray-600">@{userDataMock.username}</p>
                     <p className="mt-2 text-gray-700">{userDataMock.bio}</p>
                 </div>
-                {/*<div className="flex flex-col space-y-2 lg:items-end">
+                <div className="flex flex-col space-y-2 lg:items-end">
                     <Button variant="outline" onClick={handleEdit}
                             className="w-full lg:w-auto shadow-sm shadow-black path">
                         <Edit2 className="mr-2 h-4 w-4"/> Edit Profile
                     </Button>
-                </div>*/}
+                </div>
             </div>
         </div>
     )

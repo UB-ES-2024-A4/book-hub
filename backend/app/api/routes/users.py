@@ -59,7 +59,7 @@ def create_user(new_user: UserCreate, session: Session = Depends(get_session)):
 
     utils.check_missing_fields(new_user.first_name, new_user.last_name)
 
-    utils.check_email_name_length(new_user.username, new_user.first_name, new_user.last_name)
+    utils.check_username_length(new_user.username, new_user.first_name, new_user.last_name)
     
     utils.check_pwd_length(new_user.password)
     
@@ -81,7 +81,7 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
     if session_user.username != user.username:
         utils.check_existence_usrname(user.username, session)
     
-    utils.check_email_name_length(user.username, user.first_name, user.last_name)
+    utils.check_username_length(user.username, user.first_name, user.last_name)
         
     user = crud.user.update_user(session=session, user_id=user_id, user=user)
     if user:

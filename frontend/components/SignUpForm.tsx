@@ -1,5 +1,5 @@
 "use client";
-import { Lock, Mail, User, LibraryBig } from "lucide-react";
+import { Lock, Mail, User } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
 import { CreateUser } from "@/app/actions";

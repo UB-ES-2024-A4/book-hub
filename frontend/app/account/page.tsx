@@ -6,6 +6,7 @@ import ProfileHeader from "@/app/account/components/ProfileHeader";
 import Tabs from "./components/Tabs";
 import { User } from "@/app/types/User";
 import { redirect } from "next/navigation";
+import FetchInformationError from "@/app/account/components/Errors/FetchInformationError";
 
 const AccountPage = async () => {
     const cookieStore = cookies();
@@ -19,7 +20,6 @@ const AccountPage = async () => {
 
     // Fetch user data
     let user: User | null = null;
-    let error: string | null = null;
 
     try {
         const response = await fetch("http://127.0.0.1:8000/users/me", {
@@ -51,12 +51,9 @@ const AccountPage = async () => {
 
     } catch (err) {
         console.error(err);
-        error = "Failed to load user information.";
-    }
-
-    // Handle error state
-    if (error) {
-        return <div>Error: {error}</div>;
+        return (
+            <FetchInformationError error={"Failed to load user information."} />
+        )
     }
 
     // Return page content with user data

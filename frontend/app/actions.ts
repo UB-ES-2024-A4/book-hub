@@ -2,7 +2,7 @@
 
 // Importing necessary functions from Next.js and other libraries
 import { parseWithZod } from "@conform-to/zod";
-import { signInSchema, signUpSchema } from "@/app/lib/zodSchemas";
+import {signInSchema, signUpSchema, userInformationSchema} from "@/app/lib/zodSchemas";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -48,6 +48,45 @@ export async function CreateUser(prevState: unknown, formData: FormData) {
     }
 }
 
+export async function UpdateUser(prevState: unknown, formData: FormData) {
+    // Validate form data with Zod
+    const submission = parseWithZod(formData, { schema: userInformationSchema });
+
+    // Handle validation errors if present
+    if (submission.status !== "success") {
+        return submission.reply();
+    }
+
+    // Get the user ID from the form data
+    const userId = Number(formData.get("id"));
+
+    try {
+        // Convert formData to JSON and verify the user with the access token
+        const data = Object.fromEntries(formData);
+        const accessToken = cookies().get('accessToken')?.value;
+
+        await fetch(`http://127.0.0.1:8000/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(data),
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+        }
+        );
+
+    } catch (error) {
+        console.error("Error:", error);
+
+    } finally {
+    }
+
+
+}
 
 // Async function to handle user sign in
 export async function SignIn(prevState: unknown, formData: FormData) {
