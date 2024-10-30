@@ -2,8 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-import PostsGrid from './PostsGrid';
-import SavedPostsList from './SavedPostsList';
+import PostsGrid from './Tabs/PostsGrid';
+import SavedPostsList from './Tabs/SavedPostsList';
 import {PropsUser} from "@/app/types/PropsUser";
 
 

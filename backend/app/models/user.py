@@ -9,6 +9,7 @@ class UserBase(SQLModel):
 
     first_name: str | None = None
     last_name: str | None = None
+    biography: str | None = None
 
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
@@ -19,8 +20,12 @@ class UserCreate(UserBase):
     password: str
 
 class Token(SQLModel):
-    acces_token: str
+    access_token: str
     token_type: str = "bearer"
+    
+# Contents of JWT token
+class TokenPayload(SQLModel):
+    sub: int | None = None
 
 class UserLogin(SQLModel):
     username: str | None = None
@@ -32,6 +37,7 @@ class UserUpdate(SQLModel):
     username: str | None = None
     first_name: str | None = None
     last_name: str | None = None
+    biography: str | None = None
 
 
 class UserOut(UserBase):
