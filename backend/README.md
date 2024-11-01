@@ -56,6 +56,28 @@ Así se vería la terminal si siguen los pasos:
 
 <img src="./mysql-u-root-p.png" alt="Creación de la base de datos" width="600"/>
 
+## Init DB
+Se ha creado una archivo en la ruta `backend/init_testing_database.sql` para facilitar llenar la base de datos con algunos datos basicos para hacer algunas pruebas.
+
+Podeis tanto copiar las lineas que querais y pegarlas en la consola mysql, o si quereis introducir todo el archivo podeis hacerlo de las siguientes formas
+
+**Desde la consola mysql**
+```sql
+source <ruta-archivo>
+```
+
+**Desde el terminal**
+```bash
+mysql -u <user> -p <database-name> < <ruta-archivo>
+```
+
+**Recordad hacer alembic upgrade head. Si da error, eliminad la base de datos y volvedla a crear**
+
+## Modelo ER
+**Esta incompleto, pronto se corregirá**
+![Modelo ER](db_ER_model.png)
+
+
 ### Configuración del Archivo `.env`
 
 Tienes que crear un archivo `.env` fuera de las carpetas backend o frontend. Debe estar correctamente 
