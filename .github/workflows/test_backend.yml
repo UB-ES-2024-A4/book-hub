@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
     branches:
-      - main
+      - "*"
       - '!badges'
   pull_request:
     types:
@@ -14,7 +14,7 @@ env:
   APP_NAME: BookHub
   DB_HOST: localhost
   DB_PORT: 3306
-  DB_USER: testuser
+  DB_USER: root
   DB_PASSWORD: psswd
   DB_NAME: bookhubdb
 
@@ -32,7 +32,12 @@ jobs:
           MYSQL_ROOT_PASSWORD: psswd
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
