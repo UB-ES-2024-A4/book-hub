@@ -11,7 +11,7 @@ class Post(SQLModel, table=True):
     likes: int = Field(default=0)
     created_at: datetime = Field(default_factory=datetime.now)
 
-    user: Optional[User] = Relationship(back_populates="post")
-    book: Optional[Book] = Relationship(back_populates="post")
-    filters: list["Filter"] = Relationship(back_populates="post", link_model=PostFilter, cascade_delete=True) # type: ignore
+    user: Optional[User] = Relationship(back_populates="posts")
+    book: Optional[Book] = Relationship(back_populates="posts")
+    filters: list["Filter"] = Relationship(back_populates="posts", link_model=PostFilter) # type: ignore
     comments: list["Comment"] = Relationship(back_populates="post", cascade_delete=True) # type: ignore
