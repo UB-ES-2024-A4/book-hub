@@ -1,8 +1,8 @@
 """DB Schema Sprint 1
 
-Revision ID: bd4d801fd7c3
+Revision ID: a3985b92b941
 Revises: 7ac7b21bf041
-Create Date: 2024-11-01 13:47:17.525207
+Create Date: 2024-11-01 17:08:20.957368
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision: str = 'bd4d801fd7c3'
+revision: str = 'a3985b92b941'
 down_revision: Union[str, None] = '7ac7b21bf041'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -35,6 +35,15 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
+    op.create_table('followers',
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('following_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['following_id'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('user_id', 'following_id')
+    )
+    op.create_index(op.f('ix_followers_following_id'), 'followers', ['following_id'], unique=False)
+    op.create_index(op.f('ix_followers_user_id'), 'followers', ['user_id'], unique=False)
     op.create_table('post',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('book_id', sa.Integer(), nullable=False),
@@ -76,14 +85,15 @@ def upgrade() -> None:
                type_=sqlmodel.sql.sqltypes.AutoString(),
                existing_nullable=True)
 
-    # Trigger to increment likes
+    # Crea trigger para incrementar los likes al eliminar en la tabla Like
+
     op.execute("""
     CREATE TRIGGER increment_likes_on_insert
         AFTER INSERT ON `like`
             FOR EACH ROW
             UPDATE post
-        SET likes = likes + 1
-    WHERE id = NEW.post_id;
+            SET likes = likes + 1
+            WHERE id = NEW.post_id;
     """)
 
     # Crear trigger para decrementar los likes al eliminar en la tabla Like
@@ -92,9 +102,22 @@ def upgrade() -> None:
         AFTER DELETE ON `like`
             FOR EACH ROW
             UPDATE post
-        SET likes = likes - 1
-    WHERE id = OLD.post_id;
+            SET likes = likes - 1
+            WHERE id = OLD.post_id;
     """)
+
+    # Trigger para que no se pueda seguir la misma persona asi misma.
+    op.execute("""
+    CREATE TRIGGER prevent_self_follow
+    BEFORE INSERT ON followers
+    FOR EACH ROW
+    BEGIN
+        IF NEW.user_id = NEW.following_id THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A user cannot follow themselves.';
+        END IF;
+    END;
+    """)
+
     # ### end Alembic commands ###
 
 
@@ -109,9 +132,13 @@ def downgrade() -> None:
     op.drop_table('like')
     op.drop_table('comment')
     op.drop_table('post')
+    op.drop_index(op.f('ix_followers_user_id'), table_name='followers')
+    op.drop_index(op.f('ix_followers_following_id'), table_name='followers')
+    op.drop_table('followers')
     op.drop_table('filter')
     op.drop_table('book')
 
+    # Eliminar triggers en caso de hacer downgrade
     op.execute("DROP TRIGGER IF EXISTS increment_likes_on_insert")
     op.execute("DROP TRIGGER IF EXISTS decrement_likes_on_delete")
     # ### end Alembic commands ###
