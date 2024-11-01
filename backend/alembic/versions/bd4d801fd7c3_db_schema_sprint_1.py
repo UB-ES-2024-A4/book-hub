@@ -1,8 +1,8 @@
 """DB Schema Sprint 1
 
-Revision ID: 2c6708219d3b
+Revision ID: bd4d801fd7c3
 Revises: 7ac7b21bf041
-Create Date: 2024-11-01 12:13:23.021390
+Create Date: 2024-11-01 13:47:17.525207
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision: str = '2c6708219d3b'
+revision: str = 'bd4d801fd7c3'
 down_revision: Union[str, None] = '7ac7b21bf041'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -57,12 +57,11 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('like',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('post_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('user_id', 'post_id')
     )
     op.create_table('postfilter',
     sa.Column('post_id', sa.Integer(), nullable=False),
@@ -76,6 +75,26 @@ def upgrade() -> None:
                existing_type=mysql.TEXT(),
                type_=sqlmodel.sql.sqltypes.AutoString(),
                existing_nullable=True)
+
+    # Trigger to increment likes
+    op.execute("""
+    CREATE TRIGGER increment_likes_on_insert
+        AFTER INSERT ON `like`
+            FOR EACH ROW
+            UPDATE post
+        SET likes = likes + 1
+    WHERE id = NEW.post_id;
+    """)
+
+    # Crear trigger para decrementar los likes al eliminar en la tabla Like
+    op.execute("""
+    CREATE TRIGGER decrement_likes_on_delete
+        AFTER DELETE ON `like`
+            FOR EACH ROW
+            UPDATE post
+        SET likes = likes - 1
+    WHERE id = OLD.post_id;
+    """)
     # ### end Alembic commands ###
 
 
@@ -92,4 +111,7 @@ def downgrade() -> None:
     op.drop_table('post')
     op.drop_table('filter')
     op.drop_table('book')
+
+    op.execute("DROP TRIGGER IF EXISTS increment_likes_on_insert")
+    op.execute("DROP TRIGGER IF EXISTS decrement_likes_on_delete")
     # ### end Alembic commands ###
