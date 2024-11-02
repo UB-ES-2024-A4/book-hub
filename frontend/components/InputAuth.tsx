@@ -1,22 +1,34 @@
-// app/components/InputAuth.tsx
-'use client';
+// components/InputAuth.tsx
 
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  icon: LucideIcon;
+interface InputAuthProps {
+    id: string;
+    name: string;
+    type: string;
+    autoComplete?: 'none' | 'inline' | 'list' | 'both' | 'new-password';
+    icon: LucideIcon;
+    placeholder?: string;
+    defaultValue?: string | number | undefined;
 }
 
-const InputAuth: React.FC<InputProps> = ({ icon: Icon, ...props }) => (
-  <div className="relative">
-    <input
-      {...props}
-      className="w-full px-4 py-2 pl-10 bg-[#3B4C79] text-white placeholder-gray-400 rounded-md
-      focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-    <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-  </div>
-);
+const InputAuth: React.FC<InputAuthProps> = ({ id, name, type, autoComplete, icon: Icon, placeholder, defaultValue }) => {
+    return (
+        <div className="relative">
+            <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+                id={id}
+                name={name}
+                type={type}
+                autoComplete={autoComplete}
+                placeholder={placeholder}
+                defaultValue={defaultValue} // Use defaultValue in the input element
+                className="pl-10 pr-4 py-2 border rounded-md w-full"
+                aria-autocomplete={autoComplete === 'new-password' ? 'list' : autoComplete}
+            />
+        </div>
+    );
+};
 
 export default InputAuth;

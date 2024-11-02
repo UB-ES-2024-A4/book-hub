@@ -16,4 +16,6 @@ def create_access_token(subject: str | Any, expires_delta: timedelta = settings.
     return encoded_jwt
 
 def verify_password(user_password: str, userLogin_password: str) -> bool:
+    # print(user_password, userLogin_password)
+    print(user_password, userLogin_password)
     return user_password == userLogin_password
