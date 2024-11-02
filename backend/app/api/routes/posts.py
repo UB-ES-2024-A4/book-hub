@@ -1,4 +1,6 @@
-from fastapi import (APIRouter, HTTPException, Depends)
+import os
+from fastapi import (APIRouter, File, HTTPException, Depends, UploadFile)
+from fastapi.responses import FileResponse
 from sqlmodel import Session
 
 from app.core.database import get_session
@@ -101,3 +103,53 @@ def delete_user(post_id: int, session: Session = Depends(get_session)):
     post = crud.post.delete_post(session=session, db_post=session_post)
     
     return {"message": "Post deleted successfully", "data": post}
+
+
+
+# These are the endpoints of post picture, that now are stored in the backend api server.
+# When we perform deployment these methods will be erased and the requests go directly to the storage server (Azure)
+
+@router.put("/images/{post_id}")
+async def update_post_picture(post_id: int, file: UploadFile = File(...)):
+    # Validar formato de archivo
+    if not file.filename.endswith(("jpg", "jpeg", "png")):
+        raise HTTPException(status_code=400, detail="Invalid file format. Only jpg, jpeg, and png are allowed.")
+
+    # Definir la ruta del archivo a guardar
+    file_path = UPLOAD_DIR / f"{post_id}.{file.filename.split('.')[-1]}"
+
+    if file_path.exists():
+        os.remove(file_path)
+    else:
+        #Verificar todas las demás extensiones
+        for ext in ["jpg", "jpeg", "png"]:
+            file_path = UPLOAD_DIR / f"{post_id}.{ext}"
+            if file_path.exists():
+                os.remove(file_path)
+
+    # Guardar la imagen en el directorio
+    with file_path.open("wb") as buffer:
+        buffer.write(await file.read())
+
+    return {"message": "Post picture updated successfully", "file_path": str(file_path)}
+
+@router.get("/images/{post_id}")
+async def get_post_picture(post_id: int):
+
+    for ext in ["jpg", "jpeg", "png"]:
+        file_path = UPLOAD_DIR / f"{post_id}.{ext}"
+        if file_path.exists():
+            return FileResponse(path=str(file_path))
+
+    raise HTTPException(status_code=404, detail="Post picture not found")
+
+@router.delete("/images/{post_id}")
+async def delete_post_picture(post_id: int):
+
+    for ext in ["jpg", "jpeg", "png"]:
+        file_path = UPLOAD_DIR / f"{post_id}.{ext}"
+        if file_path.exists():
+            os.remove(file_path)
+            return {"message": "Post picture deleted successfully"}
+
+    raise HTTPException(status_code=404, detail="Post picture not found")
