@@ -1,0 +1,57 @@
+name: Branch Name Validation
+
+on:
+  push:
+    branches:
+      - "*"  # Run on pushes to all branches
+      - "!main"
+      - "!dev"
+  pull_request:
+    branches:
+      - "*"  # Run on all pull requests
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Extract branch name
+        id: extract_branch_name
+        run: |
+          # Check if it's a pull request event
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          else
+            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          fi
+          echo "Branch name: $BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Validate branch name
+        id: validate_branch_name
+        run: |
+          # Load the extracted branch name
+          BRANCH_NAME="${{ env.branch_name }}"
+
+          # Exclude 'main' and 'dev' branches
+          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "dev" ]]; then
+            echo "✔️ Skipping validation for branch '$BRANCH_NAME'."
+            exit 0
+          fi
+
+          # Define regex patterns for Type 1 and Type 2 branch names
+          TYPE1_PATTERN="^US[0-9]+(\.[0-9]+)?-[a-z0-9-]+$"
+          TYPE2_PATTERN="^US[0-9]+(\.[0-9]+)?/(backend|frontend|devops)/(feat|fix|test)/[a-z0-9-]+$"
+
+          # Check if branch name matches either pattern
+          if [[ ! "$BRANCH_NAME" =~ $TYPE1_PATTERN && ! "$BRANCH_NAME" =~ $TYPE2_PATTERN ]]; then
+            echo "❌ Branch name '$BRANCH_NAME' does not follow the required naming conventions."
+            exit 1
+          else
+            echo "✔️ Branch name '$BRANCH_NAME' is valid."
+          fi
+
+    permissions:
+      contents: read
