@@ -50,7 +50,6 @@ def get_all_users(*, session: Session) -> Any:
 def get_user_by_email(*, session: Session, email: str) -> User | None:
     statement = select(User).where(or_(User.email == email ,User.username == email))
     session_user = session.exec(statement).first()
-    print(session_user)
     return session_user
 
 def authenticate(*, session: Session, email: str, password: str) -> User | None:

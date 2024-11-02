@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from "next/link";
+import { usePathname } from 'next/navigation'; // Importar usePathname para obtener la ruta actual
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const pathname = usePathname(); // Obtener la ruta actual
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -15,9 +17,9 @@ export default function Header() {
             <div className="container mx-auto flex justify-between items-center p-4">
                 <Link href="/home" className="text-[#4066cf] text-2xl font-bold">BookHub</Link>
                 <nav className="hidden md:flex space-x-8 items-center">
-                    <Link href="/home" className="path text-gray-600 transition-colors duration-300">Home</Link>
-                    <Link href="/explorer" className="path text-gray-600 transition-colors duration-300">Explorer</Link>
-                    <Link href="/account" className="path text-gray-600 transition-colors duration-300">Account</Link>
+                    <Link href="/home" className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}>Home</Link>
+                    <Link href="/explorer" className={`path transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`}>Explorer</Link>
+                    <Link href="/account" className={`path transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}>Account</Link>
                 </nav>
                 <button className="md:hidden flex items-center text-gray-600 focus:outline-none" onClick={toggleMenu}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,9 +31,9 @@ export default function Header() {
             {isMenuOpen && (
                 <nav className="bg-white md:hidden">
                     <ul className="space-y-2 p-4">
-                        <li><Link href="/frontend/public" className="path block text-gray-600 transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Home</Link></li>
-                        <li><Link href="/explorer" className="path block text-gray-600 transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Explorer</Link></li>
-                        <li><Link href="/account" className="path block text-gray-600 transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>Account</Link></li>
+                        <li><Link href="/home" className={`path block transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`} onClick={() => setIsMenuOpen(false)}>Home</Link></li>
+                        <li><Link href="/explorer" className={`path block transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`} onClick={() => setIsMenuOpen(false)}>Explorer</Link></li>
+                        <li><Link href="/account" className={`path block transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`} onClick={() => setIsMenuOpen(false)}>Account</Link></li>
                         <li><Link href="/auth/sign-in" className="path block text-white bg-[#4066cf] px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-[#3050a6]" onClick={() => setIsMenuOpen(false)}>Sign In</Link></li>
                         <li><Link href="/auth/sign-up" className="path block text-white bg-green-500 px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-green-600" onClick={() => setIsMenuOpen(false)}>Sign Up</Link></li>
                     </ul>
