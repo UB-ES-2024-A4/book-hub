@@ -93,3 +93,19 @@ def update_user(post_id: int, post_in: PostUpdate, session: Session = Depends(ge
     post = crud.post.update_post(session=session, post_update=post_in, db_post=session_post)  
     
     return {"message": "Post updated successfully", "data": post}
+
+# Delete post endpoint
+@router.delete("/{post_id}")
+def delete_user(post_id: int, session: Session = Depends(get_session)):
+    # Get current post
+    session_post : Post = crud.post.get_post(session=session, post_id=post_id)
+
+    if not session_post: 
+        raise HTTPException(
+        status_code=404,
+        detail="Post not found.",
+    )
+
+    post = crud.post.delete_post(session=session, db_post=session_post)
+    
+    return {"message": "Post deleted successfully", "data": post}
