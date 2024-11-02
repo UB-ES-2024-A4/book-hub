@@ -20,8 +20,6 @@ def test_create_post(db: Session) -> None:
     assert created_post.description == description
     assert created_post.likes == 0
 
-
-#    db_post : Post = session.get(Post, post_id)
 def test_update_post(db: Session) -> None:
     new_description = 'b'
 
@@ -33,5 +31,14 @@ def test_update_post(db: Session) -> None:
 
     updated_post = crud.post.update_post(session=db, post_update=post_in, db_post=db_post)
     assert updated_post.description == new_description
+
+def test_delete_post(db: Session) -> None:
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    created_post = crud.post.create_post(session=db, post_create=post_in)
+    
+    db_post : Post = db.get(Post, created_post.id)
+
+    deleted_post = crud.post.delete_post(session=db, db_post=db_post)
+    assert deleted_post
 
 

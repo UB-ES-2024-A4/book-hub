@@ -18,3 +18,8 @@ def update_post(*, session: Session, post_update: PostUpdate, db_post: Post) -> 
     session.commit()
     session.refresh(db_post)
     return db_post
+
+def delete_post(*, session: Session, db_post: Post) -> Post:
+    session.delete(db_post)
+    session.commit()
+    return db_post
