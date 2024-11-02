@@ -20,3 +20,6 @@ class Post(PostBase, table=True):
 
 class PostCreate(PostBase):
     pass
+
+class PostUpdate(SQLModel):
+    description: str | None = None
