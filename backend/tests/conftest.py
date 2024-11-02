@@ -7,13 +7,14 @@ from sqlmodel import Session, select, delete
 
 from app.core.database import engine, init_db, get_session
 from app.main import app
-from app.models import User
+from app.models import User, Post
 
 # Cuando los tests necesiten una session llamarán a esta fixture
 @pytest.fixture(scope="session", autouse=True)
 def db() -> Generator[Session, None, None]:
     with Session(engine) as session:
         existing_user_ids = {user for user in session.execute(select(User.id)).scalars().unique()}
+        existing_post_ids = {post for post in session.execute(select(Post.id)).scalars().unique()}
 
         init_db(session)
 
@@ -24,6 +25,12 @@ def db() -> Generator[Session, None, None]:
 
         for user in new_users:
             session.delete(user)
+
+        # Erase posts created during testing
+        new_posts = session.execute(select(Post).filter(~Post.id.in_(existing_post_ids))).scalars().unique().all()
+
+        for post in new_posts:
+            session.delete(post)
 
         session.commit()
 
