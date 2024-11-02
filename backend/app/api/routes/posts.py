@@ -1,24 +1,16 @@
-from typing import Any, Annotated
-from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import (APIRouter, HTTPException, Depends)
 from sqlmodel import Session
-from datetime import timedelta
 
 from app.core.database import get_session
-from app.core.config import settings
 from app.models.post import (
     Post, 
     PostCreate,
     PostUpdate
 )
-from app.api.deps import get_current_user
 from app import crud, utils
 
 # Imports para post pictures
-from fastapi import UploadFile, File
-from fastapi.responses import FileResponse
 from pathlib import Path
-import os
 
 # Directorio para guardar las imágenes
 UPLOAD_DIR = Path("post_pictures")
