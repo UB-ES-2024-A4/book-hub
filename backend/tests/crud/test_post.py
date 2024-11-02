@@ -1,17 +1,29 @@
 from fastapi.encoders import jsonable_encoder
-from sqlmodel import Session
+from sqlmodel import Session, select
 from datetime import datetime
 
 from app import crud
-from app.models import Post, PostCreate, PostUpdate
+from app.models import Post, PostCreate, PostUpdate, User, Book
 
-book_id = 1
-user_id = 1
 description = 'a'
 likes = 1
 created_at = datetime.now()
 
+def get_test_parameters(db: Session):
+    global user_id, book_id
+    user_test = db.exec(
+        select(User).where(User.username == 'TEST_NAME')
+    ).first()
+
+    book_test = db.exec(
+        select(Book).where(Book.title == 'TEST')
+    ).first()
+
+    return user_test.id, book_test.id
+
 def test_create_post(db: Session) -> None:
+    user_id, book_id = get_test_parameters(db)
+
     post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
@@ -21,6 +33,8 @@ def test_create_post(db: Session) -> None:
     assert created_post.likes == 0
 
 def test_update_post(db: Session) -> None:
+    user_id, book_id = get_test_parameters(db)
+    
     new_description = 'b'
 
     post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
@@ -33,6 +47,8 @@ def test_update_post(db: Session) -> None:
     assert updated_post.description == new_description
 
 def test_delete_post(db: Session) -> None:
+    user_id, book_id = get_test_parameters(db)
+    
     post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
     created_post = crud.post.create_post(session=db, post_create=post_in)
     
@@ -42,6 +58,8 @@ def test_delete_post(db: Session) -> None:
     assert deleted_post
 
 def test_get_post(db: Session) -> None:
+    user_id, book_id = get_test_parameters(db)
+    
     post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
@@ -53,6 +71,8 @@ def test_get_post(db: Session) -> None:
     assert post.likes == 0
 
 def test_get_all_posts(db: Session) -> None:
+    user_id, book_id = get_test_parameters(db)
+    
     post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
     crud.post.create_post(session=db, post_create=post_in1)
 
@@ -70,6 +90,8 @@ def test_get_all_posts(db: Session) -> None:
         assert item.likes >= 0
 
 def test_get_posts_by_book_id(db: Session) -> None:
+    user_id, book_id = get_test_parameters(db)
+    
     post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
     crud.post.create_post(session=db, post_create=post_in1)
 
@@ -87,6 +109,8 @@ def test_get_posts_by_book_id(db: Session) -> None:
         assert item.likes >= 0
 
 def test_get_posts_by_user_id(db: Session) -> None:
+    user_id, book_id = get_test_parameters(db)
+    
     post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
     crud.post.create_post(session=db, post_create=post_in1)
 
