@@ -36,3 +36,45 @@ def create_post(new_post: PostCreate, session: Session = Depends(get_session)):
     post = crud.post.create_post(session=session, post_create=new_post)
     
     return {"message": "Post created successfully", "data": post}
+
+# Get all posts endpoint
+@router.get("/all")
+def get_all_posts(session: Session = Depends(get_session)):
+    posts = crud.post.get_all_posts(session=session)
+    return posts
+
+# Get post by id endpoint
+@router.get("/{post_id}")
+def get_post(post_id: int, session: Session = Depends(get_session)):
+    post = crud.post.get_post(session=session, post_id=post_id)
+    if post:
+        return post
+    raise HTTPException(
+        status_code=404,
+        detail="Post not found.",
+    )
+
+# Get all posts with the same user_id endpoint
+@router.get("/user/{user_id}")
+def get_posts_by_user_id(user_id: int, session: Session = Depends(get_session)):
+    utils.check_existence_book_user(book_id=None, user_id=user_id, session=session)
+    posts = crud.post.get_posts_by_user_id(session=session, user_id=user_id)
+    if posts:
+        return posts
+    raise HTTPException(
+        status_code=404,
+        detail="This user has no posts.",
+    )
+
+# Get all posts with the same book_id endpoint
+@router.get("/book/{book_id}")
+def get_posts_by_book_id(book_id: int, session: Session = Depends(get_session)):
+    utils.check_existence_book_user(book_id=book_id, user_id=None, session=session)
+    posts = crud.post.get_posts_by_book_id(session=session, book_id=book_id)
+    if posts:
+        return posts
+    raise HTTPException(
+        status_code=404,
+        detail="This book has no posts.",
+    )
+
