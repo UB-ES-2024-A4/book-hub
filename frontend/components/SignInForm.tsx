@@ -1,8 +1,8 @@
 "use client";
-import { Lock, LibraryBig, User2 } from "lucide-react";
+import { Lock, User2 } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
-import { CreateUser, SignIn } from "@/app/actions";
+import { SignIn } from "@/app/actions";
 import { useFormState  } from 'react-dom';
 import {useForm} from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
@@ -57,7 +57,6 @@ export default function SignInForm() {
                                     defaultValue={fields.user.initialValue}
                                     id="user"
                                     type="text"
-                                    autoComplete="email"
                                     icon={User2}
                                     placeholder="zoro3@gmail.com"
                                 />
@@ -99,7 +98,7 @@ export default function SignInForm() {
                             </div>
                             <div className="relative flex justify-center text-sm">
                         <span className="px-2 bg-[#3B4C79] text-gray-400 rounded-lg">
-                            You don't have an account?
+                            You don&#39;t have an account?
                         </span>
                             </div>
                         </div>
