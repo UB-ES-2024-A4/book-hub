@@ -5,6 +5,8 @@ import { parseWithZod } from "@conform-to/zod";
 import { signInSchema, signUpSchema } from "@/app/lib/zodSchemas";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import {User} from "@/app/types/User";
+import { Post } from "@/app/types/Post";
 
 
 export async function CreateUser(prevState: unknown, formData: FormData) {
@@ -109,7 +111,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
     }
 }
 
-export async function fetchProfilePictureA(userId: number): Promise<string> {
+export async function fetchProfilePictureUser(userId: number): Promise<string> {
     const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`);
     if (response.ok) {
       return `http://127.0.0.1:8000/users/pfp/${userId}?${new Date().getTime()}`;
@@ -127,7 +129,7 @@ export async function fetchProfilePictureA(userId: number): Promise<string> {
           });
   
           if (response.ok) {
-            await fetchProfilePictureA(userId);
+            await fetchProfilePictureUser(userId);
           } else {
             console.error("Error uploading the profile picture");
           }
@@ -137,3 +139,72 @@ export async function fetchProfilePictureA(userId: number): Promise<string> {
   }
 
 
+export async function loadUser(): Promise<User | null> {
+    const cookieStore = cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+
+    if (!accessToken) {
+        // Redirect to sign-in if no access token is found
+        redirect('/auth/sign-in');
+    }
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/users/me", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Accept": "application/json"
+            },
+            credentials: 'include'
+        }).then((res) => res.json());
+
+        if (!response.id) {
+            return null;
+        }
+
+        return {
+            id: response.id,
+            firstName: response.first_name,
+            lastName: response.last_name,
+            username: response.username,
+            email: response.email,
+            bio: response.biography ?? "Add your bio!",
+            profilePicture: "/vini.jpg",
+            coverPhoto: "/book.jpg",
+        };
+
+
+
+    }catch (error) {
+        console.error("Failed to load user information", error);
+        return null;
+    }
+}
+
+// Function to load the posts in the home page
+export async function loadPosts() : Promise<Post[]|null> {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/posts/all", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            },
+        }).then((res) => res.json());
+
+        return response.map((post: Post) => {
+            return {
+                id: post.id,
+                book_id: post.book_id,
+                user_id: post.user_id,
+                description: post.description,
+                likes: post.likes,
+                created_at: post.created_at,
+            };
+        });
+
+    }
+    catch (error) {
+        console.error("Failed to load posts", error);
+        return null;
+    }
+}
