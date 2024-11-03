@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import ProfileDialog from "@/app/account/components/Dialogs/ProfileDialog";
 import { PropsUser } from "@/app/types/PropsUser";
-import {fetchProfilePictureA, putProfilePictureBackend} from "@/app/actions";
+import {fetchProfilePictureUser, putProfilePictureBackend} from "@/app/actions";
 import UserProfilePicture from "@/app/account/components/User/UserProfilePicture";
 import UserProfileData from "@/app/account/components/User/UserProfileData";
 
@@ -17,7 +17,7 @@ export default function ProfileHeader({ userData }: PropsUser) {
 
   async function fetchProfilePicture() {
     try {
-      await fetchProfilePictureA(userData.id).then(url=>setProfilePictureUrl(url));
+      await fetchProfilePictureUser(userData.id).then(url=>setProfilePictureUrl(url));
     } catch (error) {
       console.error("Failed to fetch the image", error);
     }
