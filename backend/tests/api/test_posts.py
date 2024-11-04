@@ -129,6 +129,35 @@ def test_update_post(
     assert created_post['message'] == 'Post updated successfully'
     assert created_post['data']['description'] == new_description
 
+def test_delete_post_not_found(
+    client: TestClient, db: Session
+) -> None:
+
+    r = client.delete(
+        f'/posts/-1',
+    )
+
+    updated_post = r.json()
+    assert r.status_code == 404
+    assert updated_post['detail'] == "Post not found."
+
+def test_delete_post(
+    client: TestClient, db: Session
+) -> None:
+    user_id, book_id = get_test_parameters(db)
+
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    created_post = crud.post.create_post(session=db, post_create=post_in)
+    
+    r = client.delete(
+        f"/posts/{created_post.id}",
+    )
+    
+    created_post = r.json()
+
+    assert r.status_code == 200
+    assert created_post['message'] == 'Post deleted successfully'
+
 
 
 
