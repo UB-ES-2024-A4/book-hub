@@ -4,12 +4,14 @@ from fastapi.responses import FileResponse
 from sqlmodel import Session
 
 from app.core.database import get_session
-from app.models.post import (
+from app.models import (
     Post, 
     PostCreate,
-    PostUpdate
+    PostUpdate,
+    User
 )
 from app import crud, utils
+from app.api.deps import (get_current_user)
 
 # Imports para post pictures
 from pathlib import Path
@@ -21,7 +23,8 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 router = APIRouter()
 
 # Create post endpoint
-@router.post("/")
+@router.post("/",
+             dependencies=[Depends(get_current_user)])
 def create_post(new_post: PostCreate, session: Session = Depends(get_session)):
     utils.check_existence_book_user(new_post.book_id, new_post.user_id, session)
 
@@ -73,8 +76,9 @@ def get_posts_by_book_id(book_id: int, session: Session = Depends(get_session)):
     )
 
 # Update post endpoint
-@router.put("/{post_id}")
-def update_user(post_id: int, post_in: PostUpdate, session: Session = Depends(get_session)):
+@router.put("/{post_id}",
+             dependencies=[Depends(get_current_user)])
+def update_user(post_id: int, post_in: PostUpdate, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     # Get current post
     session_post : Post = crud.post.get_post(session=session, post_id=post_id)
 
@@ -83,14 +87,17 @@ def update_user(post_id: int, post_in: PostUpdate, session: Session = Depends(ge
         status_code=404,
         detail="Post not found.",
     )
+
+    utils.check_post_ownership(current_usr_id=current_user.id, post_usr_id=session_post.user_id)
 
     post = crud.post.update_post(session=session, post_update=post_in, db_post=session_post)  
     
     return {"message": "Post updated successfully", "data": post}
 
 # Delete post endpoint
-@router.delete("/{post_id}")
-def delete_user(post_id: int, session: Session = Depends(get_session)):
+@router.delete("/{post_id}",
+             dependencies=[Depends(get_current_user)])
+def delete_user(post_id: int, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     # Get current post
     session_post : Post = crud.post.get_post(session=session, post_id=post_id)
 
@@ -99,6 +106,8 @@ def delete_user(post_id: int, session: Session = Depends(get_session)):
         status_code=404,
         detail="Post not found.",
     )
+
+    utils.check_post_ownership(current_usr_id=current_user.id, post_usr_id=session_post.user_id)
 
     post = crud.post.delete_post(session=session, db_post=session_post)
     
