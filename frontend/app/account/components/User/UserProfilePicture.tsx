@@ -19,11 +19,10 @@ export default function UserProfilePicture ({userDataMock, setIsHovering, isHove
         console.log("Image reloaded", userDataMock.id);
     }
 
-
     return (
         <div className="relative">
             <Image
-                src={userDataMock.coverPhoto || "/book.jpg"}
+                src={"/book.jpg"}
                 alt="Cover Photo"
                 width={800}
                 height={600}

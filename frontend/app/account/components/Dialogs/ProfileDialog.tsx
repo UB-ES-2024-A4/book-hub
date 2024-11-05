@@ -1,7 +1,7 @@
 // frontend/components/ProfileDialog.tsx
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import EditProfileForm from "@/app/account/components/EditProfileForm";
+import EditProfileForm from "@/app/account/components/User/EditProfileForm";
 import {PropsUser} from "@/app/types/PropsUser";
 
 type ProfileDialogProps =  PropsUser & {
