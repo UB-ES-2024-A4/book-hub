@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, select, delete
 
+from .utils import get_user_token_headers
 from app.core.database import engine, init_db, get_session
 from app.main import app
 from app.models import User, Post
@@ -54,3 +55,7 @@ def override_get_session(db: Session) -> None:
 
     # Cuando se acaban los tests eliminamos el override
     app.dependency_overrides = {}
+
+@pytest.fixture(scope="module")
+def normal_user_token_headers(client: TestClient) -> dict[str, str]:
+    return get_user_token_headers(client)

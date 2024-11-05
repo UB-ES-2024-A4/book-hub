@@ -22,7 +22,7 @@ def get_test_parameters(db: Session):
     return user_test.id, book_test.id
 
 def test_create_post_with_likes(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -30,6 +30,7 @@ def test_create_post_with_likes(
 
     r = client.post(
         "/posts/",
+        headers=normal_user_token_headers,
         json=data    
     )
     
@@ -39,7 +40,7 @@ def test_create_post_with_likes(
     assert created_post['detail'] == 'Created post must have 0 likes.'
 
 def test_create_post_user_not_found(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -47,6 +48,7 @@ def test_create_post_user_not_found(
 
     r = client.post(
         "/posts/",
+        headers=normal_user_token_headers,
         json=data    
     )
     
@@ -56,7 +58,7 @@ def test_create_post_user_not_found(
     assert created_post['detail'] == 'User not found.'
 
 def test_create_post_book_not_found(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -64,6 +66,7 @@ def test_create_post_book_not_found(
 
     r = client.post(
         "/posts/",
+        headers=normal_user_token_headers,
         json=data    
     )
     
@@ -73,7 +76,7 @@ def test_create_post_book_not_found(
     assert created_post['detail'] == 'Book not found.'
 
 def test_create_post(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -81,6 +84,7 @@ def test_create_post(
 
     r = client.post(
         "/posts/",
+        headers=normal_user_token_headers,
         json=data    
     )
     
@@ -94,12 +98,13 @@ def test_create_post(
     assert created_post['data']['likes'] == 0
 
 def test_update_post_not_found(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
 ) -> None:
     data = {'description': 'b'}
 
     r = client.put(
         f'/posts/-1',
+        headers=normal_user_token_headers,
         json=data
     )
 
@@ -108,7 +113,7 @@ def test_update_post_not_found(
     assert updated_post['detail'] == "Post not found."
 
 def test_update_post(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
     new_description = 'b'
@@ -120,6 +125,7 @@ def test_update_post(
     
     r = client.put(
         f"/posts/{created_post.id}",
+        headers=normal_user_token_headers,
         json=data    
     )
     
@@ -130,11 +136,12 @@ def test_update_post(
     assert created_post['data']['description'] == new_description
 
 def test_delete_post_not_found(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
 ) -> None:
 
     r = client.delete(
         f'/posts/-1',
+        headers=normal_user_token_headers,
     )
 
     updated_post = r.json()
@@ -142,7 +149,7 @@ def test_delete_post_not_found(
     assert updated_post['detail'] == "Post not found."
 
 def test_delete_post(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -151,6 +158,7 @@ def test_delete_post(
     
     r = client.delete(
         f"/posts/{created_post.id}",
+        headers=normal_user_token_headers,
     )
     
     created_post = r.json()
