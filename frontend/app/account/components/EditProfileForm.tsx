@@ -9,48 +9,48 @@ import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
 import React, {useState} from "react";
 import {User} from "@/app/types/User";
-import {useUser} from "@/context/UserAuth";
+import {PropsUser} from "@/app/types/PropsUser";
 
-type Props = {
-    editedUser: User;
+type Props =  PropsUser & {
     setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-    setUserData: React.Dispatch<React.SetStateAction<User>>;
 }
-export default function EditProfileForm ({editedUser, setIsEditing, setUserData}: Props) {
 
-    const {user, setUser} = useUser();
+export default function EditProfileForm ({ setIsEditing, userData, setUser}: Props) {
 
     const [lastResult, action] = useFormState(UpdateUser, undefined);
 
     const [form, fields] = useForm({
         lastResult,
         onValidate({formData}) {
-            formData.append('id', editedUser.id.toString());
+            formData.append('id', userData.id.toString());
             return parseWithZod(formData, {schema: userInformationSchema});
         },
         shouldValidate: "onBlur",
         shouldRevalidate: "onInput",
     });
-    const [bio, setBio] = useState(editedUser.bio || "");
 
+    // Bio's state for the form
+    const [bio, setBio] = useState(userData?.biography ?? "");
+    // Function to handle the bio change
     const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        // Limita a 200 caracteres y actualiza el valor del bio
+        // Limit the bio to 200 characters
         const newBio = e.target.value.slice(0, 200);
         setBio(newBio);
     };
 
     const handleSave = () => {
-    console.log('Saving user data:', editedUser);
-    setUser((prev) => ({
-        ...prev,
-        firstName: editedUser.firstName,
-        lastName: editedUser.lastName,
-        username: editedUser.username,
-        email: editedUser.email,
-        bio: editedUser.bio,
-    }));
-    setIsEditing(false);
-  };
+
+        const newUser: User = {
+            id: userData.id,
+            first_name: fields.first_name.value || "",
+            last_name: fields.last_name.value || "",
+            username: fields.username.value || "",
+            biography: bio,
+            email: userData.email,
+        };
+        setUser(newUser);
+        setIsEditing(false);
+      };
 
     return (
             <form className="space-y-6"
@@ -64,7 +64,7 @@ export default function EditProfileForm ({editedUser, setIsEditing, setUserData}
                         <Input
                             key={fields.first_name.key}
                             name={fields.first_name.name}
-                            defaultValue={editedUser.firstName}
+                            defaultValue={userData?.first_name}
                             id="firstName"
                             type="text"/>
                         <p className="pt-2 text-red-500 text-sm"
@@ -76,7 +76,7 @@ export default function EditProfileForm ({editedUser, setIsEditing, setUserData}
                         <Input
                             key={fields.last_name.key}
                             name={fields.last_name.name}
-                            defaultValue={editedUser.lastName}
+                            defaultValue={userData?.last_name}
                             id="LastName"
                             type="text"/>
                         <p className="pt-2 text-red-500 text-sm"
@@ -88,7 +88,7 @@ export default function EditProfileForm ({editedUser, setIsEditing, setUserData}
                         <Input
                             key={fields.username.key}
                             name={fields.username.name}
-                            defaultValue={editedUser.username}
+                            defaultValue={userData?.username}
                             id="LastName"
                             type="text"/>
                         <p className="pt-2 text-red-500 text-sm"

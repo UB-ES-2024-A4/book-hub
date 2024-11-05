@@ -2,17 +2,19 @@
 import { Lock, LibraryBig, User2 } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
-import { CreateUser, SignIn } from "@/app/actions";
+import {SignIn, SignInValidation} from "@/app/lib/authentication";
 import { useFormState  } from 'react-dom';
 import {useForm} from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
 import {signInSchema} from "@/app/lib/zodSchemas";
 import Link from "next/link";
 import Image from "next/image";
+import React from "react";
 
 export default function SignInForm() {
+
     // Using useActionState hook to manage the state of CreateUser action
-    const [lastResult, action] = useFormState(SignIn, undefined);
+    const [lastResult, action] = useFormState(SignInValidation, undefined);
 
     // Using useForm hook to manage form state and validation
     const [form, fields] = useForm({
@@ -24,7 +26,6 @@ export default function SignInForm() {
         shouldValidate: "onBlur", // Validate when an input loses focus
         shouldRevalidate: "onInput", // Revalidate when the user inputs or modifies the form
     });
-
 
     return (
         <div className="w-full h-full  flex flex-col justify-center md:py12 py-4">
@@ -54,7 +55,6 @@ export default function SignInForm() {
                                 <InputAuth
                                     key={fields.user.key}
                                     name={fields.user.name}
-                                    defaultValue={fields.user.initialValue}
                                     id="user"
                                     type="text"
                                     autoComplete="email"
@@ -99,7 +99,7 @@ export default function SignInForm() {
                             </div>
                             <div className="relative flex justify-center text-sm">
                         <span className="px-2 bg-[#3B4C79] text-gray-400 rounded-lg">
-                            You don't have an account?
+                            You don&#39;t have an account?
                         </span>
                             </div>
                         </div>

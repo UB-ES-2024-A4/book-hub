@@ -2,7 +2,7 @@
 import { Lock, Mail, User } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
-import { CreateUser } from "@/app/actions";
+import { CreateUser } from "@/app/lib/authentication";
 import { useForm } from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
 import {signUpSchema} from "@/app/lib/zodSchemas";

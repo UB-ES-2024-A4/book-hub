@@ -1,11 +1,8 @@
 export type Post = {
   id: number;
-  title: string;
-  author: string;
-  coverImage: string;
-  content: string;
-  tags: string[];
+  book_id: number;
+  user_id: number;
+  description: string;
   likes: number;
-  shares?: number;
-  comments: number;
+  created_at: string;
 };

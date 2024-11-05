@@ -2,8 +2,14 @@ import Head from "next/head";
 import Header from "@/components/Header";
 import React from "react";
 import LinksButtons from "@/app/home/LinksButtons";
+import { useUser } from '@/context/UserAuth';
+import {User} from "@/app/types/User";
+import {UserContextType} from "@/context/UserAuth";
 
 export default function Home() {
+
+//const user: UserContextType | null = useUser();
+
   return (
     <>
   <Head>
@@ -20,6 +26,7 @@ export default function Home() {
     <Header />
 
     <h1 className="text-4xl font-bold mt-8">WELCOME!</h1>
+
 
     <p className="text-lg text-gray-700 mt-4 text-center max-w-md">
       Discover, share, and discuss books with fellow book enthusiasts on BookHub.
