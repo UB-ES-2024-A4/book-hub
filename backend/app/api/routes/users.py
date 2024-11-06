@@ -99,11 +99,15 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
 
     utils.check_ownership(current_usr_id=current_user.id, check_usr_id=session_user.id)
 
+    username = user.username or session_user.username
+    first_name = user.first_name or session_user.first_name
+    last_name = user.last_name or session_user.last_name
+
     # Check if the username is to be updated
     if session_user.username != user.username:
         utils.check_existence_usrname(user.username, session)
     
-    utils.check_email_name_length(user.username, user.first_name, user.last_name)
+    utils.check_email_name_length(username, first_name, last_name)
         
     user = crud.user.update_user(session=session, user_id=user_id, user=user)
     if user:
