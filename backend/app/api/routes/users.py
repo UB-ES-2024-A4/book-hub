@@ -85,8 +85,9 @@ def create_user(new_user: UserCreate, session: Session = Depends(get_session)):
 
 # Endpoint para actualizar un usuario
 @router.put("/{user_id}",
-    response_model=UserOut)
-def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_session)):
+            response_model=UserOut,
+            dependencies=[Depends(get_current_user)])
+def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     # Get current user
     session_user : User = crud.user.get_user(session=session, user_id=user_id)
 
@@ -95,6 +96,8 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
         status_code=404,
         detail="User not found.",
     )
+
+    utils.check_ownership(current_usr_id=current_user.id, check_usr_id=session_user.id)
 
     # Check if the username is to be updated
     if session_user.username != user.username:
@@ -109,8 +112,11 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
 
 
 # Endpoint para eliminar un usuario
-@router.delete("/{user_id}")
-def delete_user(user_id: int, session: Session = Depends(get_session)):
+@router.delete("/{user_id}",
+                dependencies=[Depends(get_current_user)])
+def delete_user(user_id: int, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    utils.check_ownership(current_usr_id=current_user.id, check_usr_id=user_id)
+
     user = crud.user.delete_user(session=session, user_id=user_id)
     if user:
         return {"message": "User deleted successfully"}

@@ -4,6 +4,9 @@ from app.models.user import User, UserCreate
 from sqlmodel import Session, select, text
 from app.core.config import settings
 from app import crud
+from app.core.security import create_access_token
+
+from datetime import timedelta
 
 username = settings.USERNAME_TEST_USER
 password = settings.PASSWORD_TEST_USER
@@ -159,18 +162,16 @@ def test_create_user_existing_username(
 
 ## TESTS FOR UPDATE ENDPOINT
 def test_update_user_name_length(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_in = UserCreate(email='test_put_name', username='test_put_name', first_name=last_name, last_name=first_name, password=password)
-    crud.user.create_user(session=db, user_create=user_in)
-
-    user = crud.user.get_user_by_name(session=db, name='test_put_name')
+    user = crud.user.get_user_by_name(session=db, name='TEST_NAME')
 
     data = {"username": user.username, 'first_name': 'a'*21, "last_name": user.last_name}
 
     r = client.put(
         f"users/{user.id}",
-        json=data
+        json=data,
+        headers=logged_user_token_headers
     )
 
     updated_user = r.json()
@@ -181,7 +182,8 @@ def test_update_user_name_length(
 
     r = client.put(
         f"users/{user.id}",
-        json=data
+        json=data,
+        headers=logged_user_token_headers
     )
 
     updated_user = r.json()
@@ -189,18 +191,16 @@ def test_update_user_name_length(
     assert updated_user['detail'] == 'Username, first name and last name must contain at most 20 characters.'
 
 def test_update_user_username_length(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_in = UserCreate(email='test_put_usrname', username='test_put_usrname', first_name=last_name, last_name=first_name, password=password)
-    crud.user.create_user(session=db, user_create=user_in)
-
-    user = crud.user.get_user_by_name(session=db, name='test_put_usrname')
+    user = crud.user.get_user_by_name(session=db, name='TEST_NAME')
 
     data = {"username": 'ab', 'first_name': user.first_name, "last_name": user.last_name}
 
     r = client.put(
         f"users/{user.id}",
-        json=data
+        json=data,
+        headers=logged_user_token_headers,
     )
 
     updated_user = r.json()
@@ -211,7 +211,8 @@ def test_update_user_username_length(
 
     r = client.put(
         f"users/{user.id}",
-        json=data
+        json=data,
+        headers=logged_user_token_headers
     )
 
     updated_user = r.json()
@@ -219,21 +220,19 @@ def test_update_user_username_length(
     assert updated_user['detail'] == 'Username, first name and last name must contain at most 20 characters.'
 
 def test_update_user_existing_username(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     user_in = UserCreate(email='test_put_usrname1', username='test_put_usrname1', first_name=last_name, last_name=first_name, password=password)
     crud.user.create_user(session=db, user_create=user_in)
 
-    user_in = UserCreate(email='test_put_usrname2', username='test_put_usrname2', first_name=last_name, last_name=first_name, password=password)
-    crud.user.create_user(session=db, user_create=user_in)
-
-    user = crud.user.get_user_by_name(session=db, name='test_put_usrname2')
+    user = crud.user.get_user_by_name(session=db, name='TEST_NAME')
 
     data = {"username": 'test_put_usrname1', 'first_name': user.first_name, "last_name": user.last_name}
 
     r = client.put(
         f"users/{user.id}",
-        json=data
+        json=data,
+        headers=logged_user_token_headers,
     )
 
     updated_user = r.json()
@@ -241,33 +240,32 @@ def test_update_user_existing_username(
     assert updated_user['detail'] == 'This username is already in use.'
 
 def test_update_all_fields(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_in = UserCreate(email='test_put_all', username='test_put_all', first_name=last_name, last_name=first_name, password=password)
-    crud.user.create_user(session=db, user_create=user_in)
+    user = crud.user.get_user_by_name(session=db, name='TEST_NAME')
 
-    user = crud.user.get_user_by_name(session=db, name='test_put_all')
-
-    data = {"username": 'test_put_usr', 'first_name': 'test_put_first', "last_name": 'test_put_last'}
+    data = {"username": 'TEST_NAME', 'first_name': 'test_put_first', "last_name": 'test_put_last'}
 
     r = client.put(
         f"users/{user.id}",
-        json=data
+        json=data,
+        headers=logged_user_token_headers,
     )
 
     updated_user = r.json()
     assert r.status_code == 200
-    assert updated_user['username'] == 'test_put_usr'
+    assert updated_user['username'] == 'TEST_NAME'
     assert updated_user['first_name'] == 'test_put_first'
     assert updated_user['last_name'] == 'test_put_last'
 
 def test_update_user_not_found(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     data = {"email": email, "username": username, "first_name": first_name, "last_name": last_name}
 
     r = client.put(
         f"users/999999",
+        headers=logged_user_token_headers,
         json=data
     )
 
@@ -275,35 +273,59 @@ def test_update_user_not_found(
     assert r.status_code == 404
     assert updated_user['detail'] == 'User not found.'
 
-## TESTS FOR DELETE ENDPOINT
-def test_delete_user(
+def test_update_user_not_logged(
     client: TestClient, db: Session
 ) -> None:
-    data = {"email": email, "username": username, "first_name": first_name, "last_name": last_name, "password": password}
+    user = crud.user.get_user_by_name(session=db, name='TEST_NAME')
+
+    data = {"username": 'TEST_NAME', 'first_name': 'test_put_first', "last_name": 'test_put_last'}
+
+    r = client.put(
+        f"users/{user.id}",
+        json=data,
+        headers={},
+    )
+
+    updated_user = r.json()
+    assert r.status_code == 401
+    assert updated_user["detail"] == "Not authenticated"
+
+## TESTS FOR DELETE ENDPOINT
+def test_delete_user(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    data = {"email": 'email_delete', "username": 'usrname_delete', "first_name": first_name, "last_name": last_name, "password": password}
     r = client.post(
         f"/users/",
         json=data,
     )
 
-    user = crud.user.get_user_by_name(session=db, name=username)
+    user = r.json()
+
+    access_token=create_access_token(user['id'],expires_delta=timedelta(minutes=settings.TOKEN_EXPIRE_TIME))
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    user = crud.user.get_user_by_name(session=db, name='usrname_delete')
 
     r = client.delete(
-        f"/users/{user.id}"
+        f"/users/{user.id}",
+        headers=headers,
     )
 
     assert r.status_code == 200
     deleted_user = r.json()
     assert deleted_user["message"] == "User deleted successfully"
 
-def test_delete_user_not_found(
-    client: TestClient, db: Session
+def test_delete_user_not_owner(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     r = client.delete(
         f"/users/99999999",
+        headers=logged_user_token_headers,
     )
     
-    assert r.status_code == 404
-    assert r.json()["detail"] == "User not found."
+    assert r.status_code == 403
+    assert r.json()["detail"] == "You do not have permission to do this action"
 
 def test_get_user_not_found_by_name(
     client: TestClient, db: Session

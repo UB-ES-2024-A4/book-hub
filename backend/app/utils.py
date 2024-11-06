@@ -80,9 +80,9 @@ def check_quantity_likes(likes: int):
             detail="Created post must have 0 likes.",
         )
     
-def check_post_ownership(current_usr_id: int, post_usr_id: int):
-    if current_usr_id != post_usr_id:
+def check_ownership(current_usr_id: int, check_usr_id: int):
+    if current_usr_id != check_usr_id:
         raise HTTPException(
             status_code=403,
-            detail="You do not have permission to handle this post",
+            detail="You do not have permission to do this action",
         )

@@ -78,7 +78,7 @@ def get_posts_by_book_id(book_id: int, session: Session = Depends(get_session)):
 # Update post endpoint
 @router.put("/{post_id}",
              dependencies=[Depends(get_current_user)])
-def update_user(post_id: int, post_in: PostUpdate, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+def update_post(post_id: int, post_in: PostUpdate, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     # Get current post
     session_post : Post = crud.post.get_post(session=session, post_id=post_id)
 
@@ -88,7 +88,7 @@ def update_user(post_id: int, post_in: PostUpdate, session: Session = Depends(ge
         detail="Post not found.",
     )
 
-    utils.check_post_ownership(current_usr_id=current_user.id, post_usr_id=session_post.user_id)
+    utils.check_ownership(current_usr_id=current_user.id, check_usr_id=session_post.user_id)
 
     post = crud.post.update_post(session=session, post_update=post_in, db_post=session_post)  
     
@@ -107,7 +107,7 @@ def delete_user(post_id: int, session: Session = Depends(get_session), current_u
         detail="Post not found.",
     )
 
-    utils.check_post_ownership(current_usr_id=current_user.id, post_usr_id=session_post.user_id)
+    utils.check_ownership(current_usr_id=current_user.id, check_usr_id=session_post.user_id)
 
     post = crud.post.delete_post(session=session, db_post=session_post)
     
