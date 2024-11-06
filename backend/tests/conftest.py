@@ -57,5 +57,5 @@ def override_get_session(db: Session) -> None:
     app.dependency_overrides = {}
 
 @pytest.fixture(scope="module")
-def normal_user_token_headers(client: TestClient) -> dict[str, str]:
+def logged_user_token_headers(client: TestClient) -> dict[str, str]:
     return get_user_token_headers(client)

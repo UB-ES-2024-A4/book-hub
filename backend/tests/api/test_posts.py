@@ -22,7 +22,7 @@ def get_test_parameters(db: Session):
     return user_test.id, book_test.id
 
 def test_create_post_with_likes(
-    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -30,7 +30,7 @@ def test_create_post_with_likes(
 
     r = client.post(
         "/posts/",
-        headers=normal_user_token_headers,
+        headers=logged_user_token_headers,
         json=data    
     )
     
@@ -40,7 +40,7 @@ def test_create_post_with_likes(
     assert created_post['detail'] == 'Created post must have 0 likes.'
 
 def test_create_post_user_not_found(
-    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -48,7 +48,7 @@ def test_create_post_user_not_found(
 
     r = client.post(
         "/posts/",
-        headers=normal_user_token_headers,
+        headers=logged_user_token_headers,
         json=data    
     )
     
@@ -58,7 +58,7 @@ def test_create_post_user_not_found(
     assert created_post['detail'] == 'User not found.'
 
 def test_create_post_book_not_found(
-    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -66,7 +66,7 @@ def test_create_post_book_not_found(
 
     r = client.post(
         "/posts/",
-        headers=normal_user_token_headers,
+        headers=logged_user_token_headers,
         json=data    
     )
     
@@ -76,7 +76,7 @@ def test_create_post_book_not_found(
     assert created_post['detail'] == 'Book not found.'
 
 def test_create_post(
-    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -84,7 +84,7 @@ def test_create_post(
 
     r = client.post(
         "/posts/",
-        headers=normal_user_token_headers,
+        headers=logged_user_token_headers,
         json=data    
     )
     
@@ -97,14 +97,32 @@ def test_create_post(
     assert created_post['data']['description'] == description
     assert created_post['data']['likes'] == 0
 
+def test_create_post_not_logged_user(
+    client: TestClient, db: Session
+) -> None:
+    user_id, book_id = get_test_parameters(db)
+
+    data = {'user_id': user_id, 'book_id': book_id, 'description': description, 'created_at': f'{created_at}'}
+
+    r = client.post(
+        "/posts/",
+        headers={},
+        json=data    
+    )
+    
+    created_post = r.json()
+
+    assert r.status_code == 401
+    assert created_post["detail"] == "Not authenticated"
+
 def test_update_post_not_found(
-    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     data = {'description': 'b'}
 
     r = client.put(
         f'/posts/-1',
-        headers=normal_user_token_headers,
+        headers=logged_user_token_headers,
         json=data
     )
 
@@ -113,7 +131,7 @@ def test_update_post_not_found(
     assert updated_post['detail'] == "Post not found."
 
 def test_update_post(
-    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
     new_description = 'b'
@@ -125,7 +143,7 @@ def test_update_post(
     
     r = client.put(
         f"/posts/{created_post.id}",
-        headers=normal_user_token_headers,
+        headers=logged_user_token_headers,
         json=data    
     )
     
@@ -135,13 +153,35 @@ def test_update_post(
     assert created_post['message'] == 'Post updated successfully'
     assert created_post['data']['description'] == new_description
 
+def test_update_post_not_logged_user(
+    client: TestClient, db: Session
+) -> None:
+    user_id, book_id = get_test_parameters(db)
+    new_description = 'b'
+
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    created_post = crud.post.create_post(session=db, post_create=post_in)
+
+    data = {'description': new_description}
+    
+    r = client.put(
+        f"/posts/{created_post.id}",
+        headers={},
+        json=data    
+    )
+    
+    created_post = r.json()
+
+    assert r.status_code == 401
+    assert created_post["detail"] == "Not authenticated"
+
 def test_delete_post_not_found(
-    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
 
     r = client.delete(
         f'/posts/-1',
-        headers=normal_user_token_headers,
+        headers=logged_user_token_headers,
     )
 
     updated_post = r.json()
@@ -149,7 +189,7 @@ def test_delete_post_not_found(
     assert updated_post['detail'] == "Post not found."
 
 def test_delete_post(
-    client: TestClient, db: Session, normal_user_token_headers: dict[str, str]
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
     user_id, book_id = get_test_parameters(db)
 
@@ -158,13 +198,31 @@ def test_delete_post(
     
     r = client.delete(
         f"/posts/{created_post.id}",
-        headers=normal_user_token_headers,
+        headers=logged_user_token_headers,
     )
     
     created_post = r.json()
 
     assert r.status_code == 200
     assert created_post['message'] == 'Post deleted successfully'
+
+def test_delete_post_not_logged_user(
+    client: TestClient, db: Session
+) -> None:
+    user_id, book_id = get_test_parameters(db)
+
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    created_post = crud.post.create_post(session=db, post_create=post_in)
+    
+    r = client.delete(
+        f"/posts/{created_post.id}",
+        headers={},
+    )
+    
+    created_post = r.json()
+
+    assert r.status_code == 401
+    assert created_post["detail"] == "Not authenticated"
 
 def test_get_all_posts(
     client: TestClient, db: Session

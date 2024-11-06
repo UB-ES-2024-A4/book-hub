@@ -340,8 +340,8 @@ def test_get_all_users(
 
     all_users = r.json()
 
-    assert len(all_users) > 1
-    for item in all_users:
+    assert len(all_users['users']) > 1
+    for item in all_users['users']:
         assert "username" in item
         assert "email" in item
         assert "first_name" in item
@@ -400,7 +400,7 @@ def test_get_users_empty(
         all_users = r.json()
 
         assert r.status_code == 200
-        assert all_users == []
+        assert all_users['users'] == []
     finally:
         db.rollback()
 
