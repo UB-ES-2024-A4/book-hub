@@ -1,11 +1,9 @@
 "use server";
 
-import { cookies } from 'next/headers';
 import Header from "@/components/Header";
 import ProfileHeader from "@/app/account/components/ProfileHeader";
 import Tabs from "./components/Tabs";
 import { User } from "@/app/types/User";
-import { redirect } from "next/navigation";
 import {loadUser} from "@/app/actions";
 
 const AccountPage = async () => {
