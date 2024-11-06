@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
 import { Post } from "@/app/types/Post";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export async function CreateUser(prevState: unknown, formData: FormData) {
     // Validate form data with Zod
@@ -26,7 +27,7 @@ export async function CreateUser(prevState: unknown, formData: FormData) {
     try {
         // Convert formData to JSON
         const data = Object.fromEntries(formData);
-        const response = await fetch('http://127.0.0.1:8000/users/', {
+        const response = await fetch(baseUrl + '/users/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -70,7 +71,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
         data.append("username", formData.get("user") as string);
         data.append("password", formData.get("password") as string);
         
-        const response = await fetch('http://127.0.0.1:8000/users/login/access-token', {
+        const response = await fetch(baseUrl + '/users/login/access-token', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -112,7 +113,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
 }
 
 export async function fetchProfilePictureUser(userId: number): Promise<string> {
-    const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`);
+    const response = await fetch(baseUrl + `/users/pfp/${userId}`);
     if (response.ok) {
       return `http://127.0.0.1:8000/users/pfp/${userId}?${new Date().getTime()}`;
     } else {
@@ -149,7 +150,7 @@ export async function loadUser(): Promise<User | null> {
     }
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/users/me", {
+        const response = await fetch( "users/me", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
