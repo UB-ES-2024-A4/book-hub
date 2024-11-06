@@ -110,29 +110,19 @@ export async function SignIn(prevState: unknown, formData: FormData) {
         }
     }
 }
-
-export async function fetchProfilePictureUser(userId: number): Promise<string> {
-    const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`);
-    if (response.ok) {
-      return `http://127.0.0.1:8000/users/pfp/${userId}?${new Date().getTime()}`;
-    } else {
-      return "/book.jpg"; // Default image
-    }
-  }
-  
   
   export async function putProfilePictureBackend(formData: FormData, userId: number) {
      try {
           const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`, {
             method: 'PUT',
             body: formData,
-          });
-  
-          if (response.ok) {
-            await fetchProfilePictureUser(userId);
-          } else {
-            console.error("Error uploading the profile picture");
+          }).then( (res) => res.json());
+
+          if (!response.ok) {
+            console.error("Failed to upload the image");
+            return null;
           }
+
         } catch (error) {
           console.error("Failed to upload the image", error);
         }

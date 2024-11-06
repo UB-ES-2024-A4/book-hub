@@ -1,21 +1,29 @@
+"use client";
 import Image from "next/image";
 import {Camera} from "lucide-react";
-import React from "react";
+import React, {useState} from "react";
 import {User} from "@/app/types/User";
 
 type Props = {
     userDataMock: User;
-    profilePictureUrl: string;
     setIsHovering: React.Dispatch<React.SetStateAction<boolean>>;
     handleProfilePictureChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     isHovering: boolean;
 }
 
-export default function UserProfilePicture ({userDataMock, profilePictureUrl, setIsHovering, isHovering, handleProfilePictureChange}: Props) {
+export default function UserProfilePicture ({userDataMock, setIsHovering, isHovering, handleProfilePictureChange}: Props) {
+    const [imageReload, setImageUrl] = useState(`http://127.0.0.1:8000/users/pfp/${userDataMock.id}`);
+
+    const reloadImage = () => {
+        setImageUrl(`http://127.0.0.1:8000/users/pfp/${userDataMock.id}?timestamp=${new Date().getTime().toLocaleString()}`);
+        console.log("Image reloaded", userDataMock.id);
+    }
+
+
     return (
         <div className="relative">
             <Image
-                src={userDataMock.coverPhoto || "/placeholder.svg?height=600&width=800&text=Cover+Photo"}
+                src={userDataMock.coverPhoto || "/book.jpg"}
                 alt="Cover Photo"
                 width={800}
                 height={600}
@@ -28,9 +36,9 @@ export default function UserProfilePicture ({userDataMock, profilePictureUrl, se
                     onMouseLeave={() => setIsHovering(false)}
                 >
                     <Image
-                        key={profilePictureUrl}
-                        src={profilePictureUrl || "/book.jpg"}
-                        alt={`${userDataMock.firstName}'s profile picture`}
+                        key={imageReload}
+                        src={ imageReload || "/book.jpg"}
+                        alt={`${userDataMock.firstName}'s picture`}
                         width={100}
                         height={100}
                         className="w-24 h-24 rounded-full border-4 border-white"
@@ -48,7 +56,11 @@ export default function UserProfilePicture ({userDataMock, profilePictureUrl, se
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={handleProfilePictureChange}
+                        onChange={async (event) => {
+                            await handleProfilePictureChange(event);
+                            console.log("Profile picture changed");
+                            reloadImage();
+                        }}
                         aria-label="Change profile picture"
                     />
                 </div>
