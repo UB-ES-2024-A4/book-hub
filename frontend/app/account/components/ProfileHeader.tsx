@@ -42,14 +42,12 @@ export default function ProfileHeader({ userData }: PropsUser) {
 
       // Upload the file to the backend
       await putProfilePictureBackend(formData, userData.id);
-      // Fetch the updated profile picture
-      await fetchProfilePicture();
     }
   }
   return (
     <div>
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <UserProfilePicture userDataMock={userDataMock} profilePictureUrl={profilePictureUrl} setIsHovering={setIsHovering}
+        <UserProfilePicture userDataMock={userDataMock} setIsHovering={setIsHovering}
                             isHovering={isHovering} handleProfilePictureChange={handleProfilePictureChange}/>
 
         <UserProfileData userDataMock={userDataMock} handleEdit={handleEdit}/>

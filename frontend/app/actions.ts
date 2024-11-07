@@ -10,6 +10,8 @@ import { Post } from "@/app/types/Post";
 import { BaseNextRequest } from "next/dist/server/base-http";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 
 export async function CreateUser(prevState: unknown, formData: FormData) {
     // Validate form data with Zod
@@ -114,9 +116,10 @@ export async function SignIn(prevState: unknown, formData: FormData) {
 }
 
 export async function fetchProfilePictureUser(userId: number): Promise<string> {
-    const response = await fetch(baseUrl + `/users/pfp/${userId}`);
+    const url = NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userId}.png`;
+    const response = await fetch(url);
     if (response.ok) {
-      return baseUrl + `/users/pfp/${userId}?${new Date().getTime()}`;
+      return `${url}?${new Date().getTime()}`;
     } else {
       return "/book.jpg"; // Default image
     }
@@ -124,22 +127,22 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
   
   
   export async function putProfilePictureBackend(formData: FormData, userId: number) {
-     try {
-          const response = await fetch(baseUrl + `/users/pfp/${userId}`, {
-            method: 'PUT',
-            body: formData,
-          });
-  
-          if (response.ok) {
-            await fetchProfilePictureUser(userId);
-          } else {
-            console.error("Error uploading the profile picture");
-          }
-        } catch (error) {
-          console.error("Failed to upload the image", error);
-        }
-  }
-
+    try {
+         // TODO: Accept other images formats (e.g. jpeg, jpg)
+         const response = await fetch(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userId}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE}`, {
+           method: 'PUT',
+           body: formData.get('file'),
+           headers: {
+               'Content-Type': 'image/png',
+               'x-ms-blob-type': 'BlockBlob',
+               'x-ms-date': new Date().toUTCString(),
+           }
+         });
+   
+       } catch (error) {
+         console.error("Failed to upload the image", error);
+       }
+   }
 
 export async function loadUser(): Promise<User | null> {
     const cookieStore = cookies();
@@ -151,7 +154,7 @@ export async function loadUser(): Promise<User | null> {
     }
 
     try {
-        const response = await fetch( "users/me", {
+        const response = await fetch( baseUrl + "/users/me", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
