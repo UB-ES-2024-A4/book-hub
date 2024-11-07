@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
 import { Post } from "@/app/types/Post";
+import { BaseNextRequest } from "next/dist/server/base-http";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -115,7 +116,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
 export async function fetchProfilePictureUser(userId: number): Promise<string> {
     const response = await fetch(baseUrl + `/users/pfp/${userId}`);
     if (response.ok) {
-      return `http://127.0.0.1:8000/users/pfp/${userId}?${new Date().getTime()}`;
+      return baseUrl + `/users/pfp/${userId}?${new Date().getTime()}`;
     } else {
       return "/book.jpg"; // Default image
     }
@@ -124,7 +125,7 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
   
   export async function putProfilePictureBackend(formData: FormData, userId: number) {
      try {
-          const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`, {
+          const response = await fetch(baseUrl + `/users/pfp/${userId}`, {
             method: 'PUT',
             body: formData,
           });
@@ -185,7 +186,7 @@ export async function loadUser(): Promise<User | null> {
 // Function to load the posts in the home page
 export async function loadPosts() : Promise<Post[]|null> {
     try {
-        const response = await fetch("http://127.0.0.1:8000/posts/all", {
+        const response = await fetch(baseUrl + "/posts/all", {
             method: "GET",
             headers: {
                 "Accept": "application/json"

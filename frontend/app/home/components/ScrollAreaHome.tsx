@@ -14,6 +14,8 @@ type Props = {
     posts: Post[] | null;
 };
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function ScrollAreaHome({ posts }: Props) {
     const [userData, setUserData] = useState<{ [key: number]: User }>({});
 
@@ -26,7 +28,7 @@ export default function ScrollAreaHome({ posts }: Props) {
                 // Itera sobre los posts y obtiene los datos de usuario correspondientes
                 await Promise.all(
                     posts.map(async (post) => {
-                        const response = await fetch(`http://127.0.0.1:8000/users/${post.user_id}`);
+                        const response = await fetch(baseUrl + `/users/${post.user_id}`);
                         const user = await response.json();
                         user.profilePicture = await fetchProfilePictureUser(user.id)
                         usersMap[post.user_id] = user;
