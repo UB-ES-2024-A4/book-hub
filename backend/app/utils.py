@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from app.models.user import User
+from app.models import User, Book
 from sqlmodel import select
 
 def check_email_name_length(username: str, first_name: str, last_name: str):
@@ -52,3 +52,37 @@ def check_pwd_length(password: str):
             detail="Password must contain between 8 and 28 characters.",
         )
     
+def check_existence_book_user(book_id: int | None, user_id: int | None, session):
+    if user_id:
+        statement = select(User).where(User.id == user_id)
+        session_user = session.exec(statement).first()
+
+        if not session_user: 
+            raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    if book_id:
+        statement = select(Book).where(Book.id == book_id)
+        session_book = session.exec(statement).first()
+
+        if not session_book: 
+            raise HTTPException(
+            status_code=404,
+            detail="Book not found.",
+        )
+
+def check_quantity_likes(likes: int):
+    if likes != 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Created post must have 0 likes.",
+        )
+    
+def check_ownership(current_usr_id: int, check_usr_id: int):
+    if current_usr_id != check_usr_id:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have permission to do this action",
+        )

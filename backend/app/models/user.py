@@ -1,6 +1,4 @@
-from sqlmodel import Field
-from typing import Optional
-from .base import SQLModel
+from .deps import *
 
 # Shared properties
 class UserBase(SQLModel):
@@ -13,16 +11,17 @@ class UserBase(SQLModel):
 
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    password : str
+    id: Optional[int] = Field(default=None, primary_key=True)
+    password: str = Field(max_length=255, nullable=False)
+    created_at: datetime | None = Field(default_factory=datetime.now)
+
+    posts: list["Post"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
+    likes: list["Like"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
+    comments: list["Comment"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
 
 class UserCreate(UserBase):
     password: str
 
-class Token(SQLModel):
-    access_token: str
-    token_type: str = "bearer"
-    
 # Contents of JWT token
 class TokenPayload(SQLModel):
     sub: int | None = None
@@ -45,3 +44,8 @@ class UserOut(UserBase):
 
 class UsersOut(SQLModel):
     users: list[UserOut]
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut

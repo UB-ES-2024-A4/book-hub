@@ -1,7 +1,8 @@
 from sqlmodel import Session, create_engine, select
 from app.core.config import settings
+from datetime import datetime
 
-from app.models.user import User
+from app.models import User, Book
 
 # Creamos el engine conectando con la base de datos.
 engine = create_engine(str(settings.SQLALCHEMY_URI))
@@ -14,9 +15,9 @@ def init_db(session: Session) -> None:
 
     # TODO Variables van al .env
     username = "TEST_NAME"
-
+    first_name = "TEST_FIRST_NAME"
+    last_name = "TEST_LAST_NAME"
     email = "test@test.com"
-
     password = "TestPassword"
 
     user = session.exec(
@@ -24,6 +25,19 @@ def init_db(session: Session) -> None:
     ).first()
 
     if not user:
-        session.add(User(username=username, email=email, password=password))
+        session.add(User(username=username, email=email, password=password, first_name= first_name, last_name=last_name))
+        session.commit()
+
+    title = 'TEST'
+    author = 'TEST'
+    description = 'TESTING'
+    created_at = datetime.now()
+
+    book = session.exec(
+        select(Book).where(Book.title == title)
+    ).first()
+
+    if not book:
+        session.add(Book(title=title, author=author, description=description, created_at=created_at))
         session.commit()
     
