@@ -85,6 +85,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
         }
 
         const responseData = await response.json();
+        //eslint-disable-next-line
         const { access_token, token_type } = responseData;
 
         // Set the access token in an HTTP-only cookie

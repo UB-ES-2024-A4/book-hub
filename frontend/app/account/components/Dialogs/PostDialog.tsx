@@ -2,18 +2,7 @@ import React from "react";
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import Image from "next/image";
 import {Heart, MessageCircle} from "lucide-react";
-
-type Post = {
-  id: number;
-  title: string;
-  author: string;
-  coverImage: string;
-  content: string;
-  tags: string[];
-  likes: number;
-  shares?: number;
-  comments: number;
-};
+import {Post} from "@/app/types/Post";
 
 type PostDialogAccountProps = {
   selectedPost: Post | null;

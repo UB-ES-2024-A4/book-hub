@@ -5,12 +5,13 @@ import Image from 'next/image';
 import { Heart, MessageCircle } from 'lucide-react';
 import PostDialog from "@/app/account/components/Dialogs/PostDialog";
 import React, {useState} from "react";
-import {Post} from "@/app/types/Post";
+import { Post } from "@/app/types/Post";
 import {PropsUser} from "@/app/types/PropsUser";
-
-const userPosts = [
+const userPosts: Post[] = [
   {
     id: 1,
+    book_id: 1,
+    user_id: 1,
     title: "Name of the Book",
     author: "Author's Name",
     coverImage: "/book.jpg",
@@ -18,9 +19,13 @@ const userPosts = [
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     likes: 15,
     comments: 3,
+    description: "Description of the book",
+    created_at: new Date().toISOString(),
   },
   {
     id: 2,
+    book_id: 2,
+    user_id: 1,
     title: "Name of the Book",
     author: "Author's Name",
     coverImage: "/book.jpg",
@@ -28,41 +33,14 @@ const userPosts = [
     tags: ["Tag1", "Tag2", "Tag3"],
     likes: 30,
     comments: 8,
+    description: "Description of the book",
+    created_at: new Date().toISOString(),
   },
-  {
-    id: 2,
-    title: "Name of the Book",
-    author: "Author's Name",
-    coverImage: "/book.jpg",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
-  },
-  {
-    id: 2,
-    title: "Name of the Book",
-    author: "Author's Name",
-    coverImage: "/book.jpg",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
-  },
-  {
-    id: 2,
-    title: "Name of the Book",
-    author: "Author's Name",
-    coverImage: "/book.jpg",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
-  },
+  // Add more posts as needed
 ];
 
 
-
+//eslint-disable-next-line
 export default function PostsGrid( {userData}: PropsUser ) {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 

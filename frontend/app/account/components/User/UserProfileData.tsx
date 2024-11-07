@@ -1,13 +1,14 @@
-import {Button} from "@/components/ui/button";
-import {Edit2} from "lucide-react";
+//import {Button} from "@/components/ui/button";
+//import {Edit2} from "lucide-react";
 import React from "react";
 import {User} from "@/app/types/User";
 
 type Props = {
     userDataMock: User;
+    //eslint-disable-next-line
     handleEdit: () => void;
 }
-
+//eslint-disable-next-line
 export default function UserProfileData ({userDataMock, handleEdit}: Props) {
     return (
         <div className="pt-16 px-8 pb-8">
