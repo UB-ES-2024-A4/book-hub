@@ -3,7 +3,7 @@ name: Build and deploy Python app to Azure Web App - bookhubapi
 on:
   push:
     branches:
-      - main
+      - "US3.1/devops/feat/deploy-app"
   workflow_dispatch:
 
 env:
@@ -27,25 +27,28 @@ jobs:
         with:
           python-version: '3.11.x'
 
-      - name: Change to backend directory
-        run: cd backend
-
       - name: Install Poetry
         run: |
           pip install poetry
 
-      - name: Lock and install dependencies with Poetry
+      - uses: Gr1N/setup-poetry@v8
+      - run: poetry --version
+      
+      - name: Install dependencies
+        working-directory: ./backend
         run: |
           poetry lock
           poetry install
           
       - name: Run Alembic migrations
+        working-directory: ./backend
         run: |
           poetry run alembic upgrade head
 
       - name: Generate requirements.txt
+        working-directory: ./backend
         run: |
-          poetry run pip freeze | grep -v "-e git" > requirements.txt
+          poetry export --dev --all-extras --without-hashes --format=requirements.txt
 
       - name: Zip artifact for deployment
         run: zip release.zip ./backend/* -r

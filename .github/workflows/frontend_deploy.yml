@@ -7,7 +7,7 @@ name: Frontend Deploy Web App
 on:
   push:
     branches:
-      - main
+      - "US3.1/devops/feat/deploy-app"
   workflow_dispatch:
 
 env:
