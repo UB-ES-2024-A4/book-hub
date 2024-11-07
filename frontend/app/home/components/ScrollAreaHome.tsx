@@ -72,7 +72,7 @@ export default function ScrollAreaHome({ posts }: Props) {
                                     <div className="flex items-center space-x-2 img-hero transition-transform cursor-pointer">
                                         <Avatar className="avatar rounded-full">
                                             {/* Imagen de perfil del usuario */}
-                                            <AvatarImage src={user.profilePicture || "/book-signup.jpg"} />
+                                            <AvatarImage src={user?.profilePicture || "/book-signup.jpg"} />
                                             <AvatarFallback>User</AvatarFallback>
                                         </Avatar>
                                         <span className="pl-1 text-transparent bg-clip-text bg-gradient-to-br from-blue-200 to-blue-950">
