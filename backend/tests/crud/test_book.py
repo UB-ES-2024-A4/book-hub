@@ -7,7 +7,7 @@ from app.models import Post, Book, BookCreate, BookUpdate
 
 title = 'Book_Test'
 author = 'Tester'
-description = 'Fcking great'
+description = 'Good'
 created_at = datetime.now()
 
 def test_create_book(db: Session) -> None:
