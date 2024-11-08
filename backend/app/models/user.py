@@ -19,6 +19,21 @@ class User(UserBase, table=True):
     likes: list["Like"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
     comments: list["Comment"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
 
+    # Relationships for following/followers
+    following: list["UserFollow"] = Relationship(
+        back_populates="follower", 
+        sa_relationship_kwargs={"primaryjoin": "User.id==UserFollow.follower_id"}
+    )  # type: ignore
+
+    followers: list["UserFollow"] = Relationship(
+        back_populates="followee", 
+        sa_relationship_kwargs={"primaryjoin": "User.id==UserFollow.followee_id"}
+    )  # type: ignore
+
+    # Fields to store follower and followee counts
+    follower_count: int = Field(default=0)
+    followee_count: int = Field(default=0)
+
 class UserCreate(UserBase):
     password: str
 
