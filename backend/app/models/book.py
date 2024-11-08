@@ -14,5 +14,7 @@ class Book(BookBase, table=True):
 class BookCreate(BookBase):
     pass
 
-class BookUpdate(BookBase):
-    pass
+class BookUpdate(SQLModel):
+    title: str | None = None
+    author: str | None = None
+    description: str | None = None
