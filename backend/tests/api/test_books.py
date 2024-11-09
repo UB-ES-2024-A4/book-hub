@@ -222,3 +222,60 @@ def test_get_book_by_author(
     assert r.status_code == 200
     for item in all_books:
         assert 'tes' in item['author'].lower()
+
+def test_update_book_not_found(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    r = client.put(
+        '/books/-1',
+        headers=logged_user_token_headers,
+        json={}
+    )
+
+    updated_post = r.json()
+
+    assert r.status_code == 404
+    assert updated_post['detail'] == 'Book not found.'
+
+def test_update_book(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    new_author = 'author'
+    new_title = 'title'
+    new_description = 'b'
+
+    book_in = BookCreate(title=title, author=author, description=description, created_at=created_at)
+    created_book = crud.book.create_book(session=db, book_create=book_in)
+
+    data = {'author': new_author, 'title': new_title, 'description': new_description}
+    
+    r = client.put(
+        f"/books/{created_book.id}",
+        headers=logged_user_token_headers,
+        json=data    
+    )
+    
+    created_book = r.json()
+
+    assert r.status_code == 200
+    assert created_book['message'] == 'Book updated successfully'
+    assert created_book['data']['title'] == new_title
+    assert created_book['data']['author'] == new_author
+    assert created_book['data']['description'] == new_description
+
+def test_update_book_not_logged_user(
+    client: TestClient, db: Session
+) -> None:
+    book_in = BookCreate(title=title, author=author, description=description, created_at=created_at)
+    created_book = crud.book.create_book(session=db, book_create=book_in)
+    
+    r = client.put(
+        f"/posts/{created_book.id}",
+        headers={},
+        json={}    
+    )
+    
+    updated_book = r.json()
+
+    assert r.status_code == 401
+    assert updated_book["detail"] == "Not authenticated"

@@ -63,3 +63,20 @@ def get_books_by_author(author: str = Path(..., min_length=1), session: Session 
         status_code=404,
         detail="No books were found",
     )
+
+# Update book endpoint
+@router.put("/{book_id}",
+             dependencies=[Depends(get_current_user)])
+def update_post(book_id: int, book_in: BookUpdate, session: Session = Depends(get_session)):
+    # Get current book
+    session_book : Book = crud.book.get_book_by_id(session=session, book_id=book_id)
+
+    if not session_book: 
+        raise HTTPException(
+        status_code=404,
+        detail="Book not found.",
+    )
+
+    post = crud.book.update_book(session=session, book_update=book_in, db_book=session_book)  
+    
+    return {"message": "Book updated successfully", "data": post}
