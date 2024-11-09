@@ -80,3 +80,20 @@ def update_post(book_id: int, book_in: BookUpdate, session: Session = Depends(ge
     post = crud.book.update_book(session=session, book_update=book_in, db_book=session_book)  
     
     return {"message": "Book updated successfully", "data": post}
+
+# Delete book endpoint
+@router.delete("/{book_id}",
+             dependencies=[Depends(get_current_user)])
+def delete_book(book_id: int, session: Session = Depends(get_session)):
+    # Get current book
+    session_book : Book = crud.book.get_book_by_id(session=session, book_id=book_id)
+
+    if not session_book: 
+        raise HTTPException(
+        status_code=404,
+        detail="Book not found.",
+    )
+
+    book = crud.book.delete_book(session=session, db_book=session_book)
+    
+    return {"message": "Book deleted successfully", "data": book}

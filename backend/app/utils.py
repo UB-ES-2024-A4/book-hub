@@ -86,3 +86,10 @@ def check_ownership(current_usr_id: int, check_usr_id: int):
             status_code=403,
             detail="You do not have permission to do this action",
         )
+    
+def check_book_fields(title: str, author: str, description: str):
+    if title == None or author == None or description == None or not title or not author or not description: 
+        raise HTTPException(
+            status_code=400,
+            detail="Created book is missing parameters",
+        )

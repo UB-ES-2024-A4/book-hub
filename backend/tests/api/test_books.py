@@ -279,3 +279,48 @@ def test_update_book_not_logged_user(
 
     assert r.status_code == 401
     assert updated_book["detail"] == "Not authenticated"
+
+def test_delete_book_not_found(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+
+    r = client.delete(
+        f'/books/-1',
+        headers=logged_user_token_headers,
+    )
+
+    updated_book = r.json()
+    assert r.status_code == 404
+    assert updated_book['detail'] == "Book not found."
+
+def test_delete_book(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    book_in = BookCreate(title=title, author=author, description=description, created_at=created_at)
+    created_book = crud.book.create_book(session=db, book_create=book_in)
+    
+    r = client.delete(
+        f"/books/{created_book.id}",
+        headers=logged_user_token_headers,
+    )
+    
+    deleted_book = r.json()
+
+    assert r.status_code == 200
+    assert deleted_book['message'] == 'Book deleted successfully'
+
+def test_delete_book_not_logged_user(
+    client: TestClient, db: Session
+) -> None:
+    book_in = BookCreate(title=title, author=author, description=description, created_at=created_at)
+    created_book = crud.book.create_book(session=db, book_create=book_in)
+    
+    r = client.delete(
+        f"/books/{created_book.id}",
+        headers={},
+    )
+    
+    deleted_book = r.json()
+
+    assert r.status_code == 401
+    assert deleted_book["detail"] == "Not authenticated"
