@@ -72,3 +72,19 @@ def test_get_all_books(db: Session) -> None:
         assert item.title
         assert item.author
         assert item.description
+
+def test_update_book_all_fields(db: Session) -> None:
+    new_title = 'Book'
+    new_author = 'Book'
+    new_description = 'Great'
+
+    book_in = BookCreate(title=title, author=author, description=description, created_at=created_at)
+    db_book = crud.book.create_book(session=db, book_create=book_in)
+
+    book_in = BookUpdate(title=new_title, author=new_author, description=new_description)
+
+    updated_book = crud.book.update_book(session=db, book_update=book_in, db_book=db_book)
+
+    assert updated_book.title == new_title
+    assert updated_book.author == new_author
+    assert updated_book.description == new_description

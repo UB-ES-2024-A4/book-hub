@@ -26,3 +26,11 @@ def get_books_by_author(*, session: Session, author: str) -> Any:
 def get_all_books(*, session: Session) -> Any:
     books = session.exec(select(Book)).all()
     return books
+
+def update_book(*, session: Session, book_update: BookUpdate, db_book: Book) -> Book:
+    book_data = book_update.model_dump(exclude_unset=True)
+    db_book.sqlmodel_update(book_data)
+    session.add(db_book)
+    session.commit()
+    session.refresh(db_book)
+    return db_book
