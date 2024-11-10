@@ -21,14 +21,14 @@ class User(UserBase, table=True):
 
     # Relationships for following/followers
     following: list["UserFollow"] = Relationship(
-        back_populates="follower", 
-        sa_relationship_kwargs={"primaryjoin": "User.id==UserFollow.follower_id"}
-    )  # type: ignore
+        back_populates="follower",
+        sa_relationship_kwargs={"foreign_keys": "UserFollow.follower_id"}
+    )
 
     followers: list["UserFollow"] = Relationship(
-        back_populates="followee", 
-        sa_relationship_kwargs={"primaryjoin": "User.id==UserFollow.followee_id"}
-    )  # type: ignore
+        back_populates="followee",
+        sa_relationship_kwargs={"foreign_keys": "UserFollow.followee_id"}
+    )
 
     # Fields to store follower and followee counts
     follower_count: int = Field(default=0)

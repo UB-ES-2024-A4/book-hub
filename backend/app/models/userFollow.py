@@ -5,7 +5,6 @@ from .deps import (
     Field,
     Optional
 )
-from .user import User
 
 # Base class for UserFollow 
 class UserFollowBase(SQLModel):
@@ -17,8 +16,15 @@ class UserFollow(UserFollowBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.now)
 
-    follower: "User" = Relationship(back_populates="following")  # type: ignore
-    followee: "User" = Relationship(back_populates="followers")  # type: ignore
+    # Explicitly define foreign_keys for each relationship to avoid ambiguity
+    follower: "User" = Relationship(
+        back_populates="following",
+        sa_relationship_kwargs={"foreign_keys": "UserFollow.follower_id"}
+    )
+    followee: "User" = Relationship(
+        back_populates="followers",
+        sa_relationship_kwargs={"foreign_keys": "UserFollow.followee_id"}
+    )
 
 
 # Class for creating a new follow relationship (when a user follows another user)

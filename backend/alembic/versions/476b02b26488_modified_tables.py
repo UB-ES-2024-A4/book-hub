@@ -1,8 +1,8 @@
-"""DB Schema Sprint 1
+"""Modified tables
 
-Revision ID: a3985b92b941
-Revises: 7ac7b21bf041
-Create Date: 2024-11-01 17:08:20.957368
+Revision ID: 476b02b26488
+Revises: 
+Create Date: 2024-11-10 15:48:43.925020
 
 """
 from typing import Sequence, Union
@@ -10,11 +10,11 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 import sqlmodel
-from sqlalchemy.dialects import mysql
+
 
 # revision identifiers, used by Alembic.
-revision: str = 'a3985b92b941'
-down_revision: Union[str, None] = '7ac7b21bf041'
+revision: str = '476b02b26488'
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -33,26 +33,41 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=50), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name'),
+    sa.UniqueConstraint('name')
     )
-    op.create_table('followers',
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('following_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['following_id'], ['user.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('user_id', 'following_id')
-    )
-    op.create_index(op.f('ix_followers_following_id'), 'followers', ['following_id'], unique=False)
-    op.create_index(op.f('ix_followers_user_id'), 'followers', ['user_id'], unique=False)
-    op.create_table('post',
+    op.create_table('user',
+    sa.Column('email', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('username', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('first_name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('last_name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('biography', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('password', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('follower_count', sa.Integer(), nullable=False),
+    sa.Column('followee_count', sa.Integer(), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
+    op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
+    op.create_table('post',
     sa.Column('book_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('likes', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('userfollow',
+    sa.Column('follower_id', sa.Integer(), nullable=False),
+    sa.Column('followee_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['followee_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['follower_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('comment',
@@ -79,66 +94,19 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['post_id'], ['post.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('post_id', 'filter_id')
     )
-    op.add_column('user', sa.Column('created_at', sa.DateTime(), nullable=True))
-    op.alter_column('user', 'biography',
-               existing_type=mysql.TEXT(),
-               type_=sqlmodel.sql.sqltypes.AutoString(),
-               existing_nullable=True)
-
-    # Crea trigger para incrementar los likes al eliminar en la tabla Like
-
-    op.execute("""
-    CREATE TRIGGER increment_likes_on_insert
-        AFTER INSERT ON `like`
-            FOR EACH ROW
-            UPDATE post
-            SET likes = likes + 1
-            WHERE id = NEW.post_id;
-    """)
-
-    # Crear trigger para decrementar los likes al eliminar en la tabla Like
-    op.execute("""
-    CREATE TRIGGER decrement_likes_on_delete
-        AFTER DELETE ON `like`
-            FOR EACH ROW
-            UPDATE post
-            SET likes = likes - 1
-            WHERE id = OLD.post_id;
-    """)
-
-    # Trigger para que no se pueda seguir la misma persona asi misma.
-    op.execute("""
-    CREATE TRIGGER prevent_self_follow
-    BEFORE INSERT ON followers
-    FOR EACH ROW
-    BEGIN
-        IF NEW.user_id = NEW.following_id THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A user cannot follow themselves.';
-        END IF;
-    END;
-    """)
-
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.alter_column('user', 'biography',
-               existing_type=sqlmodel.sql.sqltypes.AutoString(),
-               type_=mysql.TEXT(),
-               existing_nullable=True)
-    op.drop_column('user', 'created_at')
     op.drop_table('postfilter')
     op.drop_table('like')
     op.drop_table('comment')
+    op.drop_table('userfollow')
     op.drop_table('post')
-    op.drop_index(op.f('ix_followers_user_id'), table_name='followers')
-    op.drop_index(op.f('ix_followers_following_id'), table_name='followers')
-    op.drop_table('followers')
+    op.drop_index(op.f('ix_user_username'), table_name='user')
+    op.drop_index(op.f('ix_user_email'), table_name='user')
+    op.drop_table('user')
     op.drop_table('filter')
     op.drop_table('book')
-
-    # Eliminar triggers en caso de hacer downgrade
-    op.execute("DROP TRIGGER IF EXISTS increment_likes_on_insert")
-    op.execute("DROP TRIGGER IF EXISTS decrement_likes_on_delete")
     # ### end Alembic commands ###
