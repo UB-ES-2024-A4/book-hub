@@ -20,14 +20,14 @@ class User(UserBase, table=True):
     comments: list["Comment"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
 
     # Relationships for following/followers
-    following: list["UserFollow"] = Relationship(
+    following: list["Followers"] = Relationship(
         back_populates="follower",
-        sa_relationship_kwargs={"foreign_keys": "UserFollow.follower_id"}
+        sa_relationship_kwargs={"foreign_keys": "Followers.follower_id"}
     )
 
-    followers: list["UserFollow"] = Relationship(
+    followers: list["Followers"] = Relationship(
         back_populates="followee",
-        sa_relationship_kwargs={"foreign_keys": "UserFollow.followee_id"}
+        sa_relationship_kwargs={"foreign_keys": "Followers.followee_id"}
     )
 
     # Fields to store follower and followee counts

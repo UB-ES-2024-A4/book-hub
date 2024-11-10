@@ -1,13 +1,13 @@
-""" UserFollow related CRUD methods """
+""" Followers related CRUD methods """
 from typing import Any
 from sqlmodel import Session, select
-from app.models import UserFollow, UserFollowCreate, UserFollowUpdate, User, UserCreate, UserUpdate
+from app.models import Followers, FollowersCreate, FollowersUpdate, User, UserCreate, UserUpdate
 from app.core.security import verify_password
 from sqlalchemy import or_
 from datetime import datetime
 
 # Create
-def follow_user(*, session: Session, user_follow_create: UserFollowCreate) -> UserFollow:
+def follow_user(*, session: Session, user_follow_create: FollowersCreate) -> Followers:
     # Check if already following to avoid duplicates
     existing_follow = is_following(
         session=session,
@@ -20,7 +20,7 @@ def follow_user(*, session: Session, user_follow_create: UserFollowCreate) -> Us
         return existing_follow  # Or raise an error if duplicate follows aren't allowed
     
     # Create a new follow record
-    new_follow = UserFollow(
+    new_follow = Followers(
         follower_id=user_follow_create.follower_id, 
         followee_id=user_follow_create.followee_id,
         created_at=datetime.now()
@@ -33,7 +33,7 @@ def follow_user(*, session: Session, user_follow_create: UserFollowCreate) -> Us
 
 
 # Remove
-def unfollow_user(*, session: Session, user_follow_update: UserFollowUpdate) -> bool:
+def unfollow_user(*, session: Session, user_follow_update: FollowersUpdate) -> bool:
     follow = is_following(
         session=session,
         follower_id=user_follow_update.follower_id,
@@ -52,9 +52,9 @@ def unfollow_user(*, session: Session, user_follow_update: UserFollowUpdate) -> 
 # Check if a user is following another
 def is_following(*, session: Session, follower_id: int, followee_id: int) -> bool:
     follow_relation = session.exec(
-        select(UserFollow).where(
-            UserFollow.follower_id == follower_id,
-            UserFollow.followee_id == followee_id
+        select(Followers).where(
+            Followers.follower_id == follower_id,
+            Followers.followee_id == followee_id
             )
         ).first()
     return follow_relation is not None
@@ -63,7 +63,7 @@ def is_following(*, session: Session, follower_id: int, followee_id: int) -> boo
 # Get follower count for a user
 def get_follower_count(session: Session, user_id: int) -> int:
     count = session.exec(
-        select(UserFollow).where(UserFollow.followee_id == user_id)
+        select(Followers).where(Followers.followee_id == user_id)
     ).count()
     return count
 
@@ -71,8 +71,8 @@ def get_follower_count(session: Session, user_id: int) -> int:
 # Get followee count for a user
 def get_followee_count(session: Session, user_id: int) -> int:
     count = session.exec(
-        select(UserFollow).where(
-            UserFollow.follower_id == user_id
+        select(Followers).where(
+            Followers.follower_id == user_id
         )
     ).count()
 
@@ -83,9 +83,9 @@ def get_followee_count(session: Session, user_id: int) -> int:
 def get_followers(session: Session, user_id: int) -> list[User]:
     followers = session.exec(
         select(User).join(
-            UserFollow, UserFollow.follower_id == User.id
+            Followers, Followers.follower_id == User.id
         ).where(
-            UserFollow.followee_id == user_id
+            Followers.followee_id == user_id
         )
     ).all()
 
@@ -96,9 +96,9 @@ def get_followers(session: Session, user_id: int) -> list[User]:
 def get_followees(session: Session, user_id: int) -> list[User]:
     followees = session.exec(
         select(User).join(
-            UserFollow, UserFollow.followee_id == User.id
+            Followers, Followers.followee_id == User.id
         ).where(
-            UserFollow.follower_id == user_id
+            Followers.follower_id == user_id
         )
     ).all()
     
