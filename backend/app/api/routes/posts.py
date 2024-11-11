@@ -30,7 +30,7 @@ def create_post(new_post: PostCreate, session: Session = Depends(get_session)):
 
     utils.check_quantity_likes(new_post.likes)
 
-    post = crud.post.create_post(session=session, post_create=new_post)
+    post : Post = crud.post.create_post(session=session, post_create=new_post)
     
     return {"message": "Post created successfully", "data": post}
 
@@ -43,7 +43,7 @@ def get_all_posts(session: Session = Depends(get_session)):
 # Get post by id endpoint
 @router.get("/{post_id}")
 def get_post(post_id: int, session: Session = Depends(get_session)):
-    post = crud.post.get_post(session=session, post_id=post_id)
+    post : Post = crud.post.get_post(session=session, post_id=post_id)
     if post:
         return post
     raise HTTPException(

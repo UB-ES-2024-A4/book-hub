@@ -21,9 +21,9 @@ def create_book(new_book: BookCreate, session: Session = Depends(get_session)):
 
     utils.check_book_fields(title=new_book.title, author=new_book.author, description=new_book.description)
 
-    post = crud.book.create_book(session=session, book_create=new_book)
+    book: Book = crud.book.create_book(session=session, book_create=new_book)
     
-    return {"message": "Book created successfully", "data": post}
+    return {"message": "Book created successfully", "data": book}
 
 # Get all books endpoint
 @router.get("/all")
@@ -34,7 +34,7 @@ def get_all_books(session: Session = Depends(get_session)):
 # Get book by id endpoint
 @router.get("/{book_id}")
 def get_book_by_id(book_id: int, session: Session = Depends(get_session)):
-    book = crud.book.get_book_by_id(session=session, book_id=book_id)
+    book: Book = crud.book.get_book_by_id(session=session, book_id=book_id)
     if book:
         return book
     raise HTTPException(
