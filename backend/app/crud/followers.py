@@ -1,10 +1,6 @@
 """ Followers related CRUD methods """
-from typing import Any
 from sqlmodel import Session, select
-from app.models import Followers, FollowersCreate, FollowersUpdate, User, UserCreate, UserUpdate
-from app.core.security import verify_password
-from sqlalchemy import or_
-from datetime import datetime
+from app.models import Followers, User
 
 # Create
 def follow_user(*, session: Session, follower_id: int, followee_id: int) -> Followers:

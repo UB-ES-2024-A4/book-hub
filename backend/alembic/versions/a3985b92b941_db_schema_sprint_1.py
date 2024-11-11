@@ -107,16 +107,16 @@ def upgrade() -> None:
     """)
 
     # Trigger para que no se pueda seguir la misma persona asi misma.
-    op.execute("""
-    CREATE TRIGGER prevent_self_follow
-    BEFORE INSERT ON followers
-    FOR EACH ROW
-    BEGIN
-        IF NEW.user_id = NEW.following_id THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A user cannot follow themselves.';
-        END IF;
-    END;
-    """)
+    # op.execute("""
+    # CREATE TRIGGER prevent_self_follow
+    # BEFORE INSERT ON followers
+    # FOR EACH ROW
+    # BEGIN
+    #     IF NEW.user_id = NEW.following_id THEN
+    #         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A user cannot follow themselves.';
+    #     END IF;
+    # END;
+    # """)
 
     # ### end Alembic commands ###
 
