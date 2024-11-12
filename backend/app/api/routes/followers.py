@@ -70,9 +70,10 @@ def get_followers(
             raise ValueError("The user does not exists.")
     
         followers_data = crud.followers.get_followers(session=session, user_id=user_id)
+        followers_count = crud.followers.get_follower_count(session=session, user_id=user_id)
         if not followers_data:
             raise ValueError("No followers found for this user.")
-        return FollowersOut(followers=followers_data, count=len(followers_data))
+        return FollowersOut(followers=followers_data, count=followers_count)
     
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

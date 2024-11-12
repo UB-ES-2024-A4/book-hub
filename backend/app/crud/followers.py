@@ -61,21 +61,18 @@ def is_following(*, session: Session, follower_id: int, followee_id: int) -> boo
 # Get follower count for a user
 def get_follower_count(session: Session, user_id: int) -> int:
     """Returns the count of followers for a specific user."""
-    count = session.exec(
+    count = len(session.exec(
         select(Followers).where(Followers.followee_id == user_id)
-    ).count()
+    ).all())
     return count
 
 
 # Get followee count for a user
 def get_followee_count(session: Session, user_id: int) -> int:
     """Returns the count of followees for a specific user."""
-    count = session.exec(
-        select(Followers).where(
-            Followers.follower_id == user_id
-        )
-    ).count()
-
+    count = len(session.exec(
+        select(Followers).where(Followers.follower_id == user_id)
+    ).all())
     return count
 
 
