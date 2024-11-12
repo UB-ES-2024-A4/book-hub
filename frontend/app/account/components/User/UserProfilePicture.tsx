@@ -22,7 +22,7 @@ export default function UserProfilePicture ({userDataMock, setIsHovering, isHove
     console.log("Image URL", imageReload);
 
     const reloadImage = () => {
-        setImageUrl(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png?${new Date().getTime()}`);
+        setImageUrl(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png?time=${new Date().getTime()}`);
         console.log("Image reloaded", userDataMock.id);
     }
 
