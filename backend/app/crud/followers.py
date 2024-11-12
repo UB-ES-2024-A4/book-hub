@@ -33,11 +33,12 @@ def follow_user(*, session: Session, follower_id: int, followee_id: int) -> Foll
 # Remove
 def unfollow_user(*, session: Session, follower_id: int, followee_id: int) -> bool:
     """Removes an existing follow relationship between two users if exists."""
-    follow = is_following(
-        session=session,
-        follower_id=follower_id,
-        followee_id=followee_id
-    )
+    follow = session.exec(
+        select(Followers).where(
+            Followers.follower_id == follower_id,
+            Followers.followee_id == followee_id
+            )
+        ).first()
     
     if not follow:
         raise ValueError("You are not following this user.")

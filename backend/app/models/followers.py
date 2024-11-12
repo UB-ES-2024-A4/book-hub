@@ -24,5 +24,5 @@ class FollowersOut(SQLModel):
 class FollowersActionResponse(SQLModel):
     success: bool
     message: str
-    follow: Optional[FollowersOut] = None
+    #follow: Optional[FollowersOut] = None
  
