@@ -1,6 +1,7 @@
 """ Followers related CRUD methods """
 from sqlmodel import Session, select
 from app.models import (
+    User,
     Followers,
     FollowerOut
 )
@@ -61,42 +62,64 @@ def is_following(*, session: Session, follower_id: int, followee_id: int) -> boo
 # Get follower count for a user
 def get_follower_count(session: Session, user_id: int) -> int:
     """Returns the count of followers for a specific user."""
-    count = len(session.exec(
-        select(Followers).where(Followers.followee_id == user_id)
-    ).all())
-    return count
-
+    return len(get_followers(session=session, user_id=user_id))
+    
 
 # Get followee count for a user
 def get_followee_count(session: Session, user_id: int) -> int:
     """Returns the count of followees for a specific user."""
-    count = len(session.exec(
-        select(Followers).where(Followers.follower_id == user_id)
-    ).all())
-    return count
+    return len(get_followees(session=session, user_id=user_id))
 
 
 # Retrieve followers of a user
 def get_followers(session: Session, user_id: int) -> list[FollowerOut]:
-    """Retrieves the list of follower relationships for a specific user, returning only necessary data."""
+    """Retrieves the list of users following a specific user, returning only necessary data."""
+    # Query the followers
     followers = session.exec(
-        select(Followers).where(Followers.followee_id == user_id)
+        select(Followers.follower_id).where(Followers.followee_id == user_id)
     ).all()
     
-    # Convert each Followers entry to a FollowerOut instance
-    followers_data = [FollowerOut(follower_id=f.follower_id, followee_id=f.followee_id) for f in followers]
+    # If there are no followers, return an empty list
+    if not followers:
+        return []
     
-    return followers_data
+    # Retrieve user information for each follower_id
+    follower_ids = [f for f in followers]
+    followers_data = session.exec(
+        select(User).where(User.id.in_(follower_ids))
+    ).all()
+
+    # Convert each user to FollowerOut
+    followers_info = [
+        FollowerOut(id=user.id, username=user.username)
+        for user in followers_data
+    ]
+
+    return followers_info
 
 
 # Retrieve users followed by a user
 def get_followees(session: Session, user_id: int) -> list[FollowerOut]:
     """Retrieves the list of users a specific user is following, returning only necessary data."""
+    # Query the followees
     followees = session.exec(
-        select(Followers).where(Followers.follower_id == user_id)
+        select(Followers.followee_id).where(Followers.follower_id == user_id)
     ).all()
     
-    # Convert each Followers entry to a FolloweeOut instance
-    followees_data = [FollowerOut(follower_id=f.follower_id, followee_id=f.followee_id) for f in followees]
+    # If there are no followees, return an empty list
+    if not followees:
+        return []
+
+    # Retrieve user information for each followee_id
+    followee_ids = [f for f in followees]
+    followees_data = session.exec(
+        select(User).where(User.id.in_(followee_ids))
+    ).all()
+
+    # Convert each user to FollowerOut
+    followees_info = [
+        FollowerOut(id=user.id, username=user.username)
+        for user in followees_data
+    ]
     
-    return followees_data
+    return followees_info

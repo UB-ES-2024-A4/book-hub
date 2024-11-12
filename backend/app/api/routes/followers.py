@@ -15,7 +15,8 @@ from app.models.user import (
 from app.models.followers import (
     Followers,
     FollowerOut,
-    FollowersOut
+    FollowersOut,
+    FollowersActionResponse
 
 )
 from app.api.deps import get_current_user
@@ -49,7 +50,7 @@ def follow_user(
             follower_id=current_user.id, 
             followee_id=followee_id
         )      
-        return {"message": "Followed successfully.", "followee_id": followee_id}
+        return FollowersActionResponse(success=True, message="User followed successfully")
     
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
