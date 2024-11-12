@@ -1,26 +1,15 @@
-from typing import Any, Annotated
-from app.core.security import create_access_token
-from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import (APIRouter, HTTPException, Depends)
 from sqlmodel import Session
-from datetime import timedelta
 
 from app.core.database import get_session
-from app.core.config import settings
-from app.models.user import (
+from app.models import (
     User,
-    UserOut,
-    UsersOut,
-)
-from app.models.followers import (
-    Followers,
-    FollowerOut,
     FollowersOut,
     FollowersActionResponse
-
 )
+
 from app.api.deps import get_current_user
-from app import crud, utils
+from app import crud
 
 router = APIRouter()
 
