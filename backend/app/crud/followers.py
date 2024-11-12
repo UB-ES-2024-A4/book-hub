@@ -1,6 +1,9 @@
 """ Followers related CRUD methods """
 from sqlmodel import Session, select
-from app.models import Followers, User
+from app.models import (
+    Followers,
+    FollowerOut
+)
 
 # Create
 def follow_user(*, session: Session, follower_id: int, followee_id: int) -> Followers:
@@ -77,28 +80,26 @@ def get_followee_count(session: Session, user_id: int) -> int:
 
 
 # Retrieve followers of a user
-def get_followers(session: Session, user_id: int) -> list[User]:
-    """Retrieves the list of users following a specific user."""
+def get_followers(session: Session, user_id: int) -> list[FollowerOut]:
+    """Retrieves the list of follower relationships for a specific user, returning only necessary data."""
     followers = session.exec(
-        select(User).join(
-            Followers, Followers.follower_id == User.id
-        ).where(
-            Followers.followee_id == user_id
-        )
+        select(Followers).where(Followers.followee_id == user_id)
     ).all()
-
-    return followers
+    
+    # Convert each Followers entry to a FollowerOut instance
+    followers_data = [FollowerOut(follower_id=f.follower_id, followee_id=f.followee_id) for f in followers]
+    
+    return followers_data
 
 
 # Retrieve users followed by a user
-def get_followees(session: Session, user_id: int) -> list[User]:
-    """Retrieves the list of users a specific user is following."""
+def get_followees(session: Session, user_id: int) -> list[FollowerOut]:
+    """Retrieves the list of users a specific user is following, returning only necessary data."""
     followees = session.exec(
-        select(User).join(
-            Followers, Followers.followee_id == User.id
-        ).where(
-            Followers.follower_id == user_id
-        )
+        select(Followers).where(Followers.follower_id == user_id)
     ).all()
     
-    return followees
+    # Convert each Followers entry to a FolloweeOut instance
+    followees_data = [FollowerOut(follower_id=f.follower_id, followee_id=f.followee_id) for f in followees]
+    
+    return followees_data
