@@ -1,4 +1,3 @@
-from app.models.followers import Followers
 from .deps import *
 
 
