@@ -36,14 +36,14 @@ def upgrade() -> None:
     sa.UniqueConstraint('name'),
     )
     op.create_table('followers',
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('following_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['following_id'], ['user.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('user_id', 'following_id')
+    sa.Column('follower_id', sa.Integer(), nullable=False),
+    sa.Column('followee_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['followee_id'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['follower_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('follower_id', 'followee_id')
     )
-    op.create_index(op.f('ix_followers_following_id'), 'followers', ['following_id'], unique=False)
-    op.create_index(op.f('ix_followers_user_id'), 'followers', ['user_id'], unique=False)
+    op.create_index(op.f('ix_followers_following_id'), 'followers', ['followee_id'], unique=False)
+    op.create_index(op.f('ix_followers_user_id'), 'followers', ['follower_id'], unique=False)
     op.create_table('post',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('book_id', sa.Integer(), nullable=False),
@@ -112,7 +112,7 @@ def upgrade() -> None:
     BEFORE INSERT ON followers
     FOR EACH ROW
     BEGIN
-        IF NEW.user_id = NEW.following_id THEN
+        IF NEW.follower_id = NEW.followee_id THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A user cannot follow themselves.';
         END IF;
     END;

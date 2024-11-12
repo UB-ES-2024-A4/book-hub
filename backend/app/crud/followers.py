@@ -1,10 +1,6 @@
 """ Followers related CRUD methods """
-from typing import Any
 from sqlmodel import Session, select
-from app.models import Followers, FollowersCreate, FollowersUpdate, User, UserCreate, UserUpdate
-from app.core.security import verify_password
-from sqlalchemy import or_
-from datetime import datetime
+from app.models import Followers, User, UsersOut, UserOut
 
 # Create
 def follow_user(*, session: Session, follower_id: int, followee_id: int) -> Followers:
@@ -60,7 +56,7 @@ def is_following(*, session: Session, follower_id: int, followee_id: int) -> boo
 
 
 # Get follower count for a user
-def get_follower_count(session: Session, user_id: int) -> int:
+def get_followee_count(session: Session, user_id: int) -> int:
     """Returns the count of followers for a specific user."""
     count = session.exec(
         select(Followers).where(Followers.followee_id == user_id)
@@ -69,7 +65,7 @@ def get_follower_count(session: Session, user_id: int) -> int:
 
 
 # Get followee count for a user
-def get_followee_count(session: Session, user_id: int) -> int:
+def get_follower_count(session: Session, user_id: int) -> int:
     """Returns the count of followees for a specific user."""
     count = session.exec(
         select(Followers).where(
@@ -81,7 +77,7 @@ def get_followee_count(session: Session, user_id: int) -> int:
 
 
 # Retrieve followers of a user
-def get_followers(session: Session, user_id: int) -> list[User]:
+def get_followers(session: Session, user_id: int) -> UsersOut:
     """Retrieves the list of users following a specific user."""
     followers = session.exec(
         select(User).join(
@@ -90,12 +86,13 @@ def get_followers(session: Session, user_id: int) -> list[User]:
             Followers.followee_id == user_id
         )
     ).all()
-
-    return followers
+    
+    usersOut: UsersOut = UsersOut(users=[UserOut(**user.__dict__) for user in followers])
+    return usersOut
 
 
 # Retrieve users followed by a user
-def get_followees(session: Session, user_id: int) -> list[User]:
+def get_followees(session: Session, user_id: int) -> UsersOut:
     """Retrieves the list of users a specific user is following."""
     followees = session.exec(
         select(User).join(
@@ -105,4 +102,5 @@ def get_followees(session: Session, user_id: int) -> list[User]:
         )
     ).all()
     
-    return followees
+    usersOut: UsersOut = UsersOut(users=[UserOut(**user.__dict__) for user in followees])
+    return usersOut
