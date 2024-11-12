@@ -1,4 +1,6 @@
+from app.models.followers import Followers
 from .deps import *
+
 
 # Shared properties
 class UserBase(SQLModel):
