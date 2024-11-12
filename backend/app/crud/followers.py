@@ -1,4 +1,5 @@
 """ Followers related CRUD methods """
+from sqlalchemy import func
 from sqlmodel import Session, select
 from app.models import (
     User,
@@ -124,3 +125,67 @@ def get_followees(session: Session, user_id: int) -> list[FollowerOut]:
     ]
     
     return followees_info
+
+
+def get_mutual_followers(session: Session, user_id_1: int, user_id_2: int) -> list[FollowerOut]:
+    """Retrieves mutual followers between two users."""
+    
+    # Get followers of user 1
+    user_1_followers = get_followers(session=session, user_id=user_id_1)
+
+    # Get followers of user 2
+    user_2_followers = get_followers(session=session, user_id=user_id_2)
+    
+    # Extract follower IDs from the results
+    user_1_follower_ids = {follower.id for follower in user_1_followers}
+    user_2_follower_ids = {follower.id for follower in user_2_followers}
+
+    # Find mutual follower IDs
+    mutual_follower_ids = user_1_follower_ids & user_2_follower_ids
+
+    # If there are no mutual followers, return an empty list
+    if not mutual_follower_ids:
+        return []
+
+    # Retrieve user information for each mutual follower
+    mutual_followers_data = session.exec(
+        select(User).where(User.id.in_(mutual_follower_ids))
+    ).all()
+
+    # Convert each user to FollowerOut
+    mutual_followers_info = [
+        FollowerOut(id=user.id, username=user.username)
+        for user in mutual_followers_data
+    ]
+    
+    return mutual_followers_info
+
+
+def get_most_followed_users(session: Session, limit: int = 10) -> list[dict]:
+    """Retrieve the users with the most followers."""
+    # Create the query to get the count of followers per followee (most followed users)
+    statement = (
+        select(Followers.followee_id, func.count(Followers.follower_id).label('followers_count'))
+        .group_by(Followers.followee_id)
+        .order_by(func.count(Followers.follower_id).desc())
+        .limit(limit)
+    )
+
+    # Execute the query
+    most_followed = session.exec(statement).all()
+
+    # Retrieve the user information for the most followed users
+    followee_ids = [entry.followee_id for entry in most_followed]
+    users_data = session.exec(select(User).where(User.id.in_(followee_ids))).all()
+
+    # Combine the data: user details with follower count and return as personalized list
+    most_followed_users = [
+        {
+            'user_id': user.id,
+            'username': user.username,
+            'followers_count': followers_count
+        }
+        for user, followers_count in zip(users_data, [entry.followers_count for entry in most_followed])
+    ]
+
+    return most_followed_users

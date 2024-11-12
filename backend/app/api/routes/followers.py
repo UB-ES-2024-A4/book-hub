@@ -135,5 +135,70 @@ def unfollow_user (
         raise HTTPException(status_code=400, detail=str(e))
     
 
+# Additional endpoints for more usability
+
+# Get follower count for a user
+@router.get("/followers/count/{user_id}", response_model=int)
+def get_followers_count(user_id: int, session: Session = Depends(get_session)):
+    try:
+        followers_count = crud.followers.get_follower_count(session=session, user_id=user_id)
+        return followers_count
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
+# Get followee count for a user
+@router.get("/following/count/{user_id}", response_model=int)
+def get_followee_count(user_id: int, session: Session = Depends(get_session)):
+    try:
+        followees_count = crud.followers.get_followee_count(session=session, user_id=user_id)
+        return followees_count
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# This endpoint is to retrieve the mutual followers between two users. 
+# This is useful for social connections.
+@router.get(
+    "/mutual-followers/{user_id_1}/{user_id_2}",
+    response_model=FollowersOut
+)
+def get_mutual_followers(
+    user_id_1: int, user_id_2: int, 
+    session: Session = Depends(get_session)
+):
+    try:
+        user_exists_1 = crud.user.get_user_by_id(session=session, id=user_id_1)
+        user_exists_2 = crud.user.get_user_by_id(session=session, id=user_id_2)
+        if not user_exists_1 or not user_exists_2:
+            raise ValueError("One or both users do not exist.")
+
+        mutual_followers = crud.followers.get_mutual_followers(
+            session=session, user_id_1=user_id_1, user_id_2=user_id_2
+        )
+        if not mutual_followers:
+            raise ValueError("No mutual followers found.")
+        return FollowersOut(followers=mutual_followers, count=len(mutual_followers))
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# This endpoint returns a list of the users with the most followers. 
+# It's useful for discovering popular users.
+@router.get(
+    "/most-followed",
+    # response_model=UsersOut
+)
+def get_most_followed_users(limit:int = 10, session: Session = Depends(get_session)
+):
+    try:
+        most_followed_users = crud.followers.get_most_followed_users(session=session, limit=limit)
+        if not most_followed_users:
+            raise ValueError("No users found.")
+        return most_followed_users
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
