@@ -62,13 +62,13 @@ def is_following(*, session: Session, follower_id: int, followee_id: int) -> boo
 
 
 # Get follower count for a user
-def get_follower_count(session: Session, user_id: int) -> int:
+def get_followee_count(session: Session, user_id: int) -> int:
     """Returns the count of followers for a specific user."""
     return len(get_followers(session=session, user_id=user_id))
     
 
 # Get followee count for a user
-def get_followee_count(session: Session, user_id: int) -> int:
+def get_follower_count(session: Session, user_id: int) -> int:
     """Returns the count of followees for a specific user."""
     return len(get_followees(session=session, user_id=user_id))
 
