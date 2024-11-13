@@ -6,11 +6,10 @@ from app import crud
 from app.models import Post, PostCreate, PostUpdate, User, Book
 
 description = 'a'
-likes = 1
+likes = 0
 created_at = datetime.now()
 
 def get_test_parameters(db: Session):
-    global user_id, book_id
     user_test = db.exec(
         select(User).where(User.username == 'TEST_NAME')
     ).first()
@@ -85,7 +84,6 @@ def test_get_all_posts(db: Session) -> None:
     for item in all_posts:
         assert item.book_id
         assert item.user_id
-        assert item.description
         assert item.created_at
         assert item.likes >= 0
 

@@ -6,7 +6,7 @@ import { Heart, MessageCircle } from 'lucide-react';
 import PostDialog from "@/app/account/components/Dialogs/PostDialog";
 import React, {useState} from "react";
 import {Post} from "@/app/types/Post";
-import {PropsUser} from "@/app/types/PropsUser";
+import { PropsUser } from '@/app/types/PropsUser';
 
 const userPosts = [
   {
@@ -16,8 +16,7 @@ const userPosts = [
     coverImage: "/book.jpg",
     tags: ["Tag1", "Tag2", "Tag3", "Tag4", "Tag5", "Tag6"],
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    likes: 15,
-    comments: 3,
+    likes: 15,  comments: 3, book_id: 1, user_id: 1,  created_at: "",   description: "",
   },
   {
     id: 2,
@@ -26,8 +25,7 @@ const userPosts = [
     coverImage: "/book.jpg",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
+    likes: 30,    comments: 8, book_id: 1, user_id: 1,  created_at: "",  description: "",
   },
   {
     id: 2,
@@ -36,8 +34,7 @@ const userPosts = [
     coverImage: "/book.jpg",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
+    likes: 30,  comments: 8, book_id: 1,  user_id: 1,  created_at: "",  description: "",
   },
   {
     id: 2,
@@ -46,8 +43,7 @@ const userPosts = [
     coverImage: "/book.jpg",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
+    likes: 30, comments: 8,  book_id: 1,  user_id: 1, created_at: "", description: "",
   },
   {
     id: 2,
@@ -56,12 +52,9 @@ const userPosts = [
     coverImage: "/book.jpg",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
+    likes: 30,  comments: 8,book_id: 1, user_id: 1, created_at: "", description: "",
   },
 ];
-
-
 
 export default function PostsGrid( {userData}: PropsUser ) {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
