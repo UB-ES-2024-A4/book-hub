@@ -11,8 +11,6 @@ import { PropsUser } from '@/app/types/PropsUser';
 const userPosts = [
   {
     id: 1,
-    book_id: 1,
-    user_id: 1,
     title: "Name of the Book",
     author: "Author's Name",
     coverImage: "/book.jpg",
@@ -22,8 +20,6 @@ const userPosts = [
   },
   {
     id: 2,
-    book_id: 2,
-    user_id: 1,
     title: "Name of the Book",
     author: "Author's Name",
     coverImage: "/book.jpg",

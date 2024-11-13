@@ -48,7 +48,7 @@ jobs:
       - name: Generate requirements.txt
         working-directory: ./backend
         run: |
-          poetry export --dev --all-extras --without-hashes --format=requirements.txt
+          poetry export --dev --all-extras --without-hashes --format=requirements.txt 1> requirements.txt
 
       - name: Zip artifact for deployment
         run: zip release.zip ./backend/* -r
