@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Heart, Share2 } from "lucide-react";
+import { CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Post } from "@/app/types/Post";
@@ -8,32 +11,38 @@ import "../style.css";
 import NoPostError from "@/app/home/Errors/NoPostError";
 import {useEffect, useState} from "react";
 import {User} from "@/app/types/User";
-import {fetchProfilePictureUser} from "@/app/actions";
+import FetchError from "@/components/FetchError";
 
 type Props = {
     posts: Post[] | null;
 };
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function ScrollAreaHome({ posts }: Props) {
     const [userData, setUserData] = useState<{ [key: number]: User }>({});
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (posts) {
-            // Función para cargar datos del usuario
             const fetchUserData = async () => {
-                const usersMap: { [key: number]: User } = {};
+                try {
+                    const usersMap: { [key: number]: User } = {};
 
                 // Itera sobre los posts y obtiene los datos de usuario correspondientes
                 await Promise.all(
                     posts.map(async (post) => {
-                        const response = await fetch(`http://127.0.0.1:8000/users/${post.user_id}`);
+                        const response = await fetch(baseUrl + `/users/${post.user_id}`);
                         const user = await response.json();
-                        user.profilePicture = await fetchProfilePictureUser(user.id)
                         usersMap[post.user_id] = user;
                     })
                 );
 
-                setUserData(usersMap); // Almacena los datos de usuario en el estado
+                    setUserData(usersMap);
+                } catch (error) {
+                    console.error("Failed to fetch user data", error);
+                    setError("Failed to fetch user data"); // Establece el estado de error
+                }
             };
 
             fetchUserData();
@@ -41,7 +50,7 @@ export default function ScrollAreaHome({ posts }: Props) {
     }, [posts]);
 
     if (!posts) {
-        return (<div className="flex-1 overflow-hidden pt-5">Loading...</div>);
+        return <div className="flex-1 overflow-hidden pt-5">Loading...</div>;
     }
 
 
@@ -49,8 +58,11 @@ export default function ScrollAreaHome({ posts }: Props) {
         <div className="flex-1 overflow-hidden pt-5">
             <ScrollArea className="h-[calc(100vh-64px)] w-full">
                 <div className="p-4 space-y-4">
-                    {posts.length === 0 ? (
-                        <NoPostError />
+                    { posts.length === 0 || error ? (
+                        error ? (
+                            <FetchError />
+                            ) : (
+                            <NoPostError />)
                     ) : (
                         // Renderizado de los posts si están disponibles
                         posts.map((post: Post) => {
@@ -61,7 +73,7 @@ export default function ScrollAreaHome({ posts }: Props) {
                                     <div className="flex items-center space-x-2 img-hero transition-transform cursor-pointer">
                                         <Avatar className="avatar rounded-full">
                                             {/* Imagen de perfil del usuario */}
-                                            <AvatarImage src={user ? user.profilePicture : "/book-signup.jpg"} />
+                                            <AvatarImage src={user? `${baseUrl}/users/pfp/${user.id}`: "/book-signup.jpg"} />
                                             <AvatarFallback>User</AvatarFallback>
                                         </Avatar>
                                         <span className="pl-1 text-transparent bg-clip-text bg-gradient-to-br from-blue-200 to-blue-950">
@@ -97,7 +109,7 @@ export default function ScrollAreaHome({ posts }: Props) {
                                         </div>
                                     </div>
                                 </CardContent>
-                                {/* <CardFooter className="flex justify-between">
+                                {/*<CardFooter className="flex justify-between">
                                     <div className="flex gap-4">
                                       <Button variant="ghost" size="sm">
                                         <Heart className="w-4 h-4 mr-2" />
@@ -113,9 +125,11 @@ export default function ScrollAreaHome({ posts }: Props) {
                                     </Button>
                                   </CardFooter>*/}
                             </Card>
-                        )}
-                        )
-                    )}
+                            )
+                        })
+                    )
+
+                    }
                 </div>
             </ScrollArea>
         </div>

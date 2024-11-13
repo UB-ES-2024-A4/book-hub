@@ -10,12 +10,12 @@ delete from postfilter;
 
 
 # Insert usersi              EMAIL              USERNAME      F_NAME        l_NAME_     ID  PASSWORD BIO  CREATED_AT
-insert into user values ("alejandro@test.com", "Alejandro",   "Alejandro",   NULL,       1, "test",  NULL, NULL);
-insert into user values ("mar@test.com",       "Maruja",      "Mar",         NULL,       2, "test",  NULL, NULL);
-insert into user values ("william@test.com",   "William",     "William D",   NULL,       3, "test",  NULL, NULL);
-insert into user values ("malik@test.com",     "Malik",       "Malik",       NULL,       4, "test",  NULL, NULL);
-insert into user values ("victor@test.com",    "Victor",      "Victor",      NULL,       5, "test",  NULL, NULL);
-insert into user values ("arnau@test.com",     "Arnau",       "Arnau",       NULL,       6, "test",  NULL, NULL);
+insert into user values ("alejandro@test.com", "Alejandro",   "Alejandro",   NULL,       1, "contraseña",  NULL, NULL);
+insert into user values ("mar@test.com",       "Maruja",      "Mar",         NULL,       2, "contraseña",  NULL, NULL);
+insert into user values ("william@test.com",   "William",     "William D",   NULL,       3, "contraseña",  NULL, NULL);
+insert into user values ("malik@test.com",     "Malik",       "Malik",       NULL,       4, "contraseña",  NULL, NULL);
+insert into user values ("victor@test.com",    "Victor",      "Victor",      NULL,       5, "contraseña",  NULL, NULL);
+insert into user values ("arnau@test.com",     "Arnau",       "Arnau",       NULL,       6, "contraseña",  NULL, NULL);
 
 
 # Insert Books          ID  TITLE    AUTHOR         DESC   TIME

@@ -22,10 +22,6 @@ class User(UserBase, table=True):
 class UserCreate(UserBase):
     password: str
 
-class Token(SQLModel):
-    access_token: str
-    token_type: str = "bearer"
-    
 # Contents of JWT token
 class TokenPayload(SQLModel):
     sub: int | None = None
@@ -48,3 +44,8 @@ class UserOut(UserBase):
 
 class UsersOut(SQLModel):
     users: list[UserOut]
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut

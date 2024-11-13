@@ -10,7 +10,7 @@ from app.core import security
 from app.core.config import settings
 from app.models import User, TokenPayload
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login/access-token")
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/users/login/access-token")
 
 
 def get_current_user(token: str = Depends(reusable_oauth2), session: Session = Depends(get_session)) -> User:
