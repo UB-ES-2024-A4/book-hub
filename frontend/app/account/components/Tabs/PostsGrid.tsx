@@ -6,7 +6,7 @@ import { Heart, MessageCircle } from 'lucide-react';
 import PostDialog from "@/app/account/components/Dialogs/PostDialog";
 import React, {useState} from "react";
 import {Post} from "@/app/types/Post";
-import {PropsUser} from "@/app/types/PropsUser";
+import { PropsUser } from '@/app/types/PropsUser';
 
 const userPosts = [
   {
@@ -17,7 +17,6 @@ const userPosts = [
     tags: ["Tag1", "Tag2", "Tag3", "Tag4", "Tag5", "Tag6"],
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     likes: 15,  comments: 3, book_id: 1, user_id: 1,  created_at: "",   description: "",
-
   },
   {
     id: 2,

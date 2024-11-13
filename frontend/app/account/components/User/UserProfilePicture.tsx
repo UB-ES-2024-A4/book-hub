@@ -1,4 +1,5 @@
 "use client";
+"use client";
 import Image from "next/image";
 import {Camera} from "lucide-react";
 import React, {useState} from "react";
@@ -44,7 +45,7 @@ export default function UserProfilePicture ({userDataMock, setIsHovering, isHove
                     <Image
                         key={imageReload}
                         src={ imageReload || "/book.jpg"}
-                        alt={`${userDataMock.firstName}'s picture`}
+                        alt={`${userDataMock.first_name}'s picture`}
                         width={100}
                         height={100}
                         className="w-24 h-24 rounded-full border-4 border-white"

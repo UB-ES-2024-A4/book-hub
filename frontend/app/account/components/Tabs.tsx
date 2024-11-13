@@ -7,7 +7,7 @@ import SavedPostsList from './Tabs/SavedPostsList';
 import {PropsUser} from "@/app/types/PropsUser";
 
 
-export default function Tabs({ userData }: PropsUser) {
+export default function Tabs({ userData, setUser }: PropsUser) {
   const [activeTab, setActiveTab] = useState('posts');
 
   return (
@@ -36,7 +36,7 @@ export default function Tabs({ userData }: PropsUser) {
           </button>
         </nav>
 
-      {activeTab === 'posts' && <PostsGrid userData={userData}/>}
+      {activeTab === 'posts' && <PostsGrid userData={userData} setUser={setUser} />}
       {activeTab === 'booklist' && <SavedPostsList/>}
 
     </div>
