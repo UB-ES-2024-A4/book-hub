@@ -1,173 +1,83 @@
 "use server";
 
 // Importing necessary functions from Next.js and other libraries
-import { parseWithZod } from "@conform-to/zod";
-import { signInSchema, signUpSchema } from "@/app/lib/zodSchemas";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
 import { Post } from "@/app/types/Post";
+import {getSession} from "@/app/lib/authentication";
+import {parseWithZod} from "@conform-to/zod";
+import {userInformationSchema} from "@/app/lib/zodSchemas";
 
 
-export async function CreateUser(prevState: unknown, formData: FormData) {
-    // Validate form data with Zod
-    const submission = parseWithZod(formData, { schema: signUpSchema });
+// Function to update the user's information
+export async function UpdateUser(prevState: unknown, formData: FormData) {
+
+    // Validate the form data using Zod
+    const submission = parseWithZod(formData, { schema: userInformationSchema });
 
     // Handle validation errors if present
     if (submission.status !== "success") {
         return submission.reply();
     }
 
-    console.log(submission);
-    console.log(formData);
+    const userCookie =await  getSession();
+    if(!userCookie) return;
 
-    let redirectPath: string | null = null
+    // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
+    const data = new URLSearchParams();
+    data.append("id", userCookie.id.toString());
+    data.append("username", formData.get("username") as string);
+    data.append("first_name", formData.get("first_name") as string);
+    data.append("last_name", formData.get("last_name") as string);
+    data.append("biography", formData.get("biography") as string);
+
+    // Update the user's information
+    const user = Object.fromEntries(data.entries());
+    console.log("User New DATA INFORMATION", user);
+    if(!user) return;
 
     try {
-        // Convert formData to JSON
+        // Convert formData to JSON and verify the user with the access token
         const data = Object.fromEntries(formData);
-        const response = await fetch('http://127.0.0.1:8000/users/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-        
-        // Handle the backend's response
-        if (!response.ok) {
-            const errorMessage = await response.text();
-            throw new Error(errorMessage || "Registration failed");
-        }
+        const accessToken = cookies().get('accessToken')?.value;
 
-        redirectPath = '/auth/sign-in'; // Redirect upon successful registration
-        
-    } catch (error) {
-        console.error("Error:", error);
-        
-    } finally {
-        if (redirectPath) {
-            redirect(redirectPath)
-        }
-    }
-}
-
-
-// Async function to handle user sign in
-export async function SignIn(prevState: unknown, formData: FormData) {
-    // Parse the form data using Zod validation schema
-    const submission = parseWithZod(formData, {
-        schema: signInSchema,
-    });
-
-    // If the validation fails, return the submission reply (with errors)
-    if (submission.status !== "success") {
-        return submission.reply();
-    }
-    let redirectPath: string | null = null
-
-    try {
-        // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
-        const data = new URLSearchParams();
-        data.append("username", formData.get("user") as string);
-        data.append("password", formData.get("password") as string);
-        
-        const response = await fetch('http://127.0.0.1:8000/users/login/access-token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: data.toString(),  // Use URL-encoded string
-        });
-        
-        // Handle the backend's response
-        if (!response.ok) {
-            const errorMessage = await response.text();
-            throw new Error(errorMessage || "LogIn failed");
-        }
-
-        const responseData = await response.json();
-        const { access_token, token_type } = responseData;
-
-        // Set the access token in an HTTP-only cookie
-        cookies().set({
-            name: 'accessToken',
-            value: access_token,
-            httpOnly: true, // Ensures the cookie is only accessible by the server
-            secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
-            maxAge: 60 * 60 * 24, // 1 day
-            path: '/',
-        });
-        
-        // Redirect upon successful logIn
-        redirectPath = '/home';
-
-    } catch (error) {
-        console.error("Error:", error);
-        //return submission.reply();
-        //return { error: "Registration failed" };
-    } finally {
-        if (redirectPath) {
-            redirect(redirectPath)
-        }
-    }
-}
-  
-  export async function putProfilePictureBackend(formData: FormData, userId: number) {
-     try {
-          const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`, {
+        await fetch(`http://127.0.0.1:8000/users/${user.id}`, {
             method: 'PUT',
-            body: formData,
-          }).then( (res) => res.json());
-
-          if (!response.ok) {
-            console.error("Failed to upload the image");
-            return null;
-          }
-
-        } catch (error) {
-          console.error("Failed to upload the image", error);
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(data),
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
         }
-  }
+        );
 
-
-export async function loadUser(): Promise<User | null> {
-    const cookieStore = cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
-
-    if (!accessToken) {
-        // Redirect to sign-in if no access token is found
-        redirect('/auth/sign-in');
+    } catch (error) {
+        console.error("Error:", error);
     }
 
-    try {
-        const response = await fetch("http://127.0.0.1:8000/users/me", {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${accessToken}`,
-                "Accept": "application/json"
-            },
-            credentials: 'include'
-        }).then((res) => res.json());
+    // Update the user's information in the cookie
+    cookies().set('user', JSON.stringify(user));
+}
 
-        if (!response.id) {
-            return null;
-        }
+export async function putProfilePictureBackend(formData: FormData, userId: number) {
+ try {
+      const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`, {
+        method: 'PUT',
+        body: formData,
+      }).then( (res) => res.json());
 
-        return {
-            id: response.id,
-            firstName: response.first_name,
-            lastName: response.last_name,
-            username: response.username,
-            email: response.email,
-            bio: response.biography ?? "Add your bio!",
-            profilePicture: "/vini.jpg",
-            coverPhoto: "/book.jpg",
-        };
-
-
-
-    }catch (error) {
-        console.error("Failed to load user information", error);
+      if (!response.ok) {
+        console.error("Failed to upload the image");
         return null;
+      }
+
+    } catch (error) {
+      console.error("Failed to upload the image", error);
     }
 }
 

@@ -2,7 +2,7 @@
 import { Lock, User2 } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
-import { SignIn } from "@/app/actions";
+import { SignInValidation} from "@/app/lib/authentication";
 import { useFormState  } from 'react-dom';
 import {useForm} from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
@@ -12,7 +12,7 @@ import Image from "next/image";
 
 export default function SignInForm() {
     // Using useActionState hook to manage the state of CreateUser action
-    const [lastResult, action] = useFormState(SignIn, undefined);
+    const [lastResult, action] = useFormState(SignInValidation, undefined);
 
     // Using useForm hook to manage form state and validation
     const [form, fields] = useForm({
