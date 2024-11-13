@@ -16,7 +16,7 @@ router = APIRouter()
 
 # Get followers of a user
 @router.get (
-    "/followers/{user_id}",
+    "/get_followers/{user_id}",
     response_model=FollowersOut
 )
 def get_followers(user_id: int, session: Session = Depends(get_session)):
@@ -35,9 +35,9 @@ def get_followers(user_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=400, detail=str(e))
     
 
-# Get followees of a user
+# Get followees of a user (following)
 @router.get (
-    "/following/{user_id}",
+    "/get_followings/{user_id}",
     response_model=FollowersOut
 )
 def get_followees(user_id: int, session: Session = Depends(get_session)):
@@ -127,7 +127,7 @@ def unfollow_user (
 # Additional endpoints for more usability
 
 # Get follower count for a user
-@router.get("/followers/count/{user_id}", response_model=int)
+@router.get("/count/followers{user_id}", response_model=int)
 def get_followers_count(user_id: int, session: Session = Depends(get_session)):
     try:
         followers_count = crud.followers.get_follower_count(session=session, user_id=user_id)
@@ -138,7 +138,7 @@ def get_followers_count(user_id: int, session: Session = Depends(get_session)):
 
 
 # Get followee count for a user
-@router.get("/following/count/{user_id}", response_model=int)
+@router.get("/count/following{user_id}", response_model=int)
 def get_followee_count(user_id: int, session: Session = Depends(get_session)):
     try:
         followees_count = crud.followers.get_followee_count(session=session, user_id=user_id)
