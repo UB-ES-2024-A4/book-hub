@@ -6,9 +6,12 @@ on:
       - "*"  # Run on pushes to all branches
       - "!main"
       - "!dev"
+
   pull_request:
-    branches:
-      - "*"  # Run on all pull requests
+    types:
+      - opened
+      - synchronize
+  
 
 jobs:
   validate-branch-name:
@@ -42,7 +45,7 @@ jobs:
           fi
 
           # Define regex patterns for Type 1 and Type 2 branch names
-          TYPE1_PATTERN="^US[0-9]+(\.[0-9]+)?-[a-z0-9-]+$"
+          TYPE1_PATTERN="^US[0-9]+(\.[0-9]+)?-[a-zA-Z0-9-]+$"
           TYPE2_PATTERN="^US[0-9]+(\.[0-9]+)?/(backend|frontend|devops)/(feat|fix|test)/[a-z0-9-]+$"
 
           # Check if branch name matches either pattern
