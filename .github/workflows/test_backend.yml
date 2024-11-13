@@ -2,10 +2,10 @@ name: Tests
 
 on:
   push:
-    branches:
-      - "*"
-      - '!badges'
   pull_request:
+    branches:
+      - "*"       # Trigger on any branch with a pull request
+      - "!main"   # Exclude the main branch
     types:
       - opened
       - synchronize

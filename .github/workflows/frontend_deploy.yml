@@ -3,7 +3,7 @@ name: Deploy to Azure Web App
 on:
   push:
     branches:
-      - "US3.1/devops/feat/deploy-app"  # Triggers deployment on pushes to the main branch
+      - "main"  # Triggers deployment on pushes to the main branch
 
 jobs:
   build:

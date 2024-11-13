@@ -3,7 +3,7 @@ name: Build and deploy Python app to Azure Web App - bookhubapi
 on:
   push:
     branches:
-      - "US3.1/devops/feat/deploy-app"
+      - "main"  # Triggers deployment on pushes to the main branch
   workflow_dispatch:
 
 env:
