@@ -1,4 +1,3 @@
-from app.models.followers import Followers
 from .deps import *
 
 
@@ -20,6 +19,7 @@ class User(UserBase, table=True):
     posts: list["Post"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
     likes: list["Like"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
     comments: list["Comment"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
+
 
 class UserCreate(UserBase):
     password: str
