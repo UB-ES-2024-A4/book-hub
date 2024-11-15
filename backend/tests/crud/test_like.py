@@ -54,3 +54,13 @@ def test_delete_like(db: Session):
     assert deleted_like.user_id == user_id
     assert deleted_like.post_id == post_test.id
     assert likes_after == likes_before - 1
+
+def test_get_likes_post(db: Session):
+    user_id, post_test = get_test_parameters(db)
+
+    like_in = Like(user_id=user_id, post_id=post_test.id)
+    crud.like.create_like(session=db, like_create=like_in)
+
+    likes = crud.like.get_likes_post(session=db, post_id=post_test.id)
+
+    assert likes == 1
