@@ -11,3 +11,9 @@ def create_like(*, session: Session, like_create: Like) -> Like:
     session.commit()
     session.refresh(like)
     return like
+
+# Unlike post
+def delete_like(*, session: Session, db_like: Like) -> Like:
+    session.delete(db_like)
+    session.commit()
+    return db_like
