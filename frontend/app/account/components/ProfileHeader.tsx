@@ -1,22 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import ProfileDialog from "@/app/account/components/Dialogs/ProfileDialog";
 import { PropsUser } from "@/app/types/PropsUser";
-import { putProfilePictureBackend } from "@/app/actions";
+import {putProfilePictureBackend} from "@/app/actions";
 import UserProfilePicture from "@/app/account/components/User/UserProfilePicture";
 import UserProfileData from "@/app/account/components/User/UserProfileData";
 
-export default function ProfileHeader({ userData }: PropsUser) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState(userData);
-  const [userDataMock, setUserData] = useState(userData);
+export default function ProfileHeader({ userData, setUser }: PropsUser) {
   const [isHovering, setIsHovering] = useState(false);
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
 
   const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -33,19 +24,12 @@ export default function ProfileHeader({ userData }: PropsUser) {
   return (
     <div>
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <UserProfilePicture userDataMock={userDataMock} setIsHovering={setIsHovering}
+        <UserProfilePicture userDataMock={userData} setIsHovering={setIsHovering}
                             isHovering={isHovering} handleProfilePictureChange={handleProfilePictureChange}/>
 
-        <UserProfileData userDataMock={userDataMock} handleEdit={handleEdit}/>
+        <UserProfileData userData={userData} setUser={setUser}/>
       </div>
 
-      <ProfileDialog
-        isEditing={isEditing}
-        setIsEditing={setIsEditing}
-        editedUser={editedUser}
-        setEditedUser={setEditedUser}
-        setUserData={setUserData}
-      />
     </div>
   );
 }

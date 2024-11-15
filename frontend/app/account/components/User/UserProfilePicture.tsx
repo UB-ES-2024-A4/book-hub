@@ -1,8 +1,12 @@
 "use client";
+"use client";
 import Image from "next/image";
 import {Camera} from "lucide-react";
 import React, {useState} from "react";
 import {User} from "@/app/types/User";
+
+const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 
 type Props = {
     userDataMock: User;
@@ -12,18 +16,21 @@ type Props = {
 }
 
 export default function UserProfilePicture ({userDataMock, setIsHovering, isHovering, handleProfilePictureChange}: Props) {
-    const [imageReload, setImageUrl] = useState(`http://127.0.0.1:8000/users/pfp/${userDataMock.id}`);
+    // TODO accept other formats
+
+    const [imageReload, setImageUrl] = useState(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png`);
+
+    console.log("Image URL", imageReload);
 
     const reloadImage = () => {
-        setImageUrl(`http://127.0.0.1:8000/users/pfp/${userDataMock.id}?timestamp=${new Date().getTime().toLocaleString()}`);
+        setImageUrl(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png?time=${new Date().getTime()}`);
         console.log("Image reloaded", userDataMock.id);
     }
-
 
     return (
         <div className="relative">
             <Image
-                src={userDataMock.coverPhoto || "/book.jpg"}
+                src={"/book.jpg"}
                 alt="Cover Photo"
                 width={800}
                 height={600}
@@ -38,7 +45,7 @@ export default function UserProfilePicture ({userDataMock, setIsHovering, isHove
                     <Image
                         key={imageReload}
                         src={ imageReload || "/book.jpg"}
-                        alt={`${userDataMock.firstName}'s picture`}
+                        alt={`${userDataMock.first_name}'s picture`}
                         width={100}
                         height={100}
                         className="w-24 h-24 rounded-full border-4 border-white"
