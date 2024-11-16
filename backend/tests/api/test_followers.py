@@ -61,6 +61,10 @@ def login_user(client: TestClient, username: str, password: str) -> str:
     return response.json()["access_token"]  
 
 
+###################################################
+## Test all endpoints for follow endpoint ##
+###################################################
+
 def follow_user(client: TestClient, followee_id: int, header: dict) -> dict:
     """Follow a user and return the follow relationship."""
     response = client.post(f"/followers/follow/{followee_id}", headers=header)
@@ -183,6 +187,10 @@ def test_follow_user_already_following(client: TestClient, dummy_users):
     assert response.json()["detail"] == "You are already following this user."
 
 
+###################################################
+## Test all endpoints for get followers endpoint ##
+###################################################
+
 def get_followers(client: TestClient, user_id: int) -> dict:
     """Get followers of a user."""
     response = client.get(f"/followers/get_followers/{user_id}")
@@ -203,6 +211,7 @@ def test_get_followers_success(client: TestClient, dummy_users):
     # Assert: Verify that the response contains a list of followers
     assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
     assert isinstance(response.json(), dict), f"Expected dict, but got {type(response.json())}"
+    assert response.json()["followers"][0]["id"] == user1["id"]
 
     # Act: user3 gets their followers
     response = get_followers(client, user_id=user3["id"])
@@ -210,6 +219,8 @@ def test_get_followers_success(client: TestClient, dummy_users):
     # Assert: Verify that the response contains a list of followers
     assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
     assert isinstance(response.json(), dict), f"Expected dict, but got {type(response.json())}"
+    assert response.json()["followers"][0]["id"] == user1["id"]
+
 
 
 def test_get_followers_no_followers(client: TestClient, dummy_users):
@@ -238,3 +249,53 @@ def test_get_followers_invalid_user(client: TestClient):
     # Assert: Verify that the response returns a 404 error
     assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
     assert response.json()["detail"] == "The user does not exists."
+
+
+###################################################
+## Test all endpoints for get followees endpoint ##
+###################################################
+
+def get_followees(client: TestClient, user_id: int,) -> dict:
+    """Get followees of a user."""
+    response = client.get(f"followers/get_followings/{user_id}")
+    return response
+
+
+def test_get_followees_success(client: TestClient, dummy_users):
+    """Test the case when a user successfully retrieves their followees."""
+    # Arrange: Create dummy users
+    user1, user2, user3 = dummy_users
+
+    # Act: user1 gets their followees (this assumes user1 follows user2)
+    response = get_followees(client, user_id=user1["id"])
+
+    # Assert: Verify that the response contains user2 as a followee
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert isinstance(response.json(), dict), f"Expected dict, but got {type(response.json())}"
+    assert response.json()["followers"][0]["id"] == user2["id"]
+
+
+def test_get_followees_no_followees(client: TestClient, dummy_users):
+    """Test the case when a user has no followees."""
+    # Arrange: Create dummy users
+    _, user2, _ = dummy_users
+
+    # Act: user2 gets their followees (no followees beacuse user2 doesnot followed anyone)
+    response = get_followees(client, user_id=user2["id"])
+
+    # Assert: Verify that the response is an empty list
+    assert response.status_code == 400, f"Expected 200, but got {response.status_code}"
+    assert response.json()["detail"] == "No followers found for this user."
+
+
+def test_get_followees_invalid_user(client: TestClient):
+    """Test the case when trying to get followees for a non-existent user."""
+    # Arrange: Non-existent user ID
+    non_existent_user_id = 99999
+
+    # Act: Try to get followees of the non-existent user
+    response = get_followees(client, user_id=non_existent_user_id)
+
+    # Assert: Verify that the response returns a 400 error (user not found)
+    assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
+    assert response.json()["detail"] == "The user does not exists.", "Expected 'The user does not exists.' message."
