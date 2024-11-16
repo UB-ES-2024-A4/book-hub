@@ -10,3 +10,7 @@ def create_comment(*, session: Session, comment_create: Comment) -> Comment:
     session.commit()
     session.refresh(comment)
     return comment
+
+def get_all_comments_by_post(*, session: Session, post_id: int) -> Any:
+    comments = session.exec(select(Comment).where(Comment.post_id == post_id)).all()
+    return comments

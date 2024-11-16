@@ -32,3 +32,17 @@ def test_create_comment(db: Session) -> None:
     assert created_comment.user_id == user_id
     assert created_comment.post_id == post_id
     assert created_comment.comment == comment
+
+def test_get_comments_by_post(db: Session) -> None:
+    user_id, post_id = get_test_parameters(db)
+
+    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
+    crud.comment.create_comment(session=db, comment_create=comment_in)
+
+    comments = crud.comment.get_all_comments_by_post(session=db, post_id=post_id)
+
+    for item in comments:
+        assert item.post_id == post_id
+        assert item.user_id
+        assert item.comment
+        assert item.created_at
