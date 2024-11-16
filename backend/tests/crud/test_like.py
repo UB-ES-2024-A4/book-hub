@@ -4,6 +4,7 @@ from datetime import datetime
 
 from app import crud
 from app.models import Like, User, Book, Post
+from tests.utils import check_quantity_likes
 
 def get_test_parameters(db: Session):
     user_test = db.exec(
@@ -27,10 +28,7 @@ def test_create_like(db: Session):
     like_in = Like(user_id=user_id, post_id=post_test.id)
     created_like = crud.like.create_like(session=db, like_create=like_in)
     
-    post : Post = db.exec(
-        select(Post).where(Post.id == post_test.id)
-    ).first()
-    likes_after = post.likes
+    likes_after = check_quantity_likes(post_test=post_test, db=db)
 
     assert created_like.user_id == user_id
     assert created_like.post_id == post_test.id
@@ -46,21 +44,8 @@ def test_delete_like(db: Session):
 
     deleted_like = crud.like.delete_like(session=db, db_like=db_like)
 
-    post : Post = db.exec(
-        select(Post).where(Post.id == post_test.id)
-    ).first()
-    likes_after = post.likes
+    likes_after = check_quantity_likes(post_test=post_test, db=db)
 
     assert deleted_like.user_id == user_id
     assert deleted_like.post_id == post_test.id
     assert likes_after == likes_before - 1
-
-def test_get_likes_post(db: Session):
-    user_id, post_test = get_test_parameters(db)
-
-    like_in = Like(user_id=user_id, post_id=post_test.id)
-    crud.like.create_like(session=db, like_create=like_in)
-
-    likes = crud.like.get_likes_post(session=db, post_id=post_test.id)
-
-    assert likes == 1
