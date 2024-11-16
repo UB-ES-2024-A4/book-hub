@@ -6,7 +6,9 @@ from app.models import User, Followers
 
 unique_password = "password123"
 
-def create_dummy_users(client: TestClient) -> tuple[dict, dict, dict]:
+# Define the fixture for creating dummy users
+@pytest.fixture(scope="module")
+def dummy_users(client: TestClient) -> tuple:
     """Create dummy users before the tests of the followers."""
 
     # Here we only create these users, the test of the users creation has already been done, 
@@ -45,6 +47,7 @@ def create_dummy_users(client: TestClient) -> tuple[dict, dict, dict]:
         assert response.status_code == 200, f"Failed to create user: {response.text}"
         created_users.append(response.json())
 
+    # Return created users for use in tests
     return tuple(created_users)
 
 
@@ -62,8 +65,7 @@ def login_user(client: TestClient, username: str, password: str) -> str:
 def follow_user(client: TestClient, followee_id: int, header: dict) -> dict:
     """Follow a user and return the follow relationship."""
     response = client.post(f"/followers/follow/{followee_id}", headers=header)
-    assert response.status_code == 200, f"Failed to follow: {response.text}"
-    return response.json()
+    return response
 
 
 def unfollow_user(client: TestClient, followee_id: int) -> dict:
@@ -73,10 +75,10 @@ def unfollow_user(client: TestClient, followee_id: int) -> dict:
     return response.json()
 
 
-def test_follow_user(client: TestClient):
+def test_follow_user_success(client: TestClient, dummy_users):
     """Test the follow functionality."""
     # Arrange: Create dummy users
-    user1, user2, user3 = create_dummy_users(client)
+    user1, user2, user3 = dummy_users
 
     # Login as user1 to get the token
     token_user1 = login_user(client, username=user1["email"], password=unique_password)
@@ -90,18 +92,96 @@ def test_follow_user(client: TestClient):
     follow_relationship_1 = follow_user(client, followee_id=user2["id"], header=headers)
 
     # Assert: Verify the follow relationship
-    assert follow_relationship_1["success"] is True
-    assert follow_relationship_1["message"] == "User followed successfully"
+    assert follow_relationship_1.json()["success"] is True
+    assert follow_relationship_1.json()["message"] == "User followed successfully"
 
 
     # Act: user1 follows user3
     follow_relationship_2 = follow_user(client, followee_id=user3["id"], header=headers)
 
     # Assert: Verify the second follow relationship
-    assert follow_relationship_2["success"] is True
-    assert follow_relationship_2["message"] == "User followed successfully"
+    assert follow_relationship_2.json()["success"] is True
+    assert follow_relationship_2.json()["message"] == "User followed successfully"
 
 
+def test_follow_user_same_user(client: TestClient, dummy_users):
+    """Test the case when a user tries to follow themselves."""
+    # Arrange: Create dummy users (already done in fixture)
+    user1, _, _ = dummy_users
+
+    # Login as user1 to get the token
+    token_user1 = login_user(client, username=user1["email"], password=unique_password)
+    
+    # Set the authorization header with the token
+    headers = {
+        "Authorization": f"Bearer {token_user1}"
+    }
+
+    # Act: user1 tries to follow themselves
+    response = follow_user(client, followee_id=user1["id"], header=headers)
+
+    # Assert: Check that following oneself is not allowed
+    assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
+    assert response.json()["detail"] == "Cannot follow yourself.", \
+            f"Expected error message 'Cannot follow yourself.', but got {response.json()['detail']}"
+
+
+def test_follow_user_non_existent_user(client: TestClient, dummy_users):
+    """Test the case when a user tries to follow a non-existent user."""
+    # Arrange: Create dummy users
+    user1, _, _ = dummy_users
+
+    # Login as user1 to get the token
+    token_user1 = login_user(client, username=user1["email"], password=unique_password)
+    
+    # Set the authorization header with the token
+    headers = {
+        "Authorization": f"Bearer {token_user1}"
+    }
+
+    # Act: user1 tries to follow a non-existent user
+    response = follow_user(client, followee_id=99999, header=headers)
+
+    # Assert: Check that the error message is correct
+    assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
+    assert response.json()["detail"] == "The user you are trying to follow does not exists."
+
+
+def test_follow_user_unauthenticated(client: TestClient, dummy_users):
+    """Test the case when an unauthenticated user tries to follow another user."""
+    # Arrange: Create dummy users
+    _, user2, _ = dummy_users
+
+    # Act: Try to follow without authentication
+    response = follow_user(client, followee_id=user2["id"], header={})
+
+    # Assert: Ensure that the response status is 401 Unauthorized
+    assert response.status_code == 401, f"Expected 401, but got {response.status_code}"
+    assert response.json()["detail"] == "Not authenticated"
+
+
+def test_follow_user_already_following(client: TestClient, dummy_users):
+    """Test the case when a user tries to follow someone they are already following."""
+    # Arrange: Create dummy users
+    user1, user2, _ = dummy_users
+
+    # Login as user1 to get the token
+    token_user1 = login_user(client, username=user1["email"], password=unique_password)
+    
+    # Set the authorization header with the token
+    headers = {
+        "Authorization": f"Bearer {token_user1}"
+    }
+
+    # In previous test (test_follow_user_success) user1 followed user2 and user3
+    # So, no need to do it again as it has been done previously.
+
+    # Act: user1 tries to follow user2 again
+    response = follow_user(client, followee_id=user2["id"], header=headers)
+
+    # Assert: Ensure the behavior is handled if already following (this depends on your logic)
+    assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
+    assert response.json()["detail"] == "You are already following this user."
 
 
 
