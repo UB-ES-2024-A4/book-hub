@@ -357,3 +357,54 @@ def test_get_mutual_followers_invalid_user(client: TestClient):
     # Assert: Verify the response contains the error message for invalid users
     assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
     assert response.json()["detail"] == "One or both users do not exist.", "Expected 'One or both users do not exist.' message."
+
+
+#########################################################
+## Test all endpoints for most followed users endpoint ##
+#########################################################
+
+@pytest.fixture(scope="module")
+def setup_users_with_followers(client: TestClient) -> list[dict]:
+    """Set up multiple users with varying follower counts."""
+    users = []
+    for i in range(1, 6):  # Create 5 users
+        user_data = {
+            "username": f"user_{i}",
+            "email": f"user_{i}@test.com",
+            "password": unique_password,
+            "first_name": f"FirstName_{i}",
+            "last_name": f"LastName_{i}"
+        }
+        response = client.post("/users/", json=user_data)
+        assert response.status_code == 200, f"Failed to create user {i}: {response.text}"
+        users.append(response.json())
+
+    # Create followers for the users
+    for i, user in enumerate(users):
+        for j in range(i):  # User i is followed by users 0 to i-1
+            token = login_user(client, users[j]["email"], unique_password)
+            headers = {"Authorization": f"Bearer {token}"}
+            follow_user(client, followee_id=user['id'], header=headers)
+
+    return users
+
+
+def get_most_followed_users(client: TestClient, limit: int) -> dict:
+    """Retrieve the most-followed users."""
+    response = client.get(f"/followers/most-followed?limit={limit}")
+    return response
+
+
+def test_get_most_followed_users_success(client: TestClient):
+    """Test retrieval of most-followed users with valid data."""
+
+    # Act: Get the most-followed users
+    response = get_most_followed_users(client, limit=3)
+
+    # Assert: Verify response contains the correct number of most-followed users
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+    most_followed_users = response.json()
+    assert len(most_followed_users) == 3, f"Expected 3 users, got {len(most_followed_users)}"
+    assert most_followed_users[0]["followers_count"] > most_followed_users[1]["followers_count"], \
+        "Users should be sorted by followers count."
+
