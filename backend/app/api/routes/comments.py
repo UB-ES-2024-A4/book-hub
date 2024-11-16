@@ -33,3 +33,15 @@ def get_all_posts(post_id: int, session: Session = Depends(get_session)):
 
     posts = crud.comment.get_all_comments_by_post(session=session, post_id=post_id)
     return posts
+
+# Delete comment
+@router.delete("/{comment_id}",
+             dependencies=[Depends(get_current_user)])
+def delete_comment(comment_id: int, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    db_comment: Comment = utils.check_existence_comment(comment_id=comment_id, session=session)
+    
+    utils.check_ownership(current_usr_id=current_user.id, check_usr_id=db_comment.user_id)
+
+    comment = crud.comment.delete_comment(session=session, db_comment=db_comment)
+
+    return {"message": "Comment deleted successfully", "data": comment}

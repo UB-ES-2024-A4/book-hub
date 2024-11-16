@@ -126,3 +126,73 @@ def test_get_comments(
         assert item['user_id']
         assert item['comment']
         assert item['created_at']
+
+def test_delete_comment_not_found(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+
+    r = client.delete(
+        f'/comments/{-1}',
+        headers=logged_user_token_headers,
+    )
+
+    assert r.status_code == 404
+    deleted_comment = r.json()
+    assert deleted_comment['detail'] == 'Comment not found.'
+
+def test_delete_comment_current_usr_not_owner(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user_id, post_id = get_test_parameters(db)
+
+    user_in = UserCreate(email='test_comment', username='test_comment', first_name='test_comment', last_name='test_comment', password='test_comment')
+    user2 = crud.user.create_user(session=db, user_create=user_in)
+
+    comment_in = Comment(user_id=user2.id, post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+
+    r = client.delete(
+        f'/comments/{created_comment.id}',
+        headers=logged_user_token_headers,
+    )
+
+    assert r.status_code == 403
+    deleted_comment = r.json()
+    assert deleted_comment['detail'] == 'You do not have permission to do this action'
+
+def test_delete_comment_not_logged_user(
+    client: TestClient, db: Session
+) -> None:
+    user_id, post_id = get_test_parameters(db)
+
+    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+
+    r = client.delete(
+        f'/comments/{created_comment.id}',
+        headers={},
+    )
+
+    assert r.status_code == 401
+    deleted_comment = r.json()
+    assert deleted_comment['detail'] == "Not authenticated"
+
+def test_delete_comment(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user_id, post_id = get_test_parameters(db)
+
+    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+
+    r = client.delete(
+        f'/comments/{created_comment.id}',
+        headers=logged_user_token_headers,
+    )
+
+    assert r.status_code == 200
+    created_comment = r.json()
+    assert created_comment['message'] == "Comment deleted successfully"
+    assert created_comment['data']['user_id'] == user_id
+    assert created_comment['data']['post_id'] == post_id
+    assert created_comment['data']['comment'] == comment
