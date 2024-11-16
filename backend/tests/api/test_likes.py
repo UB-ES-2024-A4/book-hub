@@ -106,3 +106,74 @@ def test_create_like_post_prev_liked(
     assert created_like['message'] == 'Post liked successfully'
     assert likes_after == likes_before + 1
 
+def test_delete_like_current_usr_not_owner(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user_id, post_test = get_test_parameters(db)
+    likes_before = post_test.likes
+
+    r = client.delete(
+        f'/likes/{post_test.id}&{-1}',
+        headers=logged_user_token_headers,
+    )
+
+    likes_after = check_quantity_likes(post_test=post_test, db=db)
+
+    assert r.status_code == 403
+    deleted_like = r.json()
+    assert deleted_like['detail'] == 'You do not have permission to do this action'
+    assert likes_after == likes_before
+
+def test_delete_like_post_not_found(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user_id, post_test = get_test_parameters(db)
+    likes_before = post_test.likes
+
+    r = client.delete(
+        f'/likes/{-1}&{user_id}',
+        headers=logged_user_token_headers,
+    )
+
+    likes_after = check_quantity_likes(post_test=post_test, db=db)
+
+    assert r.status_code == 404
+    deleted_like = r.json()
+    assert deleted_like['detail'] == 'Post not found.'
+    assert likes_after == likes_before
+
+def test_delete_like_not_logged_usr(
+    client: TestClient, db: Session
+) -> None:
+    user_id, post_test = get_test_parameters(db)
+    likes_before = post_test.likes
+
+    r = client.delete(
+        f'/likes/{post_test.id}&{user_id}',
+        headers={},
+    )
+
+    likes_after = check_quantity_likes(post_test=post_test, db=db)
+
+    assert r.status_code == 401
+    deleted_like = r.json()
+    assert deleted_like["detail"] == "Not authenticated"
+    assert likes_after == likes_before
+
+def test_delete_like(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user_id, post_test = get_test_parameters(db)
+    likes_before = post_test.likes
+
+    r = client.delete(
+        f'/likes/{post_test.id}&{user_id}',
+        headers=logged_user_token_headers,
+    )
+
+    likes_after = check_quantity_likes(post_test=post_test, db=db)
+
+    assert r.status_code == 200
+    deleted_like = r.json()
+    assert deleted_like['message'] == 'Post unliked successfully'
+    assert likes_after == likes_before - 1
