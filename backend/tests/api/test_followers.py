@@ -408,3 +408,108 @@ def test_get_most_followed_users_success(client: TestClient):
     assert most_followed_users[0]["followers_count"] > most_followed_users[1]["followers_count"], \
         "Users should be sorted by followers count."
 
+
+#########################################################
+## Test all endpoints for unfollow users endpoint ##
+#########################################################
+
+def unfollow_user(client: TestClient, followee_id: int, header: dict) -> dict:
+    """Unfollow a user and return the response."""
+    response = client.post(f"/followers/unfollow/{followee_id}", headers=header)
+    return response
+
+
+def test_unfollow_user_success(client: TestClient, setup_users_with_followers):
+    """Test successful unfollowing of a valid user."""
+    # Arrange: Login as User 1 and set header
+    users = setup_users_with_followers
+    token = login_user(client, users[0]["email"], unique_password)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Act: Unfollow User 2
+    response = unfollow_user(client, followee_id=users[1]["id"], header=headers)
+
+    # Assert: Verify response indicates success
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+    assert response.json() == {
+        "success": True,
+        "message": "User unfollowed successfully"
+    }
+
+
+def test_unfollow_nonexistent_user(client: TestClient, setup_users_with_followers):
+    """Test attempting to unfollow a user that does not exist."""
+    # Arrange: Login as User 1 and set header
+    users = setup_users_with_followers
+    token = login_user(client, users[0]["email"], unique_password)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Act: Attempt to unfollow a nonexistent user
+    response = unfollow_user(client, followee_id=9999, header=headers)
+
+    # Assert: Verify response indicates failure
+    assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+    assert response.json()["detail"] == "The user you are trying to unfollow does not exists."
+
+
+def test_unfollow_yourself(client: TestClient, setup_users_with_followers):
+    """Test attempting to unfollow yourself."""
+    # Arrange: Login as User 1 and set header
+    users = setup_users_with_followers
+    token = login_user(client, users[0]["email"], unique_password)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Act: Attempt to unfollow yourself
+    response = unfollow_user(client, followee_id=users[0]["id"], header=headers)
+
+    # Assert: Verify response indicates failure
+    assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+    assert response.json()["detail"] == "Cannot unfollow yourself."
+
+
+def test_unfollow_without_existing_relationship(client: TestClient, setup_users_with_followers):
+    """Test attempting to unfollow a user without an existing follow relationship."""
+    # Arrange: Login as User 3 and set header
+    users = setup_users_with_followers
+    token = login_user(client, users[2]["email"], unique_password)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Act: Attempt to unfollow User 1 (no relationship)
+    response = unfollow_user(client, followee_id=users[0]["id"], header=headers)
+
+    # Assert: Verify response indicates failure
+    assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+    assert response.json()["detail"] == "You are not following this user."
+
+
+def test_unfollow_user_unauthorized(client: TestClient):
+    """Test attempting to unfollow a user without authentication."""
+    # Act: Attempt to unfollow a user without a token
+    response = unfollow_user(client, followee_id=1, header={})
+
+    # Assert: Verify response indicates failure
+    assert response.status_code == 401, f"Expected 401, got {response.status_code}"
+    assert response.json()["detail"] == "Not authenticated"
+
+
+def test_unfollow_user_db_error(client: TestClient, monkeypatch, setup_users_with_followers):
+    """Test handling of a database error during the unfollow operation."""
+    # Arrange: Login as User 1 and set header
+    users = setup_users_with_followers
+    token = login_user(client, users[0]["email"], unique_password)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Simulate a database error
+    def mock_unfollow_user(*args, **kwargs):
+        return False
+    monkeypatch.setattr("app.crud.followers.unfollow_user", mock_unfollow_user)
+
+    # Act: Attempt to unfollow User 2
+    response = unfollow_user(client, followee_id=users[1]["id"], header=headers)
+
+    # Assert: Verify response indicates failure
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+    assert response.json() == {
+        "success": False,
+        "message": "An error ocurred while unfollowing user"
+    }
