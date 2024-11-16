@@ -1,8 +1,9 @@
 """ Main API routes definition """
 from fastapi import APIRouter
 
-from app.api.routes import users, posts
+from app.api.routes import users, posts, likes
 
 api_router = APIRouter()
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(posts.router, prefix="/posts", tags=["posts"])
+api_router.include_router(likes.router, prefix="/likes", tags=["likes"])
