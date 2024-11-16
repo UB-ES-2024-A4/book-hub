@@ -61,7 +61,6 @@ def login_user(client: TestClient, username: str, password: str) -> str:
     return response.json()["access_token"]  
 
 
-
 def follow_user(client: TestClient, followee_id: int, header: dict) -> dict:
     """Follow a user and return the follow relationship."""
     response = client.post(f"/followers/follow/{followee_id}", headers=header)
@@ -77,7 +76,7 @@ def unfollow_user(client: TestClient, followee_id: int) -> dict:
 
 def test_follow_user_success(client: TestClient, dummy_users):
     """Test the follow functionality."""
-    # Arrange: Create dummy users
+    # Arrange: Get dummy users
     user1, user2, user3 = dummy_users
 
     # Login as user1 to get the token
@@ -106,7 +105,7 @@ def test_follow_user_success(client: TestClient, dummy_users):
 
 def test_follow_user_same_user(client: TestClient, dummy_users):
     """Test the case when a user tries to follow themselves."""
-    # Arrange: Create dummy users (already done in fixture)
+    # Arrange: Get dummy users (already done in fixture)
     user1, _, _ = dummy_users
 
     # Login as user1 to get the token
@@ -128,7 +127,7 @@ def test_follow_user_same_user(client: TestClient, dummy_users):
 
 def test_follow_user_non_existent_user(client: TestClient, dummy_users):
     """Test the case when a user tries to follow a non-existent user."""
-    # Arrange: Create dummy users
+    # Arrange: Get dummy users
     user1, _, _ = dummy_users
 
     # Login as user1 to get the token
@@ -149,7 +148,7 @@ def test_follow_user_non_existent_user(client: TestClient, dummy_users):
 
 def test_follow_user_unauthenticated(client: TestClient, dummy_users):
     """Test the case when an unauthenticated user tries to follow another user."""
-    # Arrange: Create dummy users
+    # Arrange: Get dummy users
     _, user2, _ = dummy_users
 
     # Act: Try to follow without authentication
@@ -162,7 +161,7 @@ def test_follow_user_unauthenticated(client: TestClient, dummy_users):
 
 def test_follow_user_already_following(client: TestClient, dummy_users):
     """Test the case when a user tries to follow someone they are already following."""
-    # Arrange: Create dummy users
+    # Arrange: Get dummy users
     user1, user2, _ = dummy_users
 
     # Login as user1 to get the token
@@ -173,7 +172,7 @@ def test_follow_user_already_following(client: TestClient, dummy_users):
         "Authorization": f"Bearer {token_user1}"
     }
 
-    # In previous test (test_follow_user_success) user1 followed user2 and user3
+    # In the test_follow_user_success user1 followed user2 and user3
     # So, no need to do it again as it has been done previously.
 
     # Act: user1 tries to follow user2 again
@@ -184,28 +183,58 @@ def test_follow_user_already_following(client: TestClient, dummy_users):
     assert response.json()["detail"] == "You are already following this user."
 
 
+def get_followers(client: TestClient, user_id: int) -> dict:
+    """Get followers of a user."""
+    response = client.get(f"/followers/get_followers/{user_id}")
+    return response
 
-# # Test cases for get_followers endpoint
-# def test_get_followers_success(override_get_db, seed_data):
-#     """Test case for successfully retrieving followers."""
-#     response = client.get("/followers/1")  # Get followers for user1
-#     assert response.status_code == 200
-#     data = response.json()
+
+def test_get_followers_success(client: TestClient, dummy_users):
+    """Test the case when a user successfully retrieves their followers."""
+    # Arrange: Get dummy users
+    user1, user2, user3 = dummy_users
     
-#     assert len(data) == 2
-#     assert data[0]["username"] == "user2"
-#     assert data[1]["username"] == "user3"
+    # In the test_follow_user_success user1 followed user2 and user3
+    # So it means that user2 and user3 have 1 follower user1
 
-# def test_get_followers_no_followers(override_get_db, seed_data):
-#     """Test case for a user with no followers."""
-#     response = client.get("/followers/2")  # Get followers for user2
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert len(data) == 0
+    # Act: user2 gets their followers
+    response = get_followers(client, user_id=user2["id"])
 
-# def test_get_followers_invalid_user(override_get_db, seed_data):
-#     """Test case for a non-existent user."""
-#     response = client.get("/followers/999")  # Get followers for a non-existent user
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert len(data) == 0
+    # Assert: Verify that the response contains a list of followers
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert isinstance(response.json(), dict), f"Expected dict, but got {type(response.json())}"
+
+    # Act: user3 gets their followers
+    response = get_followers(client, user_id=user3["id"])
+
+    # Assert: Verify that the response contains a list of followers
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert isinstance(response.json(), dict), f"Expected dict, but got {type(response.json())}"
+
+
+def test_get_followers_no_followers(client: TestClient, dummy_users):
+    """Test the case when a user has no followers."""
+    # Arrange: Create dummy users
+    user1, _, _ = dummy_users
+
+    # Act: user1 gets their followers (no followers)
+    response = get_followers(client, user_id=user1["id"])
+
+    # As I said earlier that user1 doesnot have any followers so this should show error
+
+    # Assert: Verify that the response is an empty list
+    assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
+    assert response.json()["detail"] == "No followers found for this user."
+
+
+def test_get_followers_invalid_user(client: TestClient):
+    """Test the case when trying to get followers of a non-existent user."""
+    # Arrange: Non-existent user ID
+    non_existent_user_id = 99999
+
+    # Act: Try to get followers of the non-existent user
+    response = get_followers(client, user_id=non_existent_user_id)
+
+    # Assert: Verify that the response returns a 404 error
+    assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
+    assert response.json()["detail"] == "The user does not exists."
