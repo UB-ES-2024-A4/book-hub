@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from app.models import User, Book
+from app.models import User, Book, Post, Comment
 from sqlmodel import select
 
 def check_email_name_length(username: str, first_name: str, last_name: str):
@@ -86,3 +86,23 @@ def check_ownership(current_usr_id: int, check_usr_id: int):
             status_code=403,
             detail="You do not have permission to do this action",
         )
+    
+def check_existence_post(post_id: int, session):
+    post: Post = session.get(Post, post_id)
+
+    if not post:
+        raise HTTPException(
+            status_code=404,
+            detail="Post not found.",
+        )
+    
+def check_existence_comment(comment_id: int, session):
+    db_comment: Comment = session.get(Comment, comment_id)
+
+    if not db_comment:
+        raise HTTPException(
+            status_code=404,
+            detail="Comment not found.",
+        )
+    
+    return db_comment
