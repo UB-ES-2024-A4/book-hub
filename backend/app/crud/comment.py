@@ -14,3 +14,8 @@ def create_comment(*, session: Session, comment_create: Comment) -> Comment:
 def get_all_comments_by_post(*, session: Session, post_id: int) -> Any:
     comments = session.exec(select(Comment).where(Comment.post_id == post_id)).all()
     return comments
+
+def delete_comment(*, session: Session, db_comment: Comment) -> Comment:
+    session.delete(db_comment)
+    session.commit()
+    return db_comment

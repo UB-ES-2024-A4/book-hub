@@ -46,3 +46,14 @@ def test_get_comments_by_post(db: Session) -> None:
         assert item.user_id
         assert item.comment
         assert item.created_at
+
+def test_delete_comment(db: Session) -> None:
+    user_id, post_id = get_test_parameters(db)
+
+    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+
+    db_comment: Comment = db.get(Comment, created_comment.id)
+
+    deleted_comment = crud.comment.delete_comment(session=db, db_comment=db_comment)
+    assert deleted_comment
