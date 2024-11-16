@@ -25,3 +25,11 @@ def create_comment(new_comment: Comment, session: Session = Depends(get_session)
     comment = crud.comment.create_comment(session=session, comment_create=new_comment)
 
     return {"message": "Comment created successfully", "data": comment}
+
+# Get all comment for a post endpoint
+@router.get("/{post_id}")
+def get_all_posts(post_id: int, session: Session = Depends(get_session)):
+    utils.check_existence_post(post_id=post_id, session=session)
+
+    posts = crud.comment.get_all_comments_by_post(session=session, post_id=post_id)
+    return posts

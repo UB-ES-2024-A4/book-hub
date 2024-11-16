@@ -95,3 +95,34 @@ def test_create_comment(
     assert created_comment['data']['post_id'] == post_id
     assert created_comment['data']['comment'] == comment
 
+def test_get_comments_post_not_found(
+    client: TestClient, db: Session
+) -> None:
+    r = client.get(
+        f'/comments/{-1}',
+    )
+
+    assert r.status_code == 404
+    retrieved_comment = r.json()
+    assert retrieved_comment['detail'] == 'Post not found.'
+
+def test_get_comments(
+       client: TestClient, db: Session
+) -> None:
+    user_id, post_id = get_test_parameters(db)
+
+    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
+    crud.comment.create_comment(session=db, comment_create=comment_in)
+
+    r = client.get(
+        f'/comments/{post_id}',
+    )
+
+    assert r.status_code == 200
+    retrieved_comments = r.json()
+
+    for item in retrieved_comments:
+        assert item['post_id'] == post_id
+        assert item['user_id']
+        assert item['comment']
+        assert item['created_at']
