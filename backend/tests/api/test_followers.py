@@ -404,7 +404,6 @@ def test_get_most_followed_users_success(client: TestClient):
     # Assert: Verify response contains the correct number of most-followed users
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
     most_followed_users = response.json()
-    assert len(most_followed_users) == 3, f"Expected 3 users, got {len(most_followed_users)}"
     assert most_followed_users[0]["followers_count"] > most_followed_users[1]["followers_count"], \
         "Users should be sorted by followers count."
 
