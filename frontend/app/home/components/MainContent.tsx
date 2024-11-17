@@ -4,7 +4,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import SearchHome from "@/app/home/components/SearchHome";
 import ScrollAreaHome from "@/app/home/components/ScrollAreaHome";
-import { loadMockedPosts, loadPosts } from "@/app/actions";
+import { loadPosts } from "@/app/actions";
 import { Post } from "@/app/types/Post";
 import FetchError from "@/components/FetchError";
 import { User } from "@/app/types/User";
@@ -21,8 +21,7 @@ export default function MainContent ({ userData }: Props){
     useEffect(() => {
         async function fetchPosts() {
             try {
-                // const loadedPosts = await loadPosts();
-                const loadedPosts = await loadMockedPosts();
+                const loadedPosts = await loadPosts();
                 if (!loadedPosts) {
                     setError("Failed to fetch posts");
                     return;
