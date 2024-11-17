@@ -168,5 +168,12 @@ def get_most_followed_users(limit:int = 10, session: Session = Depends(get_sessi
     if not most_followed_users:
         raise HTTPException(status_code=400, detail="No users found.")
     return most_followed_users
+
+@router.get("/{follower_id}/{followee_id}")
+def get_followers_by_id(follower_id: int, followee_id: int, session: Session = Depends(get_session)):
     
+    following = crud.followers.is_following(session=session, follower_id=follower_id, followee_id=followee_id)
     
+    msj = {True: "User followed successfully", False : "They are not following or they do not exist"}
+
+    return FollowersActionResponse(success=following, message=msj[following])
