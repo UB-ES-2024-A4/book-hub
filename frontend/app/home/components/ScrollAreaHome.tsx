@@ -1,4 +1,4 @@
-// Import statements
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -8,11 +8,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Post } from "@/app/types/Post";
 import "../style.css";
 import NoPostError from "@/app/home/Errors/NoPostError";
-import { useEffect, useState } from "react";
 import { User } from "@/app/types/User";
 import FetchError from "@/components/FetchError";
-
-import { fetchUser, followUser, isUserFollowing, unfollowUser } from "@/app/actions";
+import { fetchUser, isUserFollowing, followUser, unfollowUser } from "@/app/actions";
+import { useToast } from "@/hooks/use-toast";
 
 type Props = {
   userData: User;
@@ -24,10 +23,16 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
 
   // State to hold other users' data and following status
   const [postUsersData, setPostUsersData] = useState<{
-    [key: number]: { user: User; isFollowing: boolean };
+    [key: number]: {
+      user: User;
+      isFollowing: boolean;
+    };
   }>({});
 
   const [error, setError] = useState<string | null>(null);
+
+  // Initialize the toast
+  const { toast } = useToast();
 
   useEffect(() => {
     if (posts && currentUserId) {
@@ -79,31 +84,46 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
     postUserId: number,
     isCurrentlyFollowing: boolean
   ) => {
+    // Optimistically update the following status
+    setPostUsersData((prevData) => ({
+      ...prevData,
+      [postUserId]: {
+        ...prevData[postUserId],
+        isFollowing: !isCurrentlyFollowing,
+      },
+    }));
+
     try {
       if (isCurrentlyFollowing) {
         // Unfollow the user
         const result = await unfollowUser(currentUserId, postUserId);
-        if (result) {
-          console.log(`Unfollowed user ${postUserId}`);
+        if (!result) {
+          throw new Error("Unfollow action failed");
         }
       } else {
         // Follow the user
         const result = await followUser(currentUserId, postUserId);
-        if (result) {
-          console.log(`Followed user ${postUserId}`);
+        if (!result) {
+          throw new Error("Follow action failed");
         }
       }
+    } catch (error) {
+      console.error("Failed to update following status", error);
 
-      // Update the following status in state
+      // Revert the following status in state
       setPostUsersData((prevData) => ({
         ...prevData,
         [postUserId]: {
           ...prevData[postUserId],
-          isFollowing: !isCurrentlyFollowing,
+          isFollowing: isCurrentlyFollowing, // Revert to previous state
         },
       }));
-    } catch (error) {
-      console.error("Failed to update following status", error);
+      // Show a toast notification
+      toast({
+        title: "Action failed",
+        description: "Unable to update follow status. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -156,7 +176,7 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
                             isFollowing ? "bg-gray-500" : "bg-blue-500"
                           } text-white font-semibold py-2 px-4 rounded-l-md group`}
                           onClick={() =>
-                            handleFollowClick(post.user_id, isFollowing)
+                            handleFollowClick(post.user_id, isFollowing!)
                           }
                         >
                           {isFollowing ? "Following" : "Follow"}
