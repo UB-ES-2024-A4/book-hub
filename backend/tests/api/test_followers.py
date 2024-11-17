@@ -395,17 +395,20 @@ def get_most_followed_users(client: TestClient, limit: int) -> dict:
     return response
 
 
-def test_get_most_followed_users_success(client: TestClient):
+def test_get_most_followed_users_success(client: TestClient, setup_users_with_followers):
     """Test retrieval of most-followed users with valid data."""
-
+    # Setup users with followers
+    setup_users_with_followers
+    
     # Act: Get the most-followed users
     response = get_most_followed_users(client, limit=3)
 
     # Assert: Verify response contains the correct number of most-followed users
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
     most_followed_users = response.json()
-    assert most_followed_users[0]["followers_count"] > most_followed_users[1]["followers_count"], \
-        "Users should be sorted by followers count."
+    assert len(most_followed_users) == 3, f"Expected 3 users, got {len(most_followed_users)}"
+    assert most_followed_users[0]["followers_count"] >= most_followed_users[1]["followers_count"], \
+        f"Users should be sorted by followers count. {most_followed_users}"
 
 
 #########################################################
