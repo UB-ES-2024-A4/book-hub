@@ -6,7 +6,7 @@ import { Heart, MessageCircle } from 'lucide-react';
 import PostDialog from "@/app/account/components/Dialogs/PostDialog";
 import React, {useState} from "react";
 import {Post} from "@/app/types/Post";
-import {PropsUser} from "@/app/types/PropsUser";
+import {User} from "@/app/types/User";
 
 const userPosts = [
   {
@@ -57,9 +57,11 @@ const userPosts = [
   },
 ];
 
+type Props = {
+    userData: User;
+}
 
-
-export default function PostsGrid( {userData}: PropsUser ) {
+export default function PostsGrid( {userData}: Props ) {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   const openPostDialog = (post: Post) => {
