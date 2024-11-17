@@ -181,3 +181,55 @@ export async function isUserFollowing(
         return null;
     }
 }
+
+export async function followUser(followerId: number, followeeId: number): Promise<any | null> {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/users/follow`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                follower_id: followerId,
+                followee_id: followeeId,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to follow user:", errorData.detail);
+            return null;
+        }
+
+        return await response.json(); // Return the follow relationship data
+    } catch (error) {
+        console.error("Error while following user:", error);
+        return null;
+    }
+}
+
+export async function unfollowUser(followerId: number, followeeId: number): Promise<any | null> {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/users/unfollow`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                follower_id: followerId,
+                followee_id: followeeId,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to unfollow user:", errorData.detail);
+            return null;
+        }
+
+        return await response.json(); // Return the response or confirmation
+    } catch (error) {
+        console.error("Error while unfollowing user:", error);
+        return null;
+    }
+}

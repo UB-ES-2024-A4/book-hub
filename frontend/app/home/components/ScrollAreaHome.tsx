@@ -1,3 +1,4 @@
+// Import statements
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -10,7 +11,8 @@ import NoPostError from "@/app/home/Errors/NoPostError";
 import { useEffect, useState } from "react";
 import { User } from "@/app/types/User";
 import FetchError from "@/components/FetchError";
-import { fetchUser, isUserFollowing } from "@/app/actions";
+
+import { fetchUser, followUser, isUserFollowing, unfollowUser } from "@/app/actions";
 
 type Props = {
   userData: User;
@@ -37,24 +39,27 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
 
           await Promise.all(
             posts.map(async (post) => {
-                // Fetch the post author's data
-                const user = await fetchUser(post.user_id);
+              // Fetch the post author's data
+              const user = await fetchUser(post.user_id);
 
-                // If no user is found, skip processing this post
-                if (!user) {
-                    console.warn(`User with ID ${post.user_id} not found.`);
-                    return;
-                }
+              // If no user is found, skip processing this post
+              if (!user) {
+                console.warn(`User with ID ${post.user_id} not found.`);
+                return;
+              }
 
-                // Check if the current user is following the post author
-                const isFollowing = await isUserFollowing(currentUserId, post.user_id) ?? false;
+              // Check if the current user is following the post author
+              const isFollowing =
+                (await isUserFollowing(currentUserId, post.user_id)) ?? false;
 
-                console.log(
-                    `Current user is ${isFollowing ? "following" : "not following"} the post author.`
-                );
+              console.log(
+                `Current user is ${
+                  isFollowing ? "following" : "not following"
+                } the post author.`
+              );
 
-                // Add to usersMap only if user exists
-                usersMap[post.user_id] = { user, isFollowing };
+              // Add to usersMap only if user exists
+              usersMap[post.user_id] = { user, isFollowing };
             })
           );
 
@@ -68,6 +73,39 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
       fetchUserData();
     }
   }, [posts, currentUserId]);
+
+  // Handle follow/unfollow button click
+  const handleFollowClick = async (
+    postUserId: number,
+    isCurrentlyFollowing: boolean
+  ) => {
+    try {
+      if (isCurrentlyFollowing) {
+        // Unfollow the user
+        const result = await unfollowUser(currentUserId, postUserId);
+        if (result) {
+          console.log(`Unfollowed user ${postUserId}`);
+        }
+      } else {
+        // Follow the user
+        const result = await followUser(currentUserId, postUserId);
+        if (result) {
+          console.log(`Followed user ${postUserId}`);
+        }
+      }
+
+      // Update the following status in state
+      setPostUsersData((prevData) => ({
+        ...prevData,
+        [postUserId]: {
+          ...prevData[postUserId],
+          isFollowing: !isCurrentlyFollowing,
+        },
+      }));
+    } catch (error) {
+      console.error("Failed to update following status", error);
+    }
+  };
 
   if (!posts) {
     return <div className="flex-1 overflow-hidden pt-5">Loading...</div>;
@@ -90,7 +128,10 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
               const isFollowing = userInfo?.isFollowing;
 
               return (
-                <Card key={post.id} className="mx-20 bg-white/80 backdrop-blur-sm">
+                <Card
+                  key={post.id}
+                  className="mx-20 bg-white/80 backdrop-blur-sm"
+                >
                   <CardHeader className="flex-row items-center">
                     <div className="flex items-center gap-2 space-x-2 img-hero transition-transform cursor-pointer">
                       <Avatar className="avatar rounded-full">
@@ -114,6 +155,9 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
                           className={`relative h-8 ${
                             isFollowing ? "bg-gray-500" : "bg-blue-500"
                           } text-white font-semibold py-2 px-4 rounded-l-md group`}
+                          onClick={() =>
+                            handleFollowClick(post.user_id, isFollowing)
+                          }
                         >
                           {isFollowing ? "Following" : "Follow"}
                         </Button>
