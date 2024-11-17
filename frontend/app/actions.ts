@@ -108,3 +108,76 @@ export async function loadPosts() : Promise<Post[]|null> {
         return null;
     }
 }
+
+export async function loadMockedPosts(): Promise<Post[] | null> {
+    try {
+        // Mocked data
+        const mockedData: Post[] = [
+            {
+                id: 1,
+                book_id: 101,
+                user_id: 1,
+                description: "An amazing book about the mysteries of the universe!",
+                likes: 42,
+                created_at: "2024-01-15T12:00:00Z",
+            },
+            {
+                id: 2,
+                book_id: 102,
+                user_id: 2,
+                description: "A thrilling novel with unexpected twists.",
+                likes: 18,
+                created_at: "2024-01-16T14:30:00Z",
+            },
+            {
+                id: 3,
+                book_id: 103,
+                user_id: 3,
+                description: "An insightful guide to self-improvement and mindfulness.",
+                likes: 25,
+                created_at: "2024-01-17T10:15:00Z",
+            },
+        ];
+
+        return Promise.resolve(mockedData);
+    } catch (error) {
+        console.error("Failed to load mocked posts", error);
+        return null;
+    }
+}
+
+export async function fetchUser(userId: number): Promise<User | null> {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/users/${userId}`);
+        if (!response.ok) {
+            console.error(`Failed to fetch user with ID ${userId}`);
+            return null;
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return null;
+    }
+}
+
+export async function isUserFollowing(
+    currentUserId: number,
+    targetUserId: number
+): Promise<boolean | null> {
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8000/users/${currentUserId}/following/${targetUserId}`
+        );
+        if (!response.ok) {
+            console.error(
+                `Failed to check if user ${currentUserId} is following ${targetUserId}`
+            );
+            return null;
+        }
+        const data = await response.json();
+        return data.is_following;
+    } catch (error) {
+        console.error("Error checking following status:", error);
+        return null;
+    }
+}
