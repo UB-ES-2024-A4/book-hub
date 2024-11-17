@@ -459,6 +459,46 @@ def test_get_follower_count_zero_followers(client: TestClient, dummy_users):
     assert response.json() == 0, f"Expected 0 followers, but got {response.json()}"
 
 
+#############################################
+## Tests for the get followee count endpoint ##
+#############################################
+
+def get_followee_count(client: TestClient, user_id: int) -> dict:
+    """Get followee count for a user."""
+    response = client.get(f"/followers/count/following/{user_id}")
+    return response
+
+
+def test_get_followee_count_success(client: TestClient, dummy_users):
+    """Test the case when a user successfully retrieves their followee count."""
+    # Arrange: Get dummy users
+    user1, _, _ = dummy_users
+    
+    # In test_follow_user_success, user1 followed user2 and user3
+    # So user1 should have 2 followees
+
+    # Act: Get followee count for user1
+    response = get_followee_count(client, user_id=user1["id"])
+
+    # Assert: Verify that the response contains the correct followee count
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert isinstance(response.json(), int), f"Expected int, but got {type(response.json())}"
+    assert response.json() == 2, f"Expected 2 followees, but got {response.json()}"
+
+
+def test_get_followee_count_no_followees(client: TestClient, dummy_users):
+    """Test the case when a user has no followees."""
+    # Arrange: Get dummy users
+    _, user2, _ = dummy_users
+
+    # user2 is not following anyone, so their followee count should be 0
+    # Act: Get followee count for user2
+    response = get_followee_count(client, user_id=user2["id"])
+
+    # Assert: Verify that the response is 0
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert response.json() == 0, f"Expected 0 followees, but got {response.json()}"
+
 
 #########################################################
 ## Test all endpoints for unfollow users endpoint ##
