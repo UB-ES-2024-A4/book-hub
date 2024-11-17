@@ -26,10 +26,9 @@ def get_followers(user_id: int, session: Session = Depends(get_session)):
             raise ValueError("The user does not exists.")
     
         followers_data = crud.followers.get_followers(session=session, user_id=user_id)
-        followers_count = crud.followers.get_follower_count(session=session, user_id=user_id)
         if not followers_data:
             raise ValueError("No followers found for this user.")
-        return FollowersOut(followers=followers_data, count=followers_count)
+        return FollowersOut(followers=followers_data, count=len(followers_data))
     
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -47,10 +46,9 @@ def get_followees(user_id: int, session: Session = Depends(get_session)):
             raise ValueError("The user does not exists.")
         
         followees_data = crud.followers.get_followees(session=session, user_id=user_id)
-        followees_count = crud.followers.get_followee_count(session=session, user_id=user_id)
         if not followees_data:
-            raise ValueError("No followers found for this user.")
-        return FollowersOut(followers=followees_data, count=followees_count)
+            raise ValueError("No followees found for this user.")
+        return FollowersOut(followers=followees_data, count=len(followees_data))
         
 
     except ValueError as e:
@@ -127,7 +125,7 @@ def unfollow_user (
 # Additional endpoints for more usability
 
 # Get follower count for a user
-@router.get("/count/followers{user_id}", response_model=int)
+@router.get("/count/followers/{user_id}", response_model=int)
 def get_followers_count(user_id: int, session: Session = Depends(get_session)):
     try:
         followers_count = crud.followers.get_follower_count(session=session, user_id=user_id)
@@ -138,7 +136,7 @@ def get_followers_count(user_id: int, session: Session = Depends(get_session)):
 
 
 # Get followee count for a user
-@router.get("/count/following{user_id}", response_model=int)
+@router.get("/count/following/{user_id}", response_model=int)
 def get_followee_count(user_id: int, session: Session = Depends(get_session)):
     try:
         followees_count = crud.followers.get_followee_count(session=session, user_id=user_id)
