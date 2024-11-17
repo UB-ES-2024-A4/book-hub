@@ -289,7 +289,7 @@ def test_get_followees_no_followees(client: TestClient, dummy_users):
 
     # Assert: Verify that the response is an empty list
     assert response.status_code == 400, f"Expected 200, but got {response.status_code}"
-    assert response.json()["detail"] == "No followers found for this user."
+    assert response.json()["detail"] == "No followees found for this user."
 
 
 def test_get_followees_invalid_user(client: TestClient):
@@ -409,6 +409,55 @@ def test_get_most_followed_users_success(client: TestClient, setup_users_with_fo
     assert len(most_followed_users) == 3, f"Expected 3 users, got {len(most_followed_users)}"
     assert most_followed_users[0]["followers_count"] >= most_followed_users[1]["followers_count"], \
         f"Users should be sorted by followers count. {most_followed_users}"
+
+
+#########################################################
+## Test all endpoints for get followers count endpoint ##
+#########################################################
+
+def get_follower_count(client: TestClient, user_id: int) -> dict:
+    """Unfollow a user and return the response."""
+    response = client.get(f"/followers/count/followers/{user_id}")
+    return response
+
+
+def test_get_follower_count_success(client: TestClient, dummy_users):
+    # Arrange: Create user relationships
+    _, user2, user3 = dummy_users
+    
+    # In test_follow_user_success user1 followed user2 and user3
+    # So user2 and user3 each have one follower (user1)
+
+    # Act: user2 gets their follower count
+    response = get_follower_count(client, user_id=user2["id"])
+
+    # Assert: Verify that the count is correct
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert isinstance(response.json(), int), f"Expected int, but got {type(response.json())}"
+    assert response.json() == 1, f"Expected 1 follower, but got {response.json()}"
+
+    # Act: user3 gets their follower count
+    response = get_follower_count(client, user_id=user3["id"])
+
+    # Assert: Verify that the count is correct
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert isinstance(response.json(), int), f"Expected int, but got {type(response.json())}"
+    assert response.json() == 1, f"Expected 1 follower, but got {response.json()}"
+
+
+def test_get_follower_count_zero_followers(client: TestClient, dummy_users):
+    """Test the case when a user has no followers."""
+    # Arrange: Create dummy users
+    user1, _, _ = dummy_users
+
+    # Act: user1 gets their follower count (no followers)
+    response = get_follower_count(client, user_id=user1["id"])
+
+    # Assert: Verify that the count is 0
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert isinstance(response.json(), int), f"Expected int, but got {type(response.json())}"
+    assert response.json() == 0, f"Expected 0 followers, but got {response.json()}"
+
 
 
 #########################################################
