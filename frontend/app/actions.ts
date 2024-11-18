@@ -129,7 +129,7 @@ export async function isUserFollowing(
 ): Promise<boolean | null> {
     try {
         const response = await fetch(
-            `http://127.0.0.1:8000/users/${currentUserId}/following/${targetUserId}`
+            `http://127.0.0.1:8000/followers/${currentUserId}/${targetUserId}`
         );
         if (!response.ok) {
             console.error(
@@ -147,7 +147,7 @@ export async function isUserFollowing(
 
 export async function followUser(followerId: number, followeeId: number): Promise<any | null> {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/users/follow`, {
+        const response = await fetch(`http://127.0.0.1:8000/followers/follow/${followeeId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ export async function followUser(followerId: number, followeeId: number): Promis
 
 export async function unfollowUser(followerId: number, followeeId: number): Promise<any | null> {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/users/unfollow`, {
+        const response = await fetch(`http://127.0.0.1:8000//followers/unfollow/${followeeId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

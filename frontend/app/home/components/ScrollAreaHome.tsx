@@ -159,7 +159,7 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
                         <AvatarImage
                           src={
                             user
-                              ? `http://127.0.0.1/8000/users/pfp/${user.id}`
+                              ? `http://127.0.0.1:8000/users/pfp/${user.id}`
                               : "/book-signup.jpg"
                           }
                         />
