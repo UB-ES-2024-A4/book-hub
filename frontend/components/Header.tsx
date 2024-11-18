@@ -7,7 +7,7 @@ import CreatePostButton from "@/components/CreatePostButton";
 import {CreatePostDialog} from "@/components/Dialog/CreatePostDialog"; // Importar usePathname para obtener la ruta actual
 
 type HeaderProps = {
-    accessToken: string | undefined;
+    accessToken: string | null;
 }
 
 export default function Header({accessToken}: HeaderProps) {

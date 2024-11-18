@@ -2,7 +2,7 @@
 import { Lock, User2 } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
-import { SignInValidation} from "@/app/lib/authentification";
+import { SignInValidation} from "@/app/lib/authentication";
 import { useFormState  } from 'react-dom';
 import {useForm} from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
