@@ -50,7 +50,6 @@ export default function ScrollAreaHome({ posts }: Props) {
         return <div className="flex-1 overflow-hidden pt-5">Loading...</div>;
     }
 
-
     return (
         <div className="flex-1 overflow-hidden pt-5">
             <ScrollArea className="h-[calc(100vh-64px)] w-full">
@@ -65,7 +64,7 @@ export default function ScrollAreaHome({ posts }: Props) {
                         posts.map((post: Post) => {
                             const user = userData[post.user_id];
                             return (
-                            <Card key={post.id} className="mx-20 bg-white/80 backdrop-blur-sm">
+                            <Card key={post.id} className="mx-5 md:mx-20 bg-white/80 backdrop-blur-sm">
                                 <CardHeader className="flex-row items-center">
                                     <div className="flex items-center space-x-2 img-hero transition-transform cursor-pointer">
                                         <Avatar className="avatar rounded-full">

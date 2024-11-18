@@ -4,7 +4,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import SearchHome from "@/app/home/components/SearchHome";
 import ScrollAreaHome from "@/app/home/components/ScrollAreaHome";
-import { loadPosts } from "@/app/actions";
+import { loadMockedPosts, loadPosts } from "@/app/actions";
 import { Post } from "@/app/types/Post";
 import FetchError from "@/components/FetchError";
 
@@ -16,7 +16,8 @@ export default function MainContent (){
     useEffect(() => {
         async function fetchPosts() {
             try {
-                const loadedPosts = await loadPosts();
+                // const loadedPosts = await loadPosts();
+                const loadedPosts = await loadMockedPosts();
                 if (!loadedPosts) {
                     setError("Failed to fetch posts");
                     return;
@@ -35,11 +36,10 @@ export default function MainContent (){
     return (
         fetchError ? (
             <div className="min-h-screen flex items-center justify-center">
-            <FetchError />
-
+                <FetchError />
             </div>
         ) : (
-            <div className="flex flex-1 overflow-hidden pt-10">
+            <div className="flex flex-1 flex-col md:flex-row overflow-hidden pt-10">
                 {/* Sidebar (Search) */}
                 <SearchHome/>
                 {/* Feed Section */}
