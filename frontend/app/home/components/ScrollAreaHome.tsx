@@ -82,7 +82,7 @@ export default function ScrollAreaHome({ posts }: Props) {
                                         {/* Imagen del libro */}
                                         <Image
                                             alt="Book cover"
-                                            className="rounded-lg object-cover"
+                                            className="rounded-lg object-cover w-full max-h-60 md:max-h-full"
                                             width={150}
                                             height={190}
                                             src="/book.jpg"
