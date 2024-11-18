@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
 import { Post } from "@/app/types/Post";
-import {getSession} from "@/app/lib/authentication";
+import {getAccessToken, getSession} from "@/app/lib/authentication";
 import {parseWithZod} from "@conform-to/zod";
 import {userInformationSchema} from "@/app/lib/zodSchemas";
 
@@ -138,7 +138,8 @@ export async function isUserFollowing(
             return null;
         }
         const data = await response.json();
-        return data.is_following;
+        console.log("FOLOWWWIN status:", data.success);
+        return data.success;
     } catch (error) {
         console.error("Error checking following status:", error);
         return null;
@@ -151,6 +152,7 @@ export async function followUser(followerId: number, followeeId: number): Promis
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
             },
             body: JSON.stringify({
                 follower_id: followerId,
@@ -171,17 +173,13 @@ export async function followUser(followerId: number, followeeId: number): Promis
     }
 }
 
-export async function unfollowUser(followerId: number, followeeId: number): Promise<any | null> {
+export async function unfollowUser(followerId: number, followeeId: number) {
     try {
-        const response = await fetch(`http://127.0.0.1:8000//followers/unfollow/${followeeId}`, {
-            method: 'DELETE',
+        const response = await fetch(`http://127.0.0.1:8000/followers/unfollow/${followeeId}`, {
+            method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
             },
-            body: JSON.stringify({
-                follower_id: followerId,
-                followee_id: followeeId,
-            }),
         });
 
         if (!response.ok) {
