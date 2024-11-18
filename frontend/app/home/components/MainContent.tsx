@@ -4,7 +4,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import SearchHome from "@/app/home/components/SearchHome";
 import ScrollAreaHome from "@/app/home/components/ScrollAreaHome";
-import { loadMockedPosts, loadPosts } from "@/app/actions";
+import { loadPosts } from "@/app/actions";
 import { Post } from "@/app/types/Post";
 import FetchError from "@/components/FetchError";
 
