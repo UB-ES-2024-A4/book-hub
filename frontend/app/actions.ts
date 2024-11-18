@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
 import { Post } from "@/app/types/Post";
+import {createPostSchema} from "@/app/lib/zodSchemas";
+import {getSession} from "@/app/lib/authentification";
 
 
 export async function CreateUser(prevState: unknown, formData: FormData) {
@@ -31,7 +33,7 @@ export async function CreateUser(prevState: unknown, formData: FormData) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
-        
+
         // Handle the backend's response
         if (!response.ok) {
             const errorMessage = await response.text();
@@ -39,10 +41,10 @@ export async function CreateUser(prevState: unknown, formData: FormData) {
         }
 
         redirectPath = '/auth/sign-in'; // Redirect upon successful registration
-        
+
     } catch (error) {
         console.error("Error:", error);
-        
+
     } finally {
         if (redirectPath) {
             redirect(redirectPath)
@@ -69,7 +71,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
         const data = new URLSearchParams();
         data.append("username", formData.get("user") as string);
         data.append("password", formData.get("password") as string);
-        
+
         const response = await fetch('http://127.0.0.1:8000/users/login/access-token', {
             method: 'POST',
             headers: {
@@ -77,7 +79,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
             },
             body: data.toString(),  // Use URL-encoded string
         });
-        
+
         // Handle the backend's response
         if (!response.ok) {
             const errorMessage = await response.text();
@@ -96,7 +98,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
             maxAge: 60 * 60 * 24, // 1 day
             path: '/',
         });
-        
+
         // Redirect upon successful logIn
         redirectPath = '/home';
 
@@ -110,7 +112,7 @@ export async function SignIn(prevState: unknown, formData: FormData) {
         }
     }
 }
-  
+
   export async function putProfilePictureBackend(formData: FormData, userId: number) {
      try {
           const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`, {
@@ -197,4 +199,70 @@ export async function loadPosts() : Promise<Post[]|null> {
         console.error("Failed to load posts", error);
         return null;
     }
+}
+
+export async function CreatePost(prevState: unknown, formData: FormData) {
+    const submission = parseWithZod(formData, { schema: createPostSchema });
+
+    if (submission.status !== "success") {
+        return {message: "Do not pass the validation"};
+    }
+
+    const accessToken = cookies().get('accessToken')?.value;
+    const user : User | null = await getSession();
+
+    const post_description = formData.get("post_description") as string;
+    // Delete the description from the formData
+    formData.delete("post_description");
+
+    // Convert formData to a JSON object
+    const data = Object.fromEntries(formData.entries());
+
+    // First check if I can create a book with the given data
+    try {
+        console.log("Book data and ACCTOKEN", data, accessToken);
+        const response = await fetch("http://127.0.0.1:8000/books/", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(data),
+        }).then(async (res) => {
+
+            if (!res.ok) {
+                const errorMessage = await res.text();
+                return { message: "Failed to create the Book, try again later" };
+            }
+            // Check if the response is ok
+            const response = await res.json();
+
+            // If I can create the book, then I can create the post
+            const book_id = response.data.id;
+            const post_formData = new URLSearchParams();
+            post_formData.append("user_id", user?.id.toString() as string);
+            post_formData.append("book_id", book_id.toString());
+            post_formData.append("description", post_description);
+
+            const data = Object.fromEntries(post_formData.entries());
+
+            const post_response = await fetch("http://127.0.0.1:8000/posts/", {
+                method: "POST",
+                headers: {
+                'Content-Type': 'application/json',
+                    authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify(data),
+            }).then(async (res) => {
+                const response = await res.json();
+                console.log("RESPONSE", response);
+                return { message: response.message };
+            });
+        });
+    }
+    catch (error) {
+        console.log("FAILDED to create the post or book", error);
+        return { message: "Failed to create the Post, try signing in again" };
+    }
+
 }
