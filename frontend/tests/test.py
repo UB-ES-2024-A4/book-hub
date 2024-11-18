@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-from test_methods import go_to_sign_in_page, go_to_sign_up_page, sign_up
+from test_methods import go_to_sign_in_page, go_to_sign_up_page, sign_up, login
 
 driver = webdriver.Chrome()
 driver.get("http://localhost:3000/home")
@@ -41,3 +41,18 @@ def test_sign_up():
 
     # Comprobar si la URL actual es la esperada
     assert driver.current_url == "http://localhost:3000/auth/sign-in", "No estás en la página de sign-in."
+
+
+def test_login():
+    driver.get("http://localhost:3000/home")
+
+    go_to_sign_in_page(driver)
+
+    login(driver, "test_user", "TestPassword123")
+
+    WebDriverWait(driver, 5).until(
+        EC.url_to_be("http://localhost:3000/home")
+    )
+
+    # Comprobar si la URL actual es la esperada
+    assert driver.current_url == "http://localhost:3000/home", "No estás en la página de inicio (home)."
