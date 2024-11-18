@@ -16,8 +16,7 @@ export default function MainContent (){
     useEffect(() => {
         async function fetchPosts() {
             try {
-                // const loadedPosts = await loadPosts();
-                const loadedPosts = await loadMockedPosts();
+                const loadedPosts = await loadPosts();
                 if (!loadedPosts) {
                     setError("Failed to fetch posts");
                     return;
