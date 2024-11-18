@@ -14,15 +14,16 @@ const  AccountPage = async () => {
 
     const user : User | null = await getSession();
 
+    const accessToken: string | null = await getAccessToken();
 
     // Handle error state
-    if (!user)
+    if (!user || !accessToken)
         return (<FetchInformationError error={"Failed to load user information."}/>);
 
     // Return page content with user data
     return (
         <div className="min-h-screen bg-gray-100 bg-gradient-to-br from-blue-950 to-blue-200">
-            <Header />
+            <Header accessToken={accessToken}/>
             <main className="container mx-auto pt-16">
                 <MainContent  userData={user} ></MainContent>
             </main>
