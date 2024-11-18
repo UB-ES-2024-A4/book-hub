@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from datetime import datetime
 
 from app import crud
-from app.models import Post, User, Book, Comment
+from app.models import Post, User, Book, Comment, CommentCreate
 
 comment = 'test_comment'
 created_at = datetime.now()
@@ -26,8 +26,8 @@ def get_test_parameters(db: Session):
 def test_create_comment(db: Session) -> None:
     user_id, post_id = get_test_parameters(db)
 
-    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
-    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+    comment_in = CommentCreate(post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in, usr_id=user_id)
 
     assert created_comment.user_id == user_id
     assert created_comment.post_id == post_id
@@ -36,8 +36,8 @@ def test_create_comment(db: Session) -> None:
 def test_get_comments_by_post(db: Session) -> None:
     user_id, post_id = get_test_parameters(db)
 
-    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
-    crud.comment.create_comment(session=db, comment_create=comment_in)
+    comment_in = CommentCreate(post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in, usr_id=user_id)
 
     comments = crud.comment.get_all_comments_by_post(session=db, post_id=post_id)
 
@@ -50,8 +50,8 @@ def test_get_comments_by_post(db: Session) -> None:
 def test_delete_comment(db: Session) -> None:
     user_id, post_id = get_test_parameters(db)
 
-    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
-    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+    comment_in = CommentCreate(post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in, usr_id=user_id)
 
     db_comment: Comment = db.get(Comment, created_comment.id)
 

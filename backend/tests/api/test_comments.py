@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from app.models import User, UserCreate, Book, Post, Comment
+from app.models import User, UserCreate, Book, Post, CommentCreate
 from sqlmodel import Session, select, text
 from datetime import datetime
 from app.core.config import settings
@@ -23,23 +23,6 @@ def get_test_parameters(db: Session):
     ).first()
 
     return user_test.id, post_test.id
-
-def test_create_comment_current_usr_not_owner(
-    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
-) -> None:
-    user_id, post_id = get_test_parameters(db)
-
-    data = {'user_id': -1, 'post_id': post_id, 'comment': comment, 'created_at': f'{created_at}'}
-
-    r = client.post(
-        '/comments/',
-        headers=logged_user_token_headers,
-        json=data
-    )
-
-    assert r.status_code == 403
-    created_comment = r.json()
-    assert created_comment['detail'] == 'You do not have permission to do this action'
 
 def test_create_comment_post_not_found(
     client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
@@ -111,8 +94,8 @@ def test_get_comments(
 ) -> None:
     user_id, post_id = get_test_parameters(db)
 
-    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
-    crud.comment.create_comment(session=db, comment_create=comment_in)
+    comment_in = CommentCreate(post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in, usr_id=user_id)
 
     r = client.get(
         f'/comments/{post_id}',
@@ -148,8 +131,8 @@ def test_delete_comment_current_usr_not_owner(
     user_in = UserCreate(email='test_comment', username='test_comment', first_name='test_comment', last_name='test_comment', password='test_comment')
     user2 = crud.user.create_user(session=db, user_create=user_in)
 
-    comment_in = Comment(user_id=user2.id, post_id=post_id, comment=comment, created_at=created_at)
-    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+    comment_in = CommentCreate(post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in, usr_id=user2.id)
 
     r = client.delete(
         f'/comments/{created_comment.id}',
@@ -165,8 +148,8 @@ def test_delete_comment_not_logged_user(
 ) -> None:
     user_id, post_id = get_test_parameters(db)
 
-    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
-    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+    comment_in = CommentCreate(post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in, usr_id=user_id)
 
     r = client.delete(
         f'/comments/{created_comment.id}',
@@ -182,8 +165,8 @@ def test_delete_comment(
 ) -> None:
     user_id, post_id = get_test_parameters(db)
 
-    comment_in = Comment(user_id=user_id, post_id=post_id, comment=comment, created_at=created_at)
-    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in)
+    comment_in = CommentCreate(post_id=post_id, comment=comment, created_at=created_at)
+    created_comment = crud.comment.create_comment(session=db, comment_create=comment_in, usr_id=user_id)
 
     r = client.delete(
         f'/comments/{created_comment.id}',
