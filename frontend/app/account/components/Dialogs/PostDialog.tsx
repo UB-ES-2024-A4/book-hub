@@ -12,7 +12,7 @@ type PostDialogAccountProps = {
 const PostDialog: React.FC<PostDialogAccountProps> = ({ selectedPost, setSelectedPost }) => {
   // Component implementation
   return (
-     <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
+    <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{"TITLE"}</DialogTitle>

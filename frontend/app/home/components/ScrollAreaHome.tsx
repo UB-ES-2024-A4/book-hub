@@ -17,6 +17,8 @@ type Props = {
     posts: Post[] | null;
 };
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function ScrollAreaHome({ posts }: Props) {
     const [userData, setUserData] = useState<{ [key: number]: User }>({});
     const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export default function ScrollAreaHome({ posts }: Props) {
 
                     await Promise.all(
                         posts.map(async (post) => {
-                            const response = await fetch(`http://127.0.0.1:8000/users/${post.user_id}`);
+                            const response = await fetch(baseUrl + `/users/${post.user_id}`);
                             usersMap[post.user_id] = await response.json();
                         })
                     );
@@ -69,8 +71,8 @@ export default function ScrollAreaHome({ posts }: Props) {
                                     <div className="flex items-center space-x-2 img-hero transition-transform cursor-pointer">
                                         <Avatar className="avatar rounded-full">
                                             {/* Imagen de perfil del usuario */}
-                                            <AvatarImage src= { user? (`http://127.0.0.1:8000/users/pfp/${user.id}`) : (`/logo.png`) } />
-                                            <AvatarFallback className="text-sm">User</AvatarFallback>
+                                            <AvatarImage src={user? `${baseUrl}/users/pfp/${user.id}`: "/book-signup.jpg"} />
+                                            <AvatarFallback>User</AvatarFallback>
                                         </Avatar>
                                         <span className="pl-1 text-transparent bg-clip-text bg-gradient-to-br from-blue-200 to-blue-950">
                                              @ {user?.username || "Unknown User"}
