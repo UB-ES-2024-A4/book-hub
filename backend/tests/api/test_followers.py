@@ -341,7 +341,7 @@ def test_get_mutual_followers_no_mutuals(client: TestClient, dummy_users):
     response = get_mutual_followers(client, user_id_1=user1["id"], user_id_2=user2["id"])
 
     # Assert: Verify that no mutual followers are found
-    assert response.status_code == 400, f"Expected 400, but got {response.status_code}"
+    assert response.status_code == 404, f"Expected 404, but got {response.status_code}"
     assert response.json()["detail"] == "No mutual followers found."
 
 
