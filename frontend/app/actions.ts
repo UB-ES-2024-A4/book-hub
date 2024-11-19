@@ -14,6 +14,7 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 import {createPostSchema} from "@/app/lib/zodSchemas";
+import {toast} from "nextjs-toast-notify";
 
 // Function to update the user's information
 export async function UpdateUser(prevState: unknown, formData: FormData) {
@@ -23,11 +24,11 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
 
     // Handle validation errors if present
     if (submission.status !== "success") {
-        return { message: "Do not pass the validation" };
+        return { message: `Status: Failed, Message: Do not pass Validation`};
     }
 
     const userCookie = await getSession();
-    if(!userCookie) return;
+    if(!userCookie) return { message: "Status: 403, Message: Unauthorized" };
 
     // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
     const data = new URLSearchParams();
@@ -44,7 +45,7 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
     // Update the user's information
     const user = Object.fromEntries(data.entries());
     console.log("User New DATA INFORMATION", user);
-    if(!user) return;
+    if(!user) return { message: "Status: 403, Message: Unauthorized" };
 
     try {
         // Convert formData to JSON and verify the user with the access token
@@ -59,10 +60,10 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
             },
             body: JSON.stringify(data),
         }).then(async (response) => {
-
-                if (response.status == 400) {
+                if (response.status != 200) {
                     const errorData = await response.json();
-                    throw new Error(errorData.detail);
+
+                    throw new Error(`Status: ${response.status}, Message: ${errorData.detail}`);
                 }
             }
         );
@@ -73,7 +74,7 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
 
     // Update the user's information in the cookie
     cookies().set('user', JSON.stringify(user));
-    return { message: "User update successfully" };
+    return { message: "Status: 200, Message: User update successfully" };
 }
 
 

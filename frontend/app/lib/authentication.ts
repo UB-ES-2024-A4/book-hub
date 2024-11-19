@@ -99,7 +99,7 @@ export async function SignInValidation(prevState: unknown, formData: FormData) {
         path: '/',
     });
 
-    user.biography = "Add your biography here";
+    user.biography = user.biography || "Add your biography here";
 
     cookies().set({
         name: 'user',

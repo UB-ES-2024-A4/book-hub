@@ -2,14 +2,14 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Share2 } from "lucide-react";
+import {Heart, MessageCircle, Share2} from "lucide-react";
 import { CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Post } from "@/app/types/Post";
 import "../style.css";
 import NoPostError from "@/app/home/Errors/NoPostError";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {User} from "@/app/types/User";
 import FetchError from "@/components/FetchError";
 import {getAccessToken} from "@/app/lib/authentication";
@@ -72,7 +72,14 @@ export default function ScrollAreaHome({ posts }: Props) {
         <div className="flex-1 overflow-hidden pt-5">
             <ScrollArea className="h-[calc(100vh-64px)] w-full">
                 <div className="p-4 space-y-6">
-                    {posts.map((post: Post) => {
+                  {posts.length === 0 || error ? (
+                    error ? (
+                      <FetchError />
+                    ) : (
+                      <NoPostError />
+                    )
+                  ) : (
+                    posts.map((post: Post) => {
                         const user: User = userData[post.user_id]
                         const book: Book = booksMap[post.book_id]
                         return (
@@ -136,11 +143,12 @@ export default function ScrollAreaHome({ posts }: Props) {
                                         <MessageCircle className="w-4 h-4 mr-2"/>
                                         Comment
                                     </Button>
-                                </CardFooter>
-                            */}
+                                </CardFooter>*/}
+
                             </Card>
                         )
-                    })}
+                    })
+                      )}
                 </div>
             </ScrollArea>
         </div>

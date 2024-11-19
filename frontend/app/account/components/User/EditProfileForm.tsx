@@ -7,11 +7,13 @@ import {parseWithZod} from "@conform-to/zod";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {User} from "@/app/types/User";
 import {PropsUser} from "@/app/types/PropsUser";
 import {toast} from "nextjs-toast-notify";
 import {Alert, AlertDescription} from "@/components/ui/alert";
+import {redirect} from "next/navigation";
+import { useRouter } from 'next/router';
 
 type Props =  PropsUser & {
     setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
@@ -19,14 +21,21 @@ type Props =  PropsUser & {
 
 export default function EditProfileForm ({ setIsEditing, userData, setUser}: Props) {
 
+
      const [serverError, setServerError] = useState<string | null>(null);
 
      const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
         const result = await UpdateUser(prevState, formData);
         const submission: SubmissionResult = {status: "success",}
         console.log("MESSAGE", result);
-        if (result && result.message !== 'User update successfully') {
-            toast.error(result.message, {
+
+        const [statusPart, messagePart] = result.message.split(", ");
+
+        const status = statusPart.split(": ")[1];
+        const message = messagePart.split(": ")[1];
+
+        if (status !== "200") {
+            toast.error(message, {
                 duration: 4000,
                 progress: true,
                 position: "top-center",
@@ -34,7 +43,8 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
                 icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
                 sonido: true,
               });
-            setServerError(result.message);
+            console.log("result message", message);
+            setServerError(status);
         }else{
             toast.info(" ¡ Successfully changed ! ", {
                 duration: 4000, progress: true, position: "bottom-center", transition: "swingInverted",
@@ -43,6 +53,7 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
                     'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
                 sonido: true,
             });
+            setServerError(status);
         }
 
         return submission;
@@ -68,21 +79,33 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
     };
 
     const handleSave = () => {
-
-        if (serverError) {
-
-                const newUser: User = {
-                    id: userData.id,
-                    first_name: fields.first_name.value || "",
-                    last_name: fields.last_name.value || "",
-                    username: fields.username.value || "",
-                    biography: bio,
-                    email: userData.email,
-                };
-                setUser(newUser);
-                setIsEditing(false);
+        console.log("ERROR SERVER", serverError);
+        if (serverError != "200"){
+            if(serverError ==  "403") {
+                // Esperar 2 segundos antes de redirigir
             }
         }
+        else {
+            const newUser: User = {
+                id: userData.id,
+                first_name: fields.first_name.value || userData.first_name || "",
+                last_name: fields.last_name.value || userData.last_name || "",
+                username: fields.username.value || userData.username || "",
+                biography: bio,
+                email: userData.email,
+            };
+            console.log("New USER DATA------", newUser);
+            setUser(newUser);
+            setIsEditing(false);
+        }
+    }
+
+    // Save the changes when the server error is resolved
+    useEffect(() => {
+        if (serverError !== null) {
+            handleSave();
+        }
+    }, [serverError]);
 
     return (
             <form className="space-y-6"
@@ -147,13 +170,8 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
                 </div>
                 <div className="mt-4 flex justify-end space-x-2">
                     <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-                    <Button type="submit" onClick={handleSave}>Save Changes</Button>
+                    <Button type="submit" >Save Changes</Button>
                 </div>
-                {serverError && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{serverError}</AlertDescription>
-                  </Alert>
-                )}
             </form>
     )
 }
