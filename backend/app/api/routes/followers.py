@@ -68,13 +68,20 @@ def follow_user (
     if not user_exists:
         raise HTTPException(status_code=400, detail="The user you are trying to follow does not exists.")
 
-    # Attempt to create a follow relationship
-    follow = crud.followers.follow_user(
-        session=session, 
-        follower_id=current_user.id, 
-        followee_id=followee_id
-    )      
-    return FollowersActionResponse(success=True, message="User followed successfully")
+    try:
+        # Attempt to create a follow relationship
+        follow = crud.followers.follow_user(
+            session=session, 
+            follower_id=current_user.id, 
+            followee_id=followee_id
+        )      
+        if follow:
+            return FollowersActionResponse(success=True, message="User followed successfully")
+        else:
+            return FollowersActionResponse(success=False, message="An error ocurred while following user")
+   
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e)) 
 
 
 # Unfollow a user
@@ -96,16 +103,20 @@ def unfollow_user (
     if not user_exists:
         raise HTTPException(status_code=400, detail="The user you are trying to unfollow does not exists.")
 
-    # Attempt to remove the follow relationship
-    unfollowed = crud.followers.unfollow_user(
-        session=session, 
-        follower_id=current_user.id, 
-        followee_id=followee_id
-    )
-    if unfollowed:      
-        return FollowersActionResponse(success=True, message="User unfollowed successfully")
-    else:
-        return FollowersActionResponse(success=False, message="An error ocurred while unfollowing user")
+    try:
+        # Attempt to remove the follow relationship
+        unfollowed = crud.followers.unfollow_user(
+            session=session, 
+            follower_id=current_user.id, 
+            followee_id=followee_id
+        )
+        if unfollowed:      
+            return FollowersActionResponse(success=True, message="User unfollowed successfully")
+        else:
+            return FollowersActionResponse(success=False, message="An error ocurred while unfollowing user")
+    
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
     
 
 # Additional endpoints for more usability
@@ -168,6 +179,7 @@ def get_most_followed_users(limit:int = 10, session: Session = Depends(get_sessi
     if not most_followed_users:
         raise HTTPException(status_code=400, detail="No users found.")
     return most_followed_users
+
 
 @router.get("/{follower_id}/{followee_id}")
 def get_followers_by_id(follower_id: int, followee_id: int, session: Session = Depends(get_session)):
