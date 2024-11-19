@@ -14,17 +14,20 @@ import {User} from "@/app/types/User";
 import FetchError from "@/components/FetchError";
 import {getAccessToken} from "@/app/lib/authentication";
 import {Book} from "@/app/types/Book";
+import {useFeed} from "@/contex/FeedContext";
 
 type Props = {
-    posts: Post[] | null;
+    posts_: Post[] | null;
 };
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-export default function ScrollAreaHome({ posts }: Props) {
+export default function ScrollAreaHome({ posts_ }: Props) {
     const [userData, setUserData] = useState<{ [key: number]: User }>({});
     const [booksMap, setBooksMap] = useState<{ [key: number]: Book }>({});
     const [error, setError] = useState<string | null>(null);
+
+    const { posts, books, users } = useFeed();
 
     useEffect(() => {
         if (posts) {
@@ -115,11 +118,11 @@ export default function ScrollAreaHome({ posts }: Props) {
                                                 {post.description}
                                             </p>
                                             <div className="flex flex-wrap gap-2">
-                                                {['Fiction', 'Adventure', 'Bestseller'].map((tag) => (
-                                                    <Badge key={tag} variant="secondary"
+                                                {post.filter_ids.map((tag: { id:number, name:string }) => (
+                                                    <Badge key={tag.id} variant="secondary"
                                                            className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1
                                                             hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
-                                                        {tag}
+                                                        {tag.name}
                                                     </Badge>
                                                 ))}
                                             </div>

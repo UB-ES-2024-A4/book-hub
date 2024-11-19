@@ -8,34 +8,26 @@ import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
 import React, {useEffect, useState} from "react";
-import {User} from "@/app/types/User";
 import {PropsUser} from "@/app/types/PropsUser";
 import {toast} from "nextjs-toast-notify";
-import {Alert, AlertDescription} from "@/components/ui/alert";
-import {redirect} from "next/navigation";
-import { useRouter } from 'next/router';
+import {User} from "@/app/types/User";
 
 type Props =  PropsUser & {
     setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function EditProfileForm ({ setIsEditing, userData, setUser}: Props) {
-
-
-     const [serverError, setServerError] = useState<string | null>(null);
+    const [newUserData, setNewUserData] = useState<User | null>(null);
+const [serverError, setServerError] = useState<{status: number, message: string} | null>(null);
 
      const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
         const result = await UpdateUser(prevState, formData);
         const submission: SubmissionResult = {status: "success",}
         console.log("MESSAGE", result);
+        if(!result.status) return submission;
 
-        const [statusPart, messagePart] = result.message.split(", ");
-
-        const status = statusPart.split(": ")[1];
-        const message = messagePart.split(": ")[1];
-
-        if (status !== "200") {
-            toast.error(message, {
+        if (result.status !== 200) {
+            toast.error(result.message, {
                 duration: 4000,
                 progress: true,
                 position: "top-center",
@@ -43,9 +35,10 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
                 icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
                 sonido: true,
               });
-            console.log("result message", message);
-            setServerError(status);
+            console.log("result message", result.message);
         }else{
+            // Load information from the server data
+            setNewUserData(result.data);
             toast.info(" ¡ Successfully changed ! ", {
                 duration: 4000, progress: true, position: "bottom-center", transition: "swingInverted",
                 icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
@@ -53,8 +46,8 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
                     'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
                 sonido: true,
             });
-            setServerError(status);
         }
+        setServerError({status: result.status, message: result.message});
 
         return submission;
     }, undefined);
@@ -80,21 +73,22 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
 
     const handleSave = () => {
         console.log("ERROR SERVER", serverError);
-        if (serverError != "200"){
-            if(serverError ==  "403") {
+        if (serverError && serverError.status != 200){
+            if(serverError.status ==  403) {
                 // Esperar 2 segundos antes de redirigir
             }
         }
         else {
+        console.log("DATA NEW USER DATA____________________", newUserData);
+            // Load information from the server data
             const newUser: User = {
                 id: userData.id,
-                first_name: fields.first_name.value || userData.first_name || "",
-                last_name: fields.last_name.value || userData.last_name || "",
-                username: fields.username.value || userData.username || "",
-                biography: bio,
-                email: userData.email,
+                first_name: newUserData?.first_name || "",
+                last_name: newUserData?.last_name || "",
+                username: newUserData?.username || "",
+                biography: newUserData?.biography || "",
+                email: newUserData?.email || "",
             };
-            console.log("New USER DATA------", newUser);
             setUser(newUser);
             setIsEditing(false);
         }

@@ -1,3 +1,5 @@
+import {Filter} from "./Filter";
+
 export interface Post {
   id: number;
   book_id: number;
@@ -11,4 +13,5 @@ export interface Post {
   comments: number;
   description: string;
   created_at: string;
+  filter_ids: Filter[];
 }

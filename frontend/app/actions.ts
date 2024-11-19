@@ -24,15 +24,16 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
 
     // Handle validation errors if present
     if (submission.status !== "success") {
-        return { message: `Status: Failed, Message: Do not pass Validation`};
+        return {status: 400, message: "Invalid Form", Data: null };
     }
 
-    const userCookie = await getSession();
-    if(!userCookie) return { message: "Status: 403, Message: Unauthorized" };
+    const userServer = await getSession();
+    const accessToken = await getAccessToken();
+    if(!userServer || !accessToken) return  {status: 403, message: "Unauthorized", Data: null };
 
     // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
     const data = new URLSearchParams();
-    data.append("id", userCookie.id.toString());
+    data.append("id", userServer.id.toString());
     if(formData.get("username"))
         data.append("username", formData.get("username") as string);
     if(formData.get("first_name"))
@@ -45,36 +46,37 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
     // Update the user's information
     const user = Object.fromEntries(data.entries());
     console.log("User New DATA INFORMATION", user);
-    if(!user) return { message: "Status: 403, Message: Unauthorized" };
+    if(!user) return { message: "Status: 403, Message: Unauthorized, Data: null" };
 
     try {
         // Convert formData to JSON and verify the user with the access token
         const data = Object.fromEntries(formData);
         const accessToken = cookies().get('accessToken')?.value;
 
-        await fetch(baseUrl + `/users/${user.id}`, {
+        const response = await fetch(baseUrl + `/users/${user.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
             },
             body: JSON.stringify(data),
-        }).then(async (response) => {
-                if (response.status != 200) {
-                    const errorData = await response.json();
+        });
+        if (response.status != 200) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail);
+        }
+        // If the response is ok, then update the user's information
+        const userData = await response.json();
+        console.log("RESPONSE", userData);
 
-                    throw new Error(`Status: ${response.status}, Message: ${errorData.detail}`);
-                }
-            }
-        );
+        // Update the user's information in the cookie
+        cookies().set('user', JSON.stringify(user));
+        return {status: response.status, message: "Status: 200, Message: User updated successfully", data: userData};
 
     } catch (error: any) {
-        return { message: error.message };
+        return { status:400, message: error.message, data: null };
     }
 
-    // Update the user's information in the cookie
-    cookies().set('user', JSON.stringify(user));
-    return { message: "Status: 200, Message: User update successfully" };
 }
 
 
@@ -106,18 +108,27 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
          console.error("Failed to upload the image", error);
        }
    }
-
+import {Filter} from "@/app/types/Filter";
 // Function to load the posts in the home page
-export async function loadPosts() : Promise<Post[]|null> {
+export async function loadPosts(): Promise<{ status: number, message: string, post: Post[] | null, filters: Array<Filter[]>|null}> {
     try {
         const response = await fetch(baseUrl + "/posts/all", {
             method: "GET",
             headers: {
                 "Accept": "application/json"
             },
-        }).then((res) => res.json());
+        });
 
-        return response.map((post: Post) => {
+        if (response.status != 200) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail);
+        }
+        const result = await response.json();
+        console.log("POSTS", result);
+        return { status: 200, message: "Posts loaded successfully", post: result.posts, filters: result.filters };
+
+
+        /*return response.map((post: Post) => {
             return {
                 id: post.id,
                 book_id: post.book_id,
@@ -126,12 +137,13 @@ export async function loadPosts() : Promise<Post[]|null> {
                 likes: post.likes,
                 created_at: post.created_at,
             };
-        });
+        });*/
+
 
     }
-    catch (error) {
+    catch (error:any) {
         console.error("Failed to load posts", error);
-        return null;
+        return  { status: 400, message: error.detail, post: null, filters: null };
     }
 }
 
@@ -203,6 +215,7 @@ export async function CreatePost(prevState: unknown, formData: FormData) {
                         throw new Error(`Status: ${res.status}, Message: ${errorData.detail}`);
                     }
             });
+
         });
     }
     catch (error: any) {
@@ -211,5 +224,32 @@ export async function CreatePost(prevState: unknown, formData: FormData) {
     }
 
     return { message: "Status: 200, Message: Post created successfully" };
+
+}
+
+
+// Function to load filters tags from the backend
+export async function loadFilters() {
+
+    try {
+        const res =  await fetch(baseUrl + "/filters/all", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            },
+        })
+        if (res.status != 200) {
+            const errorData = await res.json();
+            throw new Error(errorData.detail);
+        }
+        const response = await res.json();
+        console.log("FILTERS", response);
+
+        return { status: 200, message: "Filters loaded successfully", data: response };
+
+    }
+    catch (error: any) {
+        return { status: 400, message: error.message, data: null };
+    }
 
 }

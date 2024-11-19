@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
 import {CreatePostDialog} from "@/components/Dialog/CreatePostDialog";
+import {Filter} from "@/app/types/Filter";
+import {loadFilters} from "@/app/actions";
+import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
+import {toast} from "nextjs-toast-notify";
 
 type HeaderProps = {
     accessToken: string | null;
@@ -13,6 +17,8 @@ type HeaderProps = {
 export default function Header({accessToken}: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [filters, setFilters] = useState<Filter[] | null>(null);
+
     const pathname = usePathname(); // Obtener la ruta actual
 
     const toggleMenu = () => {
@@ -22,6 +28,30 @@ export default function Header({accessToken}: HeaderProps) {
     const openDialog = () => {
         setIsDialogOpen(true);
     };
+
+    useEffect(() => {
+        // Load filters if they are not loaded then Fetch Error
+        async function fetchFilters() {
+            const result = await loadFilters();
+
+            console.log("Filters IN THE HEADER", result.data);
+
+            if (result.status !== 200) {
+                toast.error("¡ Could not connect to the server !", {
+                    duration: 4000,
+                    progress: true,
+                    position: "top-left",
+                    transition: "swingInverted",
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
+                    sonido: true,
+                  });
+                return;
+            }else {
+                setFilters(result.data);
+            }
+        }
+        fetchFilters();
+    }, []);
 
 return (
     <>
@@ -66,7 +96,7 @@ return (
                 </nav>
             )}
         </header>
-        <CreatePostDialog open={isDialogOpen} setIsDialogOpen={setIsDialogOpen}/>
+        {filters ? <CreatePostDialog open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} filters={filters}/> : null }
     </>
 );
 }
