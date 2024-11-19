@@ -19,7 +19,8 @@ class Post(PostBase, table=True):
     comments: list["Comment"] = Relationship(back_populates="post", cascade_delete=True) # type: ignore
 
 class PostCreate(PostBase):
-    pass
+    filter_ids: Optional[list[int]] = None
 
 class PostUpdate(SQLModel):
     description: str | None = None
+    filter_ids: Optional[list[int]] = None

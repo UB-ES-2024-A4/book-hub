@@ -23,7 +23,7 @@ def get_test_parameters(db: Session):
 def test_create_post(db: Session) -> None:
     user_id, book_id = get_test_parameters(db)
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
     assert created_post.book_id == book_id
@@ -36,7 +36,7 @@ def test_update_post(db: Session) -> None:
     
     new_description = 'b'
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
     
     post_in = PostUpdate(description=new_description)
@@ -48,7 +48,7 @@ def test_update_post(db: Session) -> None:
 def test_delete_post(db: Session) -> None:
     user_id, book_id = get_test_parameters(db)
     
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
     
     db_post : Post = db.get(Post, created_post.id)
@@ -59,7 +59,7 @@ def test_delete_post(db: Session) -> None:
 def test_get_post(db: Session) -> None:
     user_id, book_id = get_test_parameters(db)
     
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
     post = crud.post.get_post(session=db, post_id=created_post.id)
@@ -72,10 +72,10 @@ def test_get_post(db: Session) -> None:
 def test_get_all_posts(db: Session) -> None:
     user_id, book_id = get_test_parameters(db)
     
-    post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in1)
 
-    post_in2 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in2 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in2)
 
     all_posts = crud.post.get_all_posts(session=db)
@@ -90,10 +90,10 @@ def test_get_all_posts(db: Session) -> None:
 def test_get_posts_by_book_id(db: Session) -> None:
     user_id, book_id = get_test_parameters(db)
     
-    post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in1)
 
-    post_in2 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in2 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in2)
 
     all_posts = crud.post.get_posts_by_book_id(session=db, book_id=book_id)
@@ -109,10 +109,10 @@ def test_get_posts_by_book_id(db: Session) -> None:
 def test_get_posts_by_user_id(db: Session) -> None:
     user_id, book_id = get_test_parameters(db)
     
-    post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in1 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in1)
 
-    post_in2 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in2 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in2)
 
     all_posts = crud.post.get_posts_by_user_id(session=db, user_id=user_id)

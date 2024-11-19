@@ -113,7 +113,7 @@ def test_get_books_empty(
     client: TestClient, db: Session
 ) -> None:
     try:
-        db.execute(text('DELETE FROM book'))
+        db.exec(text('DELETE FROM book'))
 
         r = client.get(
             "/books/all"
