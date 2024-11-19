@@ -7,8 +7,11 @@ import time
 from test_followers_methods import go_to_sign_in_page, go_to_sign_up_page, sign_up, login, follow_user, unfollow_user
 
 driver = webdriver.Chrome()
-driver.get("http://localhost:3000")
-go_to_sign_in_page(driver)
+driver.get("http://localhost:3000/auth/sign-up")
+
+sign_up(driver, "Victor", "Victor", "Gomez", "victor@test.com", "contraseña")
+
+driver.get("http://localhost:3000/auth/sign-in")
 login(driver, "Victor", "contraseña")
 
 def test_follow_user():
