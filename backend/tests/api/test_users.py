@@ -290,6 +290,25 @@ def test_update_user_not_logged(
     assert r.status_code == 401
     assert updated_user["detail"] == "Not authenticated"
 
+
+def test_update_username_whitespaces(
+    client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user = crud.user.get_user_by_name(session=db, name='TEST_NAME')
+
+    data = {"username": 'User with whitespaces'}
+
+    r = client.put(
+        f"users/{user.id}",
+        json=data,
+        headers=logged_user_token_headers,
+    )
+    
+    updated_user = r.json()
+    assert r.status_code == 400
+    assert updated_user['detail'] == 'Username must not contain spaces.'
+
+
 ## TESTS FOR DELETE ENDPOINT
 def test_delete_user(
     client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
