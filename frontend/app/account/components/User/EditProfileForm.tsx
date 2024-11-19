@@ -18,7 +18,7 @@ type Props =  PropsUser & {
 
 export default function EditProfileForm ({ setIsEditing, userData, setUser}: Props) {
     const [newUserData, setNewUserData] = useState<User | null>(null);
-const [serverError, setServerError] = useState<{status: number, message: string} | null>(null);
+    const [serverError, setServerError] = useState<{status: number, message: string} | null>(null);
 
      const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
         const result = await UpdateUser(prevState, formData);

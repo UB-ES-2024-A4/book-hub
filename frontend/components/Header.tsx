@@ -29,7 +29,8 @@ export default function Header({accessToken}: HeaderProps) {
         setIsDialogOpen(true);
     };
 
-    useEffect(() => {
+   useEffect(() => {
+       console.log("SE EJECUTA FILTROS 1");
         // Load filters if they are not loaded then Fetch Error
         async function fetchFilters() {
             const result = await loadFilters();

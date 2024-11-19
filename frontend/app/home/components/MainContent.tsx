@@ -17,10 +17,12 @@ export default function MainContent (){
     const { refreshFeed, addPost } = useFeed();
 
     const [posts, setPosts] = useState<Post[] | null>(null);
-    const [filters, setFilters] = useState<Filter[] | null>(null);
+    //const [filters, setFilters] = useState<Filter[] | null>(null);
     const [fetchError, setError] = useState<string | null>(null);
 
     useEffect(() => {
+
+       console.log("SE EJECUTA LOAD POSTES 1");
         async function fetchPosts() {
             try {
                 const result = await loadPosts();
@@ -42,7 +44,7 @@ export default function MainContent (){
 
                 // Sort the posts by date
                 loadedPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-                setPosts(loadedPosts);
+               // setPosts(loadedPosts);
 
                 loadedPosts.forEach((post) => {
                     addPost(post);
@@ -54,13 +56,10 @@ export default function MainContent (){
                 setError("Failed to fetch posts");
             }
         }
-
-
-
         fetchPosts();
-    }, [refreshFeed]);
+    }, [posts]);
 
-    useEffect(() => {
+  /*  useEffect(() => {
         // Load filters if they are not loaded then Fetch Error
         async function fetchFilters() {
             const result = await loadFilters();
@@ -82,7 +81,7 @@ export default function MainContent (){
             }
         }
         fetchFilters();
-    }, []);
+    }, []);*/
 
     return (
         fetchError ? (
@@ -95,7 +94,7 @@ export default function MainContent (){
                 {/* Sidebar (Search) */}
                 <SearchHome/>
                 {/* Feed Section */}
-                <ScrollAreaHome posts_={posts}/>
+                <ScrollAreaHome /*posts={posts}*//>
             </div>
         )
     )

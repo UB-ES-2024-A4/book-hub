@@ -146,17 +146,16 @@ export async function loadPosts(): Promise<{ status: number, message: string, po
         return  { status: 400, message: error.detail, post: null, filters: null };
     }
 }
-
-export async function CreatePost(prevState: unknown, formData: FormData) {
+export async function CreatePost(prevState: unknown, formData: FormData): Promise<{ status: number, message: string, data: Post | null }> {
     const submission = parseWithZod(formData, { schema: createPostSchema });
 
     if (submission.status !== "success") {
-        return {message: "Status: 300, Message: Do not pass the validation"};
+        return { status: 300 , message: "Invalid Form", data: null };
     }
 
     const accessToken = await getAccessToken();
     const user : User | null = await getSession();
-    if(!user || !accessToken) return { message: "Status: 403, Message: Unauthorized" };
+    if(!user || !accessToken) return { status: 403, message: "Unauthorized", data: null };
 
     const post_description = formData.get("post_description") as string;
     const tags = formData.getAll("tags");
@@ -171,60 +170,66 @@ export async function CreatePost(prevState: unknown, formData: FormData) {
     // First check if I can create a book with the given data
     try {
         console.log("Book data and ACCTOKEN", data, accessToken);
-        const response = await fetch(baseUrl + "/books/", {
+        const bookResponse = await fetch(baseUrl + "/books/", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
                 authorization: `Bearer ${accessToken}`,
             },
             body: JSON.stringify(data)
-        }).then(async (res) => {
-            if (res.status != 200) {
-                const errorData = await res.json();
-
-                throw new Error(`Status: ${res.status}, Message: ${errorData.detail}`);
-            }
-            // Check if the response is ok
-            const response = await res.json();
-
-            // If I can create the book, then I can create the post
-            const book_id = response.data.id;
-
-            const filterIdsArray = tags.map(tag => Number(tag));
-            const postData = {
-              book_id: book_id,
-              user_id: user?.id,
-              description: post_description,
-              likes: 0,
-              created_at: new Date().toISOString(),
-              filter_ids: filterIdsArray
-            };
-            console.log("POST DATA", postData);
-
-            await fetch(baseUrl + "/posts/", {
-                method: "POST",
-                headers: {
-                'Content-Type': 'application/json',
-                    authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(postData),
-            }).then(async (res) => {
-                    if (res.status != 200) {
-                        const errorData = await res.json();
-
-                        throw new Error(`Status: ${res.status}, Message: ${errorData.detail}`);
-                    }
-            });
-
         });
-    }
-    catch (error: any) {
+
+        if (bookResponse.status != 200) {
+            const errorData = await bookResponse.json();
+            console.log("ERROR DATA", errorData);
+            throw new Error(`${bookResponse.status},${errorData.detail}`);
+        }
+
+        // Check if the response is ok
+        const bookData = await bookResponse.json();
+
+        // If I can create the book, then I can create the post
+        const book_id = bookData.data.id;
+
+        const filterIdsArray = tags.map(tag => Number(tag));
+        const postData = {
+            book_id: book_id,
+            user_id: user?.id,
+            description: post_description,
+            likes: 0,
+            created_at: new Date().toISOString(),
+            filter_ids: filterIdsArray
+        };
+        console.log("POST DATA", postData);
+
+        const postResponse = await fetch(baseUrl + "/posts/", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(postData),
+        });
+
+        // Si no se puede crear el post, entonces se elimina el libro
+        if (postResponse.status != 200) {
+            const errorData = await postResponse.json();
+            console.log("ERROR DATA", errorData);
+            throw new Error(`${postResponse.status},${errorData.detail}`);
+        }
+
+        // Si es un éxito la creación del post, entonces se retorna el post
+        const post = await postResponse.json();
+        console.log("POST", post.data);
+        return { status: 200, message: post.message, data: post.data };
+
+    } catch (error: any) {
         console.log("FAILDED to create the post or book", error);
-        return { message: error.message };
+        const errorData = error.message.split(",");
+        const status = errorData[0]; const message = errorData[1];
+        console.log("ERROR DATA", status, message);
+        return { status: Number(status), message: message, data: null };
     }
-
-    return { message: "Status: 200, Message: Post created successfully" };
-
 }
 
 
