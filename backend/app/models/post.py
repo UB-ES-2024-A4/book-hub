@@ -23,3 +23,4 @@ class PostCreate(PostBase):
 
 class PostUpdate(SQLModel):
     description: str | None = None
+    filter_ids: Optional[list[int]] = None

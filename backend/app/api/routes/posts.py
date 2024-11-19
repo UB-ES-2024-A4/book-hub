@@ -92,6 +92,8 @@ def update_post(post_id: int, post_in: PostUpdate, session: Session = Depends(ge
 
     utils.check_ownership(current_usr_id=current_user.id, check_usr_id=session_post.user_id)
 
+    utils.check_filters(filter_ids=post_in.filter_ids, session=session)
+
     post = crud.post.update_post(session=session, post_update=post_in, db_post=session_post)  
     
     return {"message": "Post updated successfully", "data": post}

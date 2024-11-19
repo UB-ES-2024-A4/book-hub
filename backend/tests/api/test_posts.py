@@ -111,8 +111,8 @@ def test_create_post_filter_not_found(
 
     created_post = r.json()
 
-    assert r.status_code == 400
-    assert created_post['detail'] == 'One or more filters not found'
+    assert r.status_code == 404
+    assert created_post['detail'] == 'Filters duplicated or one or more filters not found'
 
 def test_create_post(
         client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
@@ -181,7 +181,7 @@ def test_update_post(
     post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
-    data = {'description': new_description}
+    data = {'description': new_description, 'filter_ids': [filter_id]}
 
     r = client.put(
         f"/posts/{created_post.id}",
@@ -195,6 +195,27 @@ def test_update_post(
     assert created_post['message'] == 'Post updated successfully'
     assert created_post['data']['description'] == new_description
 
+def test_update_post_filter_not_found(
+        client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user_id, book_id, filter_id = get_test_parameters(db)
+    new_description = 'b'
+
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
+    created_post = crud.post.create_post(session=db, post_create=post_in)
+
+    data = {'description': new_description, 'filter_ids': [-1]}
+
+    r = client.put(
+        f"/posts/{created_post.id}",
+        headers=logged_user_token_headers,
+        json=data
+    )
+
+    created_post = r.json()
+
+    assert r.status_code == 404
+    assert created_post['detail'] == 'Filters duplicated or one or more filters not found'
 
 def test_update_post_not_logged_user(
         client: TestClient, db: Session

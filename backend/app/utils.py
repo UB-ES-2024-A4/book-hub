@@ -99,6 +99,6 @@ def check_filters(filter_ids: list, session):
 
     if len(filters) != len(filter_ids):
         raise HTTPException(
-            status_code=400, 
-            detail="One or more filters not found"
+            status_code=404, 
+            detail="Filters duplicated or one or more filters not found"
         )

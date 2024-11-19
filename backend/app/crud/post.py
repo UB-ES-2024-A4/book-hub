@@ -1,6 +1,6 @@
 """ Post related CRUD methods """
 from typing import Any
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from app.models import Post, PostCreate, PostUpdate, Filter, PostFilter
 
 def create_post(*, session: Session, post_create: PostCreate) -> Post:
@@ -21,9 +21,21 @@ def create_post(*, session: Session, post_create: PostCreate) -> Post:
 
 def update_post(*, session: Session, post_update: PostUpdate, db_post: Post) -> Post:
     post_data = post_update.model_dump(exclude_unset=True)
+
     db_post.sqlmodel_update(post_data)
     session.add(db_post)
     session.commit()
+
+    if post_update.filter_ids is not None:
+        # Clear existing filters
+        session.exec(delete(PostFilter).where(PostFilter.post_id == db_post.id))
+
+        for filter_id in post_update.filter_ids:
+            post_filter = PostFilter(post_id=db_post.id, filter_id=filter_id)
+            session.add(post_filter)
+
+        session.commit()
+
     session.refresh(db_post)
     return db_post
 
