@@ -17,6 +17,11 @@ module.exports = {
         port: '8000',
         pathname: '/users/pfp/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'bookhubimages.blob.core.windows.net',
+        pathname: '/profilepictures/**',
+      }
     ],
   },
 };

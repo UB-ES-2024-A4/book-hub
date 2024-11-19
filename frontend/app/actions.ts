@@ -1,7 +1,6 @@
 "use server";
 
 // Importing necessary functions from Next.js and other libraries
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
 import { Post } from "@/app/types/Post";
@@ -9,6 +8,8 @@ import {getAccessToken, getSession} from "@/app/lib/authentication";
 import {parseWithZod} from "@conform-to/zod";
 import {userInformationSchema} from "@/app/lib/zodSchemas";
 
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 // Function to update the user's information
 export async function UpdateUser(prevState: unknown, formData: FormData) {

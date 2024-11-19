@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 
 export async function CreateUser(prevState: unknown, formData: FormData) {
     // Validate form data with Zod
@@ -25,7 +27,7 @@ export async function CreateUser(prevState: unknown, formData: FormData) {
     try {
         // Convert formData to JSON
         const data = Object.fromEntries(formData);
-        const response = await fetch('http://127.0.0.1:8000/users/', {
+        const response = await fetch(baseUrl + '/users/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -67,7 +69,7 @@ export async function SignInValidation(prevState: unknown, formData: FormData) {
     data.append("username", formData.get("user") as string);
     data.append("password", formData.get("password") as string);
 
-    const response = await fetch('http://127.0.0.1:8000/users/login/access-token', {
+    const response = await fetch(baseUrl + '/users/login/access-token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

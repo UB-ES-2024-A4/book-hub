@@ -36,7 +36,7 @@ export default function Tabs({ userData, setUser }: PropsUser) {
           </button>
         </nav>
 
-      {activeTab === 'posts' && <PostsGrid userData={userData} />}
+      {activeTab === 'posts' && <PostsGrid userData={userData} setUser={setUser} />}
       {activeTab === 'booklist' && <SavedPostsList/>}
 
     </div>
