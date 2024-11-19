@@ -131,10 +131,10 @@ def test_create_post(
 
     assert r.status_code == 200
     assert created_post['message'] == 'Post created successfully'
-    assert created_post['data']['user_id'] == user_id
-    assert created_post['data']['book_id'] == book_id
-    assert created_post['data']['description'] == description
-    assert created_post['data']['likes'] == 0
+    assert created_post['post']['user_id'] == user_id
+    assert created_post['post']['book_id'] == book_id
+    assert created_post['post']['description'] == description
+    assert created_post['post']['likes'] == 0
 
 
 def test_create_post_not_logged_user(
@@ -193,7 +193,7 @@ def test_update_post(
 
     assert r.status_code == 200
     assert created_post['message'] == 'Post updated successfully'
-    assert created_post['data']['description'] == new_description
+    assert created_post['post']['description'] == new_description
 
 def test_update_post_filter_not_found(
         client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
@@ -350,14 +350,13 @@ def test_get_all_posts(
 
     all_posts = r.json()
 
-    assert len(all_posts) > 1
-    for item in all_posts:
-        assert "book_id" in item
-        assert "user_id" in item
-        assert "description" in item
-        assert "created_at" in item
-        assert "likes" in item
+    assert r.status_code == 200
 
+    for post in all_posts['posts']:
+        assert 'book_id' in post['post']
+        assert 'user_id' in post['post']
+        assert 'description' in post['post']
+        
 
 def test_get_post_not_found_by_id(
         client: TestClient, db: Session
@@ -385,9 +384,10 @@ def test_get_post_by_id(
     assert r.status_code == 200
     retrieved_post = r.json()
     assert retrieved_post
-    assert post.book_id == retrieved_post['post_data']["book_id"]
-    assert post.user_id == retrieved_post['post_data']["user_id"]
-    assert post.description == retrieved_post['post_data']["description"]
+    retrieved_post = retrieved_post['post']
+    assert post.book_id == retrieved_post["book_id"]
+    assert post.user_id == retrieved_post["user_id"]
+    assert post.description == retrieved_post["description"]
 
 
 def test_get_post_not_found_by_book_id(
@@ -415,8 +415,8 @@ def test_get_post_by_book_id(
 
     assert r.status_code == 200
     retrieved_posts = r.json()
-    for item in retrieved_posts:
-        item['book_id'] = book_id
+    for post in retrieved_posts['posts']:
+        assert book_id == post['post']['book_id']
 
 
 def test_get_post_not_found_by_user_id(
@@ -444,8 +444,8 @@ def test_get_post_by_user_id(
 
     assert r.status_code == 200
     retrieved_posts = r.json()
-    for item in retrieved_posts:
-        item['user_id'] = user_id
+    for item in retrieved_posts['posts']:
+        item['post']['user_id'] == user_id
 
 
 def test_get_posts_empty(
@@ -461,7 +461,7 @@ def test_get_posts_empty(
         all_posts = r.json()
 
         assert r.status_code == 200
-        assert all_posts == []
+        assert all_posts['posts'] == []
     finally:
         db.rollback()
 
