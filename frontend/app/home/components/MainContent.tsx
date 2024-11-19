@@ -7,8 +7,12 @@ import ScrollAreaHome from "@/app/home/components/ScrollAreaHome";
 import { loadPosts } from "@/app/actions";
 import { Post } from "@/app/types/Post";
 import FetchError from "@/components/FetchError";
+import {useFeed} from "@/contex/FeedContext";
 
 export default function MainContent (){
+
+    // Refresh feed Context to update the feed
+    const { refreshFeed } = useFeed();
 
     const [posts, setPosts] = useState<Post[] | null>(null);
     const [fetchError, setError] = useState<string | null>(null);
@@ -29,7 +33,7 @@ export default function MainContent (){
         }
 
         fetchPosts();
-    }, []);
+    }, [refreshFeed]);
 
 
     return (

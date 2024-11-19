@@ -12,6 +12,9 @@ import { parseWithZod } from "@conform-to/zod";
 import { createPostSchema } from "@/app/lib/zodSchemas";
 import { Alert, AlertDescription} from "@/components/ui/alert";
 import {ScrollArea} from "@/components/ui/scroll-area";
+import { toast } from "nextjs-toast-notify";
+import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
+import {useFeed} from "@/contex/FeedContext";
 
 type CreatePostDialogProps = {
     open: boolean;
@@ -19,6 +22,9 @@ type CreatePostDialogProps = {
 }
 
 export function CreatePostDialog({ open, setIsDialogOpen }: CreatePostDialogProps) {
+    // Refresh feed Context to update the feed
+    const { refreshFeed } = useFeed();
+
     const [book_description, setBookDescription] = useState('');
     const [post_description, setPostDescription] = useState('');
     const [serverError, setServerError] = useState<string | null>(null);
@@ -30,6 +36,14 @@ export function CreatePostDialog({ open, setIsDialogOpen }: CreatePostDialogProp
         if (result && result.message !== 'Post created successfully') {
             setServerError(result.message);
         }else{
+            toast.info(" ¡ The post has been added to our Home successfully ! ", {
+                duration: 4000, progress: true, position: "bottom-center", transition: "swingInverted",
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
+                    'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
+                    'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
+                sonido: true,
+            });
+            refreshFeed();
             setIsDialogOpen(false);
         }
 
@@ -47,7 +61,6 @@ export function CreatePostDialog({ open, setIsDialogOpen }: CreatePostDialogProp
 
     const onOpenChange = () => {
         setIsDialogOpen(!open);
-        setServerError(null);
     }
 
     return (

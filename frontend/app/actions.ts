@@ -169,6 +169,7 @@ export async function CreatePost(prevState: unknown, formData: FormData) {
             post_formData.append("user_id", user?.id.toString() as string);
             post_formData.append("book_id", book_id.toString());
             post_formData.append("description", post_description);
+            post_formData.append("created_at", new Date().toISOString());
 
             const data = Object.fromEntries(post_formData.entries());
 

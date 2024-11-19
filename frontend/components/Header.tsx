@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
-import {CreatePostDialog} from "@/components/Dialog/CreatePostDialog"; // Importar usePathname para obtener la ruta actual
+import {CreatePostDialog} from "@/components/Dialog/CreatePostDialog";
 
 type HeaderProps = {
     accessToken: string | null;
@@ -25,13 +25,13 @@ export default function Header({accessToken}: HeaderProps) {
 
 return (
     <>
-        <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-10">
+        <header className="bg-gray-100 shadow-md fixed top-0 left-0 right-0 z-10">
             <div className="container mx-auto flex justify-between items-center p-4">
                 <Link href="/home" className="text-[#4066cf] text-2xl font-bold">BookHub</Link>
                 <nav className="hidden md:flex space-x-8 items-center">
                     <Link href="/home" className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}>Home</Link>
                     <Link href="/explorer" className={`path transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`}>Explorer</Link>
-                    {!accessToken ? (<div></div>) : ( <CreatePostButton openDialog={openDialog}/> )}
+                    {!accessToken ? null : ( <CreatePostButton openDialog={openDialog}/> )}
                     <Link href="/account" className={`path transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}>Account</Link>
                 </nav>
                 <button className="md:hidden flex items-center text-gray-600 focus:outline-none" onClick={toggleMenu}>
@@ -51,9 +51,7 @@ return (
                                   className={`path block transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`}
                                   onClick={() => setIsMenuOpen(false)}>Explorer</Link></li>
                         <li>
-                            {!accessToken ? (<div></div>) : (
-                                <CreatePostButton openDialog={openDialog}/>
-                            )}
+                            {!accessToken ? null : (<CreatePostButton openDialog={openDialog}/>)}
                         </li>
                         <li><Link href="/account"
                                   className={`path block transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}
