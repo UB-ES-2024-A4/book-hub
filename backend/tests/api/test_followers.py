@@ -604,3 +604,70 @@ def test_unfollow_user_db_error(client: TestClient, monkeypatch, setup_users_wit
         "success": False,
         "message": "An error ocurred while unfollowing user"
     }
+
+
+##############################################################
+## Test all endpoints for checking following users endpoint ##
+##############################################################
+
+def check_following(client: TestClient, follower_id: int, followee_id: int) -> dict:
+    """Check if a user is following another user."""
+    response = client.get(f"/followers/{follower_id}/{followee_id}")
+    return response
+
+
+def test_check_following_success(client: TestClient, dummy_users):
+    """Test the case where a user is successfully following another user."""
+    # Arrange: Get dummy users
+    user1, user2, _ = dummy_users
+
+    # Act: Check if user1 is following user2
+    response = check_following(client, follower_id=user1["id"], followee_id=user2["id"])
+
+    # Assert: Verify the response
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert response.json()["success"] is True
+    assert response.json()["message"] == "User followed successfully"
+
+
+def test_check_not_following(client: TestClient, dummy_users):
+    """Test the case where a user is not following another user."""
+    # Arrange: Get dummy users
+    _, user2, user3 = dummy_users
+
+    # Act: Check if user1 is following user3
+    response = check_following(client, follower_id=user2["id"], followee_id=user3["id"])
+
+    # Assert: Verify the response
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "They are not following or they do not exist"
+
+
+def test_check_following_invalid_user(client: TestClient):
+    """Test the case where invalid user IDs are provided."""
+    # Arrange: Invalid user IDs
+    invalid_follower_id = 99999
+    invalid_followee_id = 88888
+
+    # Act: Check if invalid users are following each other
+    response = check_following(client, follower_id=invalid_follower_id, followee_id=invalid_followee_id)
+
+    # Assert: Verify the response
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "They are not following or they do not exist"
+
+
+def test_check_following_self(client: TestClient, dummy_users):
+    """Test the case where a user checks if they are following themselves."""
+    # Arrange: Get dummy users
+    user1, _, _ = dummy_users
+
+    # Act: Check if user1 is following themselves
+    response = check_following(client, follower_id=user1["id"], followee_id=user1["id"])
+
+    # Assert: Verify the response
+    assert response.status_code == 200, f"Expected 200, but got {response.status_code}"
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "They are not following or they do not exist"
