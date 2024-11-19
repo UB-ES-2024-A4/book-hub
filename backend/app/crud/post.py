@@ -1,7 +1,7 @@
 """ Post related CRUD methods """
 from typing import Any
 from sqlmodel import Session, select, delete
-from app.models import Post, PostCreate, PostUpdate, Filter, PostFilter
+from app.models import Post, PostCreate, PostUpdate, PostFilter
 
 def create_post(*, session: Session, post_create: PostCreate) -> Post:
     post = Post.model_validate(post_create)

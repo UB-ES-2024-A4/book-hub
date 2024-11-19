@@ -47,7 +47,7 @@ def get_all_posts(session: Session = Depends(get_session)):
 def get_post(post_id: int, session: Session = Depends(get_session)):
     post : Post = crud.post.get_post(session=session, post_id=post_id)
     if post:
-        return post
+        return {'post_data': post, 'filters_data': post.filters}
     raise HTTPException(
         status_code=404,
         detail="Post not found.",

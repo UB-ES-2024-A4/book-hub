@@ -8,7 +8,7 @@ from sqlmodel import Session, select, delete
 from .utils import get_user_token_headers
 from app.core.database import engine, init_db, get_session
 from app.main import app
-from app.models import User, Post, Book
+from app.models import User, Post, Book, Filter
 
 # Cuando los tests necesiten una session llamarán a esta fixture
 @pytest.fixture(scope="session", autouse=True)
@@ -17,6 +17,7 @@ def db() -> Generator[Session, None, None]:
         existing_user_ids = {user for user in session.execute(select(User.id)).scalars().unique()}
         existing_post_ids = {post for post in session.execute(select(Post.id)).scalars().unique()}
         existing_book_ids = {book for book in session.execute(select(Book.id)).scalars().unique()}
+        existing_filters_ids = {filter_ for filter_ in session.execute(select(Filter.id)).scalars().unique()}
 
         init_db(session)
 
@@ -39,6 +40,14 @@ def db() -> Generator[Session, None, None]:
 
         for book in new_books:
             session.delete(book)
+
+        session.commit()
+
+        # Erase filters created during testing
+        new_filters = session.execute(select(Filter).filter(~Filter.id.in_(existing_filters_ids))).scalars().unique().all()
+
+        for filter_ in new_filters:
+            session.delete(filter_)
 
         session.commit()
 
