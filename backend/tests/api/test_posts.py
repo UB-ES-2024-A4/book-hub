@@ -385,9 +385,9 @@ def test_get_post_by_id(
     assert r.status_code == 200
     retrieved_post = r.json()
     assert retrieved_post
-    assert post.book_id == retrieved_post["book_id"]
-    assert post.user_id == retrieved_post["user_id"]
-    assert post.description == retrieved_post["description"]
+    assert post.book_id == retrieved_post['post_data']["book_id"]
+    assert post.user_id == retrieved_post['post_data']["user_id"]
+    assert post.description == retrieved_post['post_data']["description"]
 
 
 def test_get_post_not_found_by_book_id(
