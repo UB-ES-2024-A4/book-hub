@@ -1,13 +1,21 @@
 """ Post related CRUD methods """
 from typing import Any
 from sqlmodel import Session, select
-from app.models import Post, PostCreate, PostUpdate
+from app.models import Post, PostCreate, PostUpdate, Filter, PostFilter
 
 def create_post(*, session: Session, post_create: PostCreate) -> Post:
     post = Post.model_validate(post_create)
 
     session.add(post)
     session.commit()
+    session.refresh(post)
+
+    for filter_id in post_create.filter_ids:
+        post_filter = PostFilter(post_id=post.id, filter_id=filter_id)
+        session.add(post_filter)
+
+    session.commit()
+
     session.refresh(post)
     return post
 

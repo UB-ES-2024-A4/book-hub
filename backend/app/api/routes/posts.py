@@ -30,6 +30,8 @@ def create_post(new_post: PostCreate, session: Session = Depends(get_session)):
 
     utils.check_quantity_likes(new_post.likes)
 
+    utils.check_filters(filter_ids=new_post.filter_ids, session=session)
+
     post : Post = crud.post.create_post(session=session, post_create=new_post)
     
     return {"message": "Post created successfully", "data": post}

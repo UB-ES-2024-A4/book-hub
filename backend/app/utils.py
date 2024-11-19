@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from app.models import User, Book
+from app.models import User, Book, Filter
 from sqlmodel import select
 
 def check_email_name_length(username: str, first_name: str, last_name: str):
@@ -92,4 +92,13 @@ def check_book_fields(title: str, author: str, description: str):
         raise HTTPException(
             status_code=400,
             detail="Created book is missing parameters",
+        )
+    
+def check_filters(filter_ids: list, session):
+    filters = session.exec(select(Filter).where(Filter.id.in_(filter_ids))).all()
+
+    if len(filters) != len(filter_ids):
+        raise HTTPException(
+            status_code=400, 
+            detail="One or more filters not found"
         )
