@@ -117,7 +117,8 @@ export default function ScrollAreaHome({ posts }: Props) {
                                             <div className="flex flex-wrap gap-2">
                                                 {['Fiction', 'Adventure', 'Bestseller'].map((tag) => (
                                                     <Badge key={tag} variant="secondary"
-                                                           className="bg-blue-700 text-blue-100 hover:text-blue-800">
+                                                           className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1
+                                                            hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
                                                         {tag}
                                                     </Badge>
                                                 ))}
