@@ -70,8 +70,8 @@ export default function ScrollAreaHome({ posts }: Props) {
 
     return (
         <div className="flex-1 overflow-hidden pt-5">
-            <ScrollArea className="h-[calc(100vh-64px)] w-full">
-                <div className="p-4 space-y-6">
+              <ScrollArea className="h-[calc(100vh-64px)] w-full">
+                <div className="p-4 space-y-4">
                   {posts.length === 0 || error ? (
                     error ? (
                       <FetchError />
