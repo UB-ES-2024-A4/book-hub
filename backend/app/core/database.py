@@ -2,7 +2,7 @@ from sqlmodel import Session, create_engine, select
 from app.core.config import settings
 from datetime import datetime
 
-from app.models import User, Book
+from app.models import User, Book, Filter
 
 # Creamos el engine conectando con la base de datos.
 engine = create_engine(str(settings.SQLALCHEMY_URI))
@@ -54,4 +54,14 @@ def init_db(session: Session) -> None:
 
     if not book:
         session.add(Book(title=title, author=author, description=description, created_at=created_at))
+        session.commit()
+        
+    name = 'TEST_FILTER'
+
+    filter = session.exec(
+        select(Filter).where(Filter.name == name)
+    ).first()
+
+    if not filter:
+        session.add(Filter(name=name))
         session.commit()
