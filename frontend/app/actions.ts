@@ -23,7 +23,7 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
 
     // Handle validation errors if present
     if (submission.status !== "success") {
-        return submission.reply();
+        return { message: "Do not pass the validation" };
     }
 
     const userCookie = await getSession();
@@ -32,10 +32,14 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
     // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
     const data = new URLSearchParams();
     data.append("id", userCookie.id.toString());
-    data.append("username", formData.get("username") as string);
-    data.append("first_name", formData.get("first_name") as string);
-    data.append("last_name", formData.get("last_name") as string);
-    data.append("biography", formData.get("biography") as string);
+    if(formData.get("username"))
+        data.append("username", formData.get("username") as string);
+    if(formData.get("first_name"))
+        data.append("first_name", formData.get("first_name") as string);
+    if(formData.get("last_name"))
+        data.append("last_name", formData.get("last_name") as string);
+    if(formData.get("biography"))
+        data.append("biography", formData.get("biography") as string);
 
     // Update the user's information
     const user = Object.fromEntries(data.entries());
@@ -54,19 +58,22 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
                 'Authorization': `Bearer ${accessToken}`
             },
             body: JSON.stringify(data),
-        }).then((response) => {
-            if (!response.ok) {
-                throw new Error(response.statusText);
+        }).then(async (response) => {
+
+                if (response.status == 400) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail);
+                }
             }
-        }
         );
 
-    } catch (error) {
-        console.error("Error:", error);
+    } catch (error: any) {
+        return { message: error.message };
     }
 
     // Update the user's information in the cookie
     cookies().set('user', JSON.stringify(user));
+    return { message: "User update successfully" };
 }
 
 

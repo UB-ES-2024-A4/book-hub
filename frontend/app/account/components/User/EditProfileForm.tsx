@@ -1,8 +1,8 @@
 "use client";
 import {useFormState} from "react-dom";
 import {userInformationSchema} from "@/app/lib/zodSchemas";
-import {UpdateUser} from "@/app/actions";
-import {useForm} from "@conform-to/react";
+import {CreatePost, UpdateUser} from "@/app/actions";
+import {SubmissionResult, useForm} from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
@@ -10,6 +10,8 @@ import {Button} from "@/components/ui/button";
 import React, {useState} from "react";
 import {User} from "@/app/types/User";
 import {PropsUser} from "@/app/types/PropsUser";
+import {toast} from "nextjs-toast-notify";
+import {Alert, AlertDescription} from "@/components/ui/alert";
 
 type Props =  PropsUser & {
     setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,7 +19,34 @@ type Props =  PropsUser & {
 
 export default function EditProfileForm ({ setIsEditing, userData, setUser}: Props) {
 
-    const [lastResult, action] = useFormState(UpdateUser, undefined);
+     const [serverError, setServerError] = useState<string | null>(null);
+
+     const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
+        const result = await UpdateUser(prevState, formData);
+        const submission: SubmissionResult = {status: "success",}
+        console.log("MESSAGE", result);
+        if (result && result.message !== 'User update successfully') {
+            toast.error(result.message, {
+                duration: 4000,
+                progress: true,
+                position: "top-center",
+                transition: "swingInverted",
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
+                sonido: true,
+              });
+            setServerError(result.message);
+        }else{
+            toast.info(" ¡ Successfully changed ! ", {
+                duration: 4000, progress: true, position: "bottom-center", transition: "swingInverted",
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
+                    'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
+                    'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
+                sonido: true,
+            });
+        }
+
+        return submission;
+    }, undefined);
 
     const [form, fields] = useForm({
         lastResult,
@@ -40,17 +69,20 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
 
     const handleSave = () => {
 
-        const newUser: User = {
-            id: userData.id,
-            first_name: fields.first_name.value || "",
-            last_name: fields.last_name.value || "",
-            username: fields.username.value || "",
-            biography: bio,
-            email: userData.email,
-        };
-        setUser(newUser);
-        setIsEditing(false);
-      };
+        if (serverError) {
+
+                const newUser: User = {
+                    id: userData.id,
+                    first_name: fields.first_name.value || "",
+                    last_name: fields.last_name.value || "",
+                    username: fields.username.value || "",
+                    biography: bio,
+                    email: userData.email,
+                };
+                setUser(newUser);
+                setIsEditing(false);
+            }
+        }
 
     return (
             <form className="space-y-6"
@@ -117,6 +149,11 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
                     <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
                     <Button type="submit" onClick={handleSave}>Save Changes</Button>
                 </div>
+                {serverError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{serverError}</AlertDescription>
+                  </Alert>
+                )}
             </form>
     )
 }
