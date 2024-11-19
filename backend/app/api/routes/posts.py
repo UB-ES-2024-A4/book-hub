@@ -30,6 +30,8 @@ def create_post(new_post: PostCreate, session: Session = Depends(get_session)):
 
     utils.check_quantity_likes(new_post.likes)
 
+    utils.check_filters(filter_ids=new_post.filter_ids, session=session)
+
     post : Post = crud.post.create_post(session=session, post_create=new_post)
     
     return {"message": "Post created successfully", "data": post}
@@ -89,6 +91,8 @@ def update_post(post_id: int, post_in: PostUpdate, session: Session = Depends(ge
     )
 
     utils.check_ownership(current_usr_id=current_user.id, check_usr_id=session_post.user_id)
+
+    utils.check_filters(filter_ids=post_in.filter_ids, session=session)
 
     post = crud.post.update_post(session=session, post_update=post_in, db_post=session_post)  
     
