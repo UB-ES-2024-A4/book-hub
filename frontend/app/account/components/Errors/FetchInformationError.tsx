@@ -1,7 +1,7 @@
 "use client";
 import Header from "@/components/Header";
 import Link from "next/link";
-
+import Image from "next/image";
 
 type Props = {
     error: string;
@@ -16,7 +16,7 @@ export default function FetchInformationError({error}: Props) {
                 <div className="bg-white shadow-xl rounded-lg overflow-hidden max-w-2xl mx-auto flex">
                     {/* Sección de la imagen de error */}
                     <div className="flex items-center justify-center">
-                        <img
+                        <Image
                             src="/detective-book.png" // reemplaza con el URL de una ilustración adecuada
                             alt="Error Illustration"
                             className="w-80 h-80 object-cover"
