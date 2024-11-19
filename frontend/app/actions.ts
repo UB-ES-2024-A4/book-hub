@@ -9,6 +9,10 @@ import {getAccessToken, getSession} from "@/app/lib/authentication";
 import {parseWithZod} from "@conform-to/zod";
 import {userInformationSchema} from "@/app/lib/zodSchemas";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
+
 
 // Function to update the user's information
 export async function UpdateUser(prevState: unknown, formData: FormData) {
@@ -21,7 +25,7 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
         return submission.reply();
     }
 
-    const userCookie =await  getSession();
+    const userCookie = await getSession();
     if(!userCookie) return;
 
     // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
@@ -42,7 +46,7 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
         const data = Object.fromEntries(formData);
         const accessToken = cookies().get('accessToken')?.value;
 
-        await fetch(`http://127.0.0.1:8000/users/${user.id}`, {
+        await fetch(baseUrl + `/users/${user.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -64,27 +68,40 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
     cookies().set('user', JSON.stringify(user));
 }
 
-export async function putProfilePictureBackend(formData: FormData, userId: number) {
- try {
-      const response = await fetch(`http://127.0.0.1:8000/users/pfp/${userId}`, {
-        method: 'PUT',
-        body: formData,
-      }).then( (res) => res.json());
 
-      if (!response.ok) {
-        console.error("Failed to upload the image");
-        return null;
-      }
-
-    } catch (error) {
-      console.error("Failed to upload the image", error);
+export async function fetchProfilePictureUser(userId: number): Promise<string> {
+    const url = NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userId}.png`;
+    const response = await fetch(url);
+    if (response.ok) {
+      return `${url}?${new Date().getTime()}`;
+    } else {
+      return "/book.jpg"; // Default image
     }
-}
+  }
+  
+  
+  export async function putProfilePictureBackend(formData: FormData, userId: number) {
+    try {
+         // TODO: Accept other images formats (e.g. jpeg, jpg)
+         const response = await fetch(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userId}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE}`, {
+           method: 'PUT',
+           body: formData.get('file'),
+           headers: {
+               'Content-Type': 'image/png',
+               'x-ms-blob-type': 'BlockBlob',
+               'x-ms-date': new Date().toUTCString(),
+           }
+         });
+   
+       } catch (error) {
+         console.error("Failed to upload the image", error);
+       }
+   }
 
 // Function to load the posts in the home page
 export async function loadPosts() : Promise<Post[]|null> {
     try {
-        const response = await fetch("http://127.0.0.1:8000/posts/all", {
+        const response = await fetch(baseUrl + "/posts/all", {
             method: "GET",
             headers: {
                 "Accept": "application/json"
@@ -111,7 +128,7 @@ export async function loadPosts() : Promise<Post[]|null> {
 
 export async function fetchUser(userId: number): Promise<User | null> {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/users/${userId}`);
+        const response = await fetch(`${baseUrl}/users/${userId}`);
         if (!response.ok) {
             console.error(`Failed to fetch user with ID ${userId}`);
             return null;
@@ -129,7 +146,7 @@ export async function isUserFollowing(
 ): Promise<boolean | null> {
     try {
         const response = await fetch(
-            `http://127.0.0.1:8000/followers/${currentUserId}/${targetUserId}`
+            `${baseUrl}/followers/${currentUserId}/${targetUserId}`
         );
         if (!response.ok) {
             console.error(
@@ -146,9 +163,9 @@ export async function isUserFollowing(
     }
 }
 
-export async function followUser(followerId: number, followeeId: number): Promise<any | null> {
+export async function followUser(followerId: number, followeeId: number) {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/followers/follow/${followeeId}`, {
+        const response = await fetch(`${baseUrl}/followers/follow/${followeeId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -175,7 +192,7 @@ export async function followUser(followerId: number, followeeId: number): Promis
 
 export async function unfollowUser(followerId: number, followeeId: number) {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/followers/unfollow/${followeeId}`, {
+        const response = await fetch(`${baseUrl}/followers/unfollow/${followeeId}`, {
             method: 'POST',
             headers: {
                 authorization: `Bearer ${await getAccessToken()}`,

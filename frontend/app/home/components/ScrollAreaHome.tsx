@@ -18,6 +18,8 @@ type Props = {
   posts: Post[] | null;
 };
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function ScrollAreaHome({ userData, posts }: Props) {
   const currentUserId = userData.id;
 
@@ -156,13 +158,8 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
                     <div className="flex items-center gap-2 space-x-2 img-hero transition-transform cursor-pointer">
                       <Avatar className="avatar rounded-full">
                         {/* User's profile image */}
-                        <AvatarImage
-                          src={
-                            user
-                              ? `http://127.0.0.1:8000/users/pfp/${user.id}`
-                              : "/book-signup.jpg"
-                          }
-                        />
+                        <AvatarImage src={user? `${baseUrl}/users/pfp/${user.id}`: "/logo.png"} />
+                        
                         <AvatarFallback>User</AvatarFallback>
                       </Avatar>
                       <span className="pl-1 text-transparent bg-clip-text bg-gradient-to-br from-blue-200 to-blue-950">
@@ -217,6 +214,21 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
                       </div>
                     </div>
                   </CardContent>
+                  {/*<CardFooter className="flex justify-between">
+                                <div className="flex gap-4">
+                                  <Button variant="ghost" size="sm">
+                                    <Heart className="w-4 h-4 mr-2" />
+                                    Like
+                                  </Button>
+                                  <Button variant="ghost" size="sm">
+                                    <Share2 className="w-4 h-4 mr-2" />
+                                    Share
+                                  </Button>
+                                </div>
+                                <Button variant="outline" size="sm">
+                                  Comment Book
+                                </Button>
+                              </CardFooter>*/}
                 </Card>
               );
             })
