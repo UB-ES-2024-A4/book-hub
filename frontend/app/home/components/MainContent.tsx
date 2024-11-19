@@ -40,11 +40,10 @@ export default function MainContent ({ userData }: Props){
     return (
         fetchError ? (
             <div className="min-h-screen flex items-center justify-center">
-            <FetchError />
-
+                <FetchError />
             </div>
         ) : (
-            <div className="flex flex-1 overflow-hidden pt-10">
+            <div className="flex flex-1 flex-col md:flex-row overflow-hidden pt-10">
                 {/* Sidebar (Search) */}
                 <SearchHome/>
                 {/* Feed Section */}

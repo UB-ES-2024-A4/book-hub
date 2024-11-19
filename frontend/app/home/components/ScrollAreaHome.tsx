@@ -150,7 +150,7 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
               return (
                 <Card
                   key={post.id}
-                  className="mx-20 bg-white/80 backdrop-blur-sm"
+                  className="mx-5 md:mx-20 bg-white/80 backdrop-blur-sm"
                 >
                   <CardHeader className="flex-row items-center">
                     <div className="flex items-center gap-2 space-x-2 img-hero transition-transform cursor-pointer">
@@ -189,7 +189,7 @@ export default function ScrollAreaHome({ userData, posts }: Props) {
                       {/* Book image */}
                       <Image
                         alt="Book cover"
-                        className="rounded-lg object-cover"
+                        className="rounded-lg object-cover w-full max-h-60 md:max-h-full"
                         width={150}
                         height={190}
                         src="/book.jpg"
