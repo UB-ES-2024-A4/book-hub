@@ -12,6 +12,12 @@ def check_email_name_length(username: str, first_name: str, last_name: str):
             detail="Username must contain at least 3 characters.",
         )
     
+    if username.find(" ") != -1:
+        raise HTTPException(
+            status_code=400,
+            detail="Username must not contain spaces."
+        )
+
     if (len(username) > max_length or len(first_name) > max_length or len(last_name) > max_length):
         raise HTTPException(
             status_code=400,

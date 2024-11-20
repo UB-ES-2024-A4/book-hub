@@ -3,7 +3,7 @@ import {Search} from "lucide-react";
 
 export default function SearchHome() {
     return (
-            <div className="w-1/4 border-r shadow-black shadow-2xl p-4 flex flex-col">
+            <div className="w-full md:w-1/4 border-r shadow-black shadow-2xl p-4 flex flex-col">
 
                 <div className="sticky top-0 pt-10">
                     <div className="relative">

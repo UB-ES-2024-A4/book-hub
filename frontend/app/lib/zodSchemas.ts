@@ -15,9 +15,9 @@ export const signInSchema = z.object({
 
 export const userInformationSchema = z.object({
     username: z.string().min(3).max(20),
-    first_name: z.string().max(20),
-    last_name: z.string().max(20),
-    biography: z.string().max(200)
+    first_name: z.string().min(2).max(20),
+    last_name: z.string().max(20).optional(),
+    biography: z.string().max(200).optional()
 });
 
 export const createPostSchema = z.object({

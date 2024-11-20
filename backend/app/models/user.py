@@ -1,5 +1,6 @@
 from .deps import *
 
+
 # Shared properties
 class UserBase(SQLModel):
     email: str = Field(unique=True, index=True)
@@ -18,6 +19,7 @@ class User(UserBase, table=True):
     posts: list["Post"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
     likes: list["Like"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
     comments: list["Comment"] = Relationship(back_populates="user", cascade_delete=True) # type: ignore
+
 
 class UserCreate(UserBase):
     password: str
