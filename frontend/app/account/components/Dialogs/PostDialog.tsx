@@ -2,18 +2,7 @@ import React from "react";
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import Image from "next/image";
 import {Heart, MessageCircle} from "lucide-react";
-
-type Post = {
-  id: number;
-  title: string;
-  author: string;
-  coverImage: string;
-  content: string;
-  tags: string[];
-  likes: number;
-  shares?: number;
-  comments: number;
-};
+import {Post} from "@/app/types/Post";
 
 type PostDialogAccountProps = {
   selectedPost: Post | null;
@@ -23,20 +12,20 @@ type PostDialogAccountProps = {
 const PostDialog: React.FC<PostDialogAccountProps> = ({ selectedPost, setSelectedPost }) => {
   // Component implementation
   return (
-     <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
+    <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{selectedPost?.title}</DialogTitle>
-                    <DialogDescription>{selectedPost?.author}</DialogDescription>
+                    <DialogTitle>{"TITLE"}</DialogTitle>
+                    <DialogDescription>{"Author"}</DialogDescription>
                 </DialogHeader>
                 <Image
-                    src={selectedPost?.coverImage || '/book.jpg'}
-                    alt={selectedPost?.title || 'Loading Title...'} width={500} height={500}
+                    src={'/book.jpg'}
+                    alt={"title"} width={500} height={500}
                     className="w-full h-64 object-cover mb-4"
                 />
-                <p>{selectedPost?.content}</p>
+                <p>{"Description of this Post"}</p>
                 <div className="flex flex-wrap gap-2 my-4">
-                    {selectedPost?.tags.map((tag, index) => (
+                    {["Filtro 1", "Filtro 2", "Filtro 3"].map((tag, index) => (
                         <span key={index} className="bg-gray-200 text-xs px-2 py-1 rounded">{tag}</span>
                     ))}
                 </div>
@@ -45,7 +34,7 @@ const PostDialog: React.FC<PostDialogAccountProps> = ({ selectedPost, setSelecte
                         <Heart className="w-4 h-4 mr-1 text-red-600 fill-current"/> {selectedPost?.likes} Likes
                     </button>
                     <button className="flex items-center">
-                        <MessageCircle className="w-4 h-4 mr-1"/> {selectedPost?.comments} comments
+                        <MessageCircle className="w-4 h-4 mr-1"/> X&#39;s comments
                     </button>
                 </div>
             </DialogContent>

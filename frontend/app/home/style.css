@@ -1,0 +1,13 @@
+.img-hero .avatar{
+    box-shadow: 0 0 10px var(--main-color),
+                0 0 10px var(--main-color),
+                0 0 10px var(--main-color);
+    transition: 0.5s ease-in-out;
+}
+
+.img-hero:hover .avatar{
+    box-shadow: 0 0 25px var(--main-color),
+                0 0 50px var(--main-color),
+                0 0 60px var(--main-color);
+    transition: 0.5s ease-in-out;
+}

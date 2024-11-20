@@ -35,5 +35,6 @@ debug.log
 *.tar.gz
 
 # Carpeta temporal de profile_pictures
-backend/profile_pictures/
+*post_pictures/
+*profile_pictures/
 backend/.coverage

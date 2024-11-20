@@ -1,77 +1,31 @@
 "use server";
 
-import { cookies } from 'next/headers';
 import Header from "@/components/Header";
-import ProfileHeader from "@/app/account/components/ProfileHeader";
-import Tabs from "./components/Tabs";
-import { User } from "@/app/types/User";
-import { redirect } from "next/navigation";
+import MainContent from "@/app/account/components/MainContent";
+import {User} from "@/app/types/User";
+import {getSession, getAccessToken} from "@/app/lib/authentication";
+import FetchInformationError from "@/app/account/components/Errors/FetchInformationError";
+import {redirect} from "next/navigation";
 
-const AccountPage = async () => {
-    const cookieStore = cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
+const  AccountPage = async () => {
 
-    if (!accessToken) {
-        // Redirect to sign-in if no access token is found
-        redirect('/auth/sign-in');
-        return null;
-    }
+    if(! await getAccessToken())
+        redirect("/auth/sign-in");
 
-    // Fetch user data
-    let user: User | null = null;
-    let error: string | null = null;
+    const user : User | null = await getSession();
 
-    try {
-        const response = await fetch("http://127.0.0.1:8000/users/me", {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${accessToken}`,
-                "Accept": "application/json"
-            },
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to fetch user data.");
-        }
-
-        const userData = await response.json();
-
-        // Create user object if user data is successfully fetched
-        user = {
-            id: userData.id,
-            firstName: `${userData.first_name}`,
-            lastName: `${userData.last_name}`,
-            username: userData.username,
-            email: userData.email,
-            bio: userData.biography ?? "Add your bio!",
-            profilePicture: "/vini.jpg",
-            coverPhoto: "/book.jpg",
-        };
-
-    } catch (err) {
-        console.error(err);
-        error = "Failed to load user information.";
-    }
+    const accessToken: string | null = await getAccessToken();
 
     // Handle error state
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
+    if (!user || !accessToken)
+        return (<FetchInformationError error={"Failed to load user information."}/>);
 
     // Return page content with user data
     return (
-        <div className="min-h-screen bg-gray-100 bg-gradient-to-br from-blue-950 to-blue-200">
-            <Header />
+        <div className="min-h-screen bg-gradient-to-br from-blue-950 to-gray-800">
+            <Header accessToken={accessToken} user_id={user.id}/>
             <main className="container mx-auto pt-16">
-                <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-                    <div className="mx-2">
-                        {user && <ProfileHeader userData={user} />}
-                    </div>
-                    {/* <div className="pt-4">
-                        {user && <Tabs userData={user} />}
-                    </div> */}
-                </div>
+                <MainContent  userData={user} ></MainContent>
             </main>
         </div>
     );

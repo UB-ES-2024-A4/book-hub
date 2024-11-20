@@ -3,7 +3,7 @@ from typing import Any
 from sqlmodel import Session, select
 from app.models import User, UserCreate, UserUpdate
 from app.core.security import verify_password
-
+from sqlalchemy import or_
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
     user = User.model_validate(
@@ -48,7 +48,12 @@ def get_all_users(*, session: Session) -> Any:
     return users
 
 def get_user_by_email(*, session: Session, email: str) -> User | None:
-    statement = select(User).where(User.email == email or User.username == email)
+    statement = select(User).where(or_(User.email == email ,User.username == email))
+    session_user = session.exec(statement).first()
+    return session_user
+
+def get_user_by_id(*, session: Session, id: int) -> User | None:
+    statement = select(User).where(User.id == id)
     session_user = session.exec(statement).first()
     return session_user
 

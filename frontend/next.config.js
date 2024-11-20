@@ -4,7 +4,7 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/home',
+        destination: '/explorer',
         permanent: true,
       },
     ];
@@ -17,6 +17,16 @@ module.exports = {
         port: '8000',
         pathname: '/users/pfp/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'bookhubimages.blob.core.windows.net',
+        pathname: '/profilepictures/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bookhubimages.blob.core.windows.net',
+        pathname: '/bookcovers/**',
+      }
     ],
   },
 };

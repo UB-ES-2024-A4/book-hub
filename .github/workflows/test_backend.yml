@@ -1,26 +1,36 @@
 name: Tests
 
 on:
-  push:
-    branches:
-      - main
-      - '!badges'
-  pull_request:
+  pull_request:  # Ejecutar en todas las Pull Requests
     types:
       - opened
       - synchronize
+      - reopened
+  push:  # Ejecutar solo en ramas específicas
+    branches:
+      - main
+      - dev
 
+  
 env:
   APP_NAME: BookHub
   DB_HOST: localhost
   DB_PORT: 3306
-  DB_USER: testuser
+  DB_USER: root
   DB_PASSWORD: psswd
   DB_NAME: bookhubdb
 
 jobs:
 
   test:
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -32,7 +42,12 @@ jobs:
           MYSQL_ROOT_PASSWORD: psswd
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -70,9 +85,17 @@ jobs:
       run: |
         cd backend
         poetry run alembic upgrade head
-        poetry run pytest
+        poetry run pytest --cov=app --cov-report=xml:coverage.xml
+
     - name: Store coverage files
       uses: actions/upload-artifact@v4
       with:
         name: coverage-html
         path: backend/htmlcov
+
+    - name: Get Cover 
+      uses: orgoro/coverage@v3.2
+      continue-on-error: true
+      with:
+          coverageFile: backend/coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,8 +1,8 @@
 "use client";
-import { Lock, Mail, User, LibraryBig } from "lucide-react";
+import { Lock, Mail, User } from "lucide-react";
 import InputAuth from "./InputAuth";
 import { Button } from '@/components/ui/button';
-import { CreateUser } from "@/app/actions";
+import { CreateUser} from "@/app/lib/authentication";
 import { useForm } from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
 import {signUpSchema} from "@/app/lib/zodSchemas";
@@ -112,7 +112,6 @@ export default function SignUpForm() {
                                             defaultValue={fields.email.initialValue}
                                             id="email"
                                             type="email"
-                                            autoComplete="email"
                                             icon={Mail}
                                             placeholder="zoro3@gmail.com"
                                         />

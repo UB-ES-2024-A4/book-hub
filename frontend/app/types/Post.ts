@@ -1,11 +1,11 @@
-export type Post = {
+import {Filter} from "./Filter";
+
+export interface Post {
   id: number;
-  title: string;
-  author: string;
-  coverImage: string;
-  content: string;
-  tags: string[];
+  book_id: number;
+  user_id: number;
   likes: number;
-  shares?: number;
-  comments: number;
-};
+  description: string;
+  created_at: string;
+  filter_ids: Filter[];
+}
