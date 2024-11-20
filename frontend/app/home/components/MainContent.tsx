@@ -10,22 +10,26 @@ import FetchError from "@/components/FetchError";
 import {useFeed} from "@/contex/FeedContext";
 import {Filter} from "@/app/types/Filter";
 import {toast} from "nextjs-toast-notify";
+import { User } from "@/app/types/User";
 
-export default function MainContent (){
+type Props = {
+    userData: User;
+}
+
+export default function MainContent ({ userData }: Props){
 
     // Refresh feed Context to update the feed
-    const { addAllPosts} = useFeed();
+    const { addAllPosts } = useFeed();
 
     const [posts, setPosts] = useState<Post[] | null>(null);
     //const [filters, setFilters] = useState<Filter[] | null>(null);
     const [fetchError, setError] = useState<string | null>(null);
 
     useEffect(() => {
-
-       console.log("SE EJECUTA LOAD POSTES 1");
         async function fetchPosts() {
             try {
                 const result = await loadPosts();
+
                 if (result.status !== 200) {
                     setError("Failed to fetch posts");
                     return;
@@ -77,15 +81,14 @@ export default function MainContent (){
     return (
         fetchError ? (
             <div className="min-h-screen flex items-center justify-center">
-            <FetchError />
-
+                <FetchError />
             </div>
         ) : (
-            <div className="flex flex-1 overflow-hidden pt-10">
+            <div className="flex flex-1 flex-col md:flex-row overflow-hidden pt-10">
                 {/* Sidebar (Search) */}
                 <SearchHome/>
                 {/* Feed Section */}
-                <ScrollAreaHome /*posts={posts}*//>
+                <ScrollAreaHome userData={userData}/>
             </div>
         )
     )

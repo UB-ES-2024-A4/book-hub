@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
 import { Post } from "@/app/types/Post";
-import { BaseNextRequest } from "next/dist/server/base-http";
 import { parseWithZod } from "@conform-to/zod";
 import {getAccessToken, getSession} from "./lib/authentication";
 import { userInformationSchema } from "./lib/zodSchemas";
@@ -14,7 +13,6 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 import {createPostSchema} from "@/app/lib/zodSchemas";
-import {toast} from "nextjs-toast-notify";
 
 // Function to update the user's information
 export async function UpdateUser(prevState: unknown, formData: FormData) {
@@ -145,19 +143,6 @@ export async function loadPosts(): Promise<{ status: number, message: string, po
 
         return { status: 200, message: "Posts loaded successfully", post: returnedPosts};
 
-
-        /*return response.map((post: Post) => {
-            return {
-                id: post.id,
-                book_id: post.book_id,
-                user_id: post.user_id,
-                description: post.description,
-                likes: post.likes,
-                created_at: post.created_at,
-            };
-        });*/
-
-
     }
     catch (error:any) {
         console.error("Failed to load posts", error);
@@ -281,4 +266,91 @@ export async function loadFilters() {
         return { status: 400, message: error.message, data: null };
     }
 
+}
+
+
+export async function fetchUser(userId: number) {
+    try {
+        const response = await fetch(baseUrl+`/users/${userId}`);
+        if (response.status !== 200) {
+            console.error(`Failed to fetch user with ID ${userId}`);
+            return {status: response.status, message: "Failed to fetch user with ID", data: null};
+        }
+        return {status:200, message: "User fetched successfully", data: await response.json()};
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return {status: 400, message: "Error fetching user", data: null};
+    }
+}
+
+export async function isUserFollowing(
+    currentUserId: number,
+    targetUserId: number
+): Promise<boolean | null> {
+    try {
+        const response = await fetch(
+            `${baseUrl}/followers/${currentUserId}/${targetUserId}`
+        );
+        if (!response.ok) {
+            console.error(
+                `Failed to check if user ${currentUserId} is following ${targetUserId}`
+            );
+            return null;
+        }
+        const data = await response.json();
+        console.log("FOLOWWWIN status:", data.success);
+        return data.success;
+    } catch (error) {
+        console.error("Error checking following status:", error);
+        return null;
+    }
+}
+
+export async function followUser(followerId: number, followeeId: number) {
+    try {
+        const response = await fetch(`${baseUrl}/followers/follow/${followeeId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+            body: JSON.stringify({
+                follower_id: followerId,
+                followee_id: followeeId,
+            }),
+        });
+
+        if (response.status!==200) {
+            const errorData = await response.json();
+            console.error("Failed to follow user:", errorData.detail);
+            return null;
+        }
+
+        return await response.json(); // Return the follow relationship data
+    } catch (error) {
+        console.error("Error while following user:", error);
+        return null;
+    }
+}
+
+export async function unfollowUser(followerId: number, followeeId: number) {
+    try {
+        const response = await fetch(`${baseUrl}/followers/unfollow/${followeeId}`, {
+            method: 'POST',
+            headers: {
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to unfollow user:", errorData.detail);
+            return null;
+        }
+
+        return await response.json(); // Return the response or confirmation
+    } catch (error) {
+        console.error("Error while unfollowing user:", error);
+        return null;
+    }
 }

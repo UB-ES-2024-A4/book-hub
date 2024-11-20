@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
 import {CreatePostDialog} from "@/components/Dialog/CreatePostDialog";
 import {Filter} from "@/app/types/Filter";
-import {loadFilters} from "@/app/actions";
+import {fetchUser, loadFilters} from "@/app/actions";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {toast} from "nextjs-toast-notify";
 
@@ -38,7 +38,7 @@ export default function Header({accessToken}: HeaderProps) {
             console.log("Filters IN THE HEADER", result.data);
 
             if (result.status !== 200) {
-                toast.error("¡ Could not connect to the server !", {
+                toast.error(" Could not connect to the server !", {
                     duration: 4000,
                     progress: true,
                     position: "top-left",
@@ -51,6 +51,7 @@ export default function Header({accessToken}: HeaderProps) {
                 setFilters(result.data);
             }
         }
+
         fetchFilters();
     }, []);
 
