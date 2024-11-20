@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,13 +19,20 @@ import {Badge} from "@/components/ui/badge";
 import Link from "next/link";
 import {Filter} from "@/app/types/Filter";
 import {Post} from "@/app/types/Post";
+import {AlertCircle, Upload} from "lucide-react";
+import Image from "next/image";
+
+// URL de la API de Azure Storage
+const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS;
 
 type CreatePostDialogProps = {
     open: boolean;
     setIsDialogOpen: (open: boolean) => void;
-    filters: Filter[];
+    filters: Filter[],
+    user_id: number;
 }
-export function CreatePostDialog({ open, setIsDialogOpen, filters }: CreatePostDialogProps) {
+export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: CreatePostDialogProps) {
     const { addPost } = useFeed();
     const filters_ = filters || [];
 
@@ -33,38 +40,66 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters }: CreatePostD
     const [post_description, setPostDescription] = useState('');
     const [serverError, setServerError] = useState<{ status: number, message: string } | null>(null);
     const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+    // Image Control
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
+         try {
+
         // Añadir los tags seleccionados
         const filter_ids: number[] = selectedFilters.map((id) => Number(id));
-        console.log("FILTER IDS", filter_ids);
         formData.append('filter_ids', JSON.stringify(filter_ids));
         const result = await CreatePost(prevState, formData);
-        const submission: SubmissionResult = { status: "success" }
+        const submission: SubmissionResult<string[]> | null | undefined = { status: "success" };
 
         if (result.status !== 200) {
-            console.log("RESULT", result);
             setServerError({ status: result.status, message: result.message });
         } else {
-            toast.info(" ¡ The post has been added to our Home successfully ! ", {
+            toast.info("¡ The post has been added to our Home successfully !", {
                 duration: 4000, progress: true, position: "bottom-center", transition: "swingInverted",
                 icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
                     'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
                     'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
                 sonido: true,
             });
-            const resultPost: Post = result.data['post']
-            resultPost.filter_ids = result.data['filters']
-            console.log("RESULT POST", resultPost);
+
+            const resultPost: Post = result.data['post'];
+            resultPost.filter_ids = result.data['filters'];
+                // Cargar la imagen seleccionada y enviarla al servidor
+            if (fileInputRef.current?.files?.[0]) {
+                const imageFile = fileInputRef.current.files[0];
+                const imageFormData = new FormData();
+
+                const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`, {
+                    method: 'PUT',
+                    body: imageFile,
+                    headers: {
+                        'Content-Type': 'image/png',
+                        'x-ms-blob-type': 'BlockBlob',
+                        'x-ms-date': new Date().toUTCString(),
+                    }
+                });
+
+                if (!imageUploadResponse.ok) {
+                    throw new Error('Image upload failed');
+                }
+            }
+
             if (resultPost) addPost(resultPost);
             setIsDialogOpen(false);
         }
 
         return submission;
-    }, undefined);
+    } catch (error) {
+        console.error('Error during form submission:', error);
+        setServerError({ status: 500, message: 'An error occurred during form submission. Please try again.' });
+        return { status: "error" };
+    }
+}, undefined);
 
     const [form, fields] = useForm({
-        lastResult,
+        lastResult : lastResult as SubmissionResult<string[]> | null | undefined,
         onValidate({ formData }) {
             return parseWithZod(formData, { schema: createPostSchema });
         },
@@ -84,13 +119,24 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters }: CreatePostD
         )
     }
 
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+      }
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-[70vw] xl:max-w-[80vw] p-0">
                 <div className="flex flex-col md:flex-row h-full">
                     <div
                         className="w-full md:w-1/3 bg-cover bg-center h-48 md:h-full"
-                        style={{ backgroundImage: 'url("/create_post.png")' }}
+                        style={{backgroundImage: 'url("/create_post.png")'}}
                     />
                     <ScrollArea className="h-[80vh] w-full md:w-2/3">
                         <div className="p-6 bg-white">
@@ -225,12 +271,41 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters }: CreatePostD
                                         )}
                                     </div>
                                 </div>
-                                {serverError && serverError.message && (
-                                    <div className="w-full">
-                                        <Alert variant="destructive">
-                                            <AlertDescription>{serverError.message}</AlertDescription>
-                                        </Alert>
+                                <div className="space-y-2">
+                                    <label htmlFor="image-upload" className="text-sm font-medium">
+                                        Upload Image
+                                    </label>
+                                    <div className="flex items-center space-x-2">
+                                        <Input
+                                            id="image-upload"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            ref={fileInputRef}
+                                            className="hidden"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => fileInputRef.current?.click()}
+                                        >
+                                            <Upload className="w-4 h-4 mr-2"/>
+                                            Choose Image
+                                        </Button>
+                                        {imagePreview && (
+                                            <Image
+                                                src={imagePreview}
+                                                alt="Preview"
+                                                className="w-16 h-16 object-cover rounded"
+                                            />
+                                        )}
                                     </div>
+                                </div>
+                                {serverError && (
+                                    <Alert variant="destructive">
+                                        <AlertCircle className="h-4 w-4"/>
+                                        <AlertDescription>{serverError.message}</AlertDescription>
+                                    </Alert>
                                 )}
                                 {serverError && serverError.status === 403 && (
                                     <Link
@@ -240,7 +315,6 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters }: CreatePostD
                                         Sign In
                                     </Link>
                                 )}
-
                                 <DialogFooter>
                                     <Button type="submit" className="w-full sm:w-auto">Post</Button>
                                 </DialogFooter>
