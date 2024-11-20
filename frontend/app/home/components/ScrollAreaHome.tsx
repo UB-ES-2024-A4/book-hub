@@ -23,6 +23,9 @@ type Props = {
 };
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+// URL de la API de Azure Storage
+const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS;
 
 export default function ScrollAreaHome({ userData }: Props) {
   const currentUserId = userData.id;
@@ -209,7 +212,8 @@ export default function ScrollAreaHome({ userData }: Props) {
                                         </CardHeader>
                                         <CardContent className="pt-4">
                                             <div className="grid md:grid-cols-[150px_1fr] gap-4">
-                                                <Image alt="Book cover" className="rounded-lg object-cover shadow-md" width={150} height={200} src="/book.jpg" />
+                                                <Image alt="Book cover" className="rounded-lg object-cover shadow-md" width={150} height={200} 
+                                                      src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${post_I.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`} />
                                                 <div className="space-y-3">
                                                     <div>
                                                         <h2 className="text-xl font-bold text-blue-200">{book?.title}</h2>

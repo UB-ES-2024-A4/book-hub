@@ -19,7 +19,7 @@ export default async function Home() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-950 to-gray-800 flex flex-col">
-            <Header accessToken={accessToken}/>
+            <Header accessToken={accessToken} user_id={user.id}/>
             <MainContent userData={user}/>
         </div>
     );

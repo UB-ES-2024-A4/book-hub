@@ -21,6 +21,11 @@ module.exports = {
         protocol: 'https',
         hostname: 'bookhubimages.blob.core.windows.net',
         pathname: '/profilepictures/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bookhubimages.blob.core.windows.net',
+        pathname: '/bookcovers/**',
       }
     ],
   },
