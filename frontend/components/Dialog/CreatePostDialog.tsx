@@ -20,10 +20,11 @@ import Link from "next/link";
 import {Filter} from "@/app/types/Filter";
 import {Post} from "@/app/types/Post";
 import {AlertCircle, Upload} from "lucide-react";
+import Image from "next/image";
 
 // URL de la API de Azure Storage
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
-const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS;
 
 type CreatePostDialogProps = {
     open: boolean;
@@ -45,35 +46,12 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
 
     const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
          try {
-        // Cargar la imagen seleccionada y enviarla al servidor
-        if (fileInputRef.current?.files?.[0]) {
-            const imageFile = fileInputRef.current.files[0];
-            const imageFormData = new FormData();
-            imageFormData.append('file', imageFile);
-
-            const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${user_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'image/png',
-                    'x-ms-blob-type': 'BlockBlob',
-                    'x-ms-date': new Date().toUTCString(),
-                },
-                body: imageFile,
-            });
-
-            if (!imageUploadResponse.ok) {
-                throw new Error('Image upload failed');
-            }
-
-            const { imageUrl } = await imageUploadResponse.json();
-            formData.append('imageUrl', imageUrl);
-        }
 
         // Añadir los tags seleccionados
         const filter_ids: number[] = selectedFilters.map((id) => Number(id));
         formData.append('filter_ids', JSON.stringify(filter_ids));
         const result = await CreatePost(prevState, formData);
-        const submission: SubmissionResult = { status: "success" };
+        const submission: SubmissionResult<string[]> | null | undefined = { status: "success" };
 
         if (result.status !== 200) {
             setServerError({ status: result.status, message: result.message });
@@ -85,8 +63,29 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
                     'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
                 sonido: true,
             });
+
             const resultPost: Post = result.data['post'];
             resultPost.filter_ids = result.data['filters'];
+                // Cargar la imagen seleccionada y enviarla al servidor
+            if (fileInputRef.current?.files?.[0]) {
+                const imageFile = fileInputRef.current.files[0];
+                const imageFormData = new FormData();
+
+                const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`, {
+                    method: 'PUT',
+                    body: imageFile,
+                    headers: {
+                        'Content-Type': 'image/png',
+                        'x-ms-blob-type': 'BlockBlob',
+                        'x-ms-date': new Date().toUTCString(),
+                    }
+                });
+
+                if (!imageUploadResponse.ok) {
+                    throw new Error('Image upload failed');
+                }
+            }
+
             if (resultPost) addPost(resultPost);
             setIsDialogOpen(false);
         }
@@ -100,7 +99,7 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
 }, undefined);
 
     const [form, fields] = useForm({
-        lastResult,
+        lastResult : lastResult as SubmissionResult<string[]> | null | undefined,
         onValidate({ formData }) {
             return parseWithZod(formData, { schema: createPostSchema });
         },
@@ -294,7 +293,7 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
                                             Choose Image
                                         </Button>
                                         {imagePreview && (
-                                            <img
+                                            <Image
                                                 src={imagePreview}
                                                 alt="Preview"
                                                 className="w-16 h-16 object-cover rounded"
