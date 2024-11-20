@@ -8,6 +8,8 @@ from app.models import (
     Post, 
     PostCreate,
     PostUpdate,
+    PostFiltersOut,
+    PostFiltersOutList,
     User
 )
 from app import crud, utils
@@ -24,6 +26,7 @@ router = APIRouter()
 
 # Create post endpoint
 @router.post("/",
+             response_model=PostFiltersOut,
              dependencies=[Depends(get_current_user)])
 def create_post(new_post: PostCreate, session: Session = Depends(get_session)):
     utils.check_existence_book_user(new_post.book_id, new_post.user_id, session)
@@ -34,44 +37,49 @@ def create_post(new_post: PostCreate, session: Session = Depends(get_session)):
 
     post : Post = crud.post.create_post(session=session, post_create=new_post)
     
-    return {"message": "Post created successfully", "data": post}
+    return PostFiltersOut(post=post, filters=post.filters, message="Post created successfully")
 
 # Get all posts endpoint
-@router.get("/all")
+@router.get("/all",
+            response_model=PostFiltersOutList)
 def get_all_posts(session: Session = Depends(get_session)):
     posts = crud.post.get_all_posts(session=session)
-    return posts
+
+    return PostFiltersOutList(posts=[PostFiltersOut(post=post, filters=post.filters) for post in posts])
 
 # Get post by id endpoint
-@router.get("/{post_id}")
+@router.get("/{post_id}",
+            response_model=PostFiltersOut)
 def get_post(post_id: int, session: Session = Depends(get_session)):
     post : Post = crud.post.get_post(session=session, post_id=post_id)
     if post:
-        return {'post_data': post, 'filters_data': post.filters}
+        return PostFiltersOut(post=post, filters=post.filters)
     raise HTTPException(
         status_code=404,
         detail="Post not found.",
     )
 
 # Get all posts with the same user_id endpoint
-@router.get("/user/{user_id}")
+@router.get("/user/{user_id}",
+            response_model=PostFiltersOutList)
 def get_posts_by_user_id(user_id: int, session: Session = Depends(get_session)):
     utils.check_existence_book_user(book_id=None, user_id=user_id, session=session)
     posts = crud.post.get_posts_by_user_id(session=session, user_id=user_id)
     if posts:
-        return posts
+        return PostFiltersOutList(posts=[PostFiltersOut(post=post, filters=post.filters) for post in posts])
     raise HTTPException(
         status_code=404,
         detail="This user has no posts.",
     )
 
 # Get all posts with the same book_id endpoint
-@router.get("/book/{book_id}")
+@router.get("/book/{book_id}",
+            response_model=PostFiltersOutList)
 def get_posts_by_book_id(book_id: int, session: Session = Depends(get_session)):
     utils.check_existence_book_user(book_id=book_id, user_id=None, session=session)
     posts = crud.post.get_posts_by_book_id(session=session, book_id=book_id)
     if posts:
-        return posts
+        return PostFiltersOutList(posts=[PostFiltersOut(post=post, filters=post.filters) for post in posts])
     raise HTTPException(
         status_code=404,
         detail="This book has no posts.",
@@ -79,7 +87,8 @@ def get_posts_by_book_id(book_id: int, session: Session = Depends(get_session)):
 
 # Update post endpoint
 @router.put("/{post_id}",
-             dependencies=[Depends(get_current_user)])
+            response_model=PostFiltersOut,
+            dependencies=[Depends(get_current_user)])
 def update_post(post_id: int, post_in: PostUpdate, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     # Get current post
     session_post : Post = crud.post.get_post(session=session, post_id=post_id)
@@ -96,11 +105,12 @@ def update_post(post_id: int, post_in: PostUpdate, session: Session = Depends(ge
 
     post = crud.post.update_post(session=session, post_update=post_in, db_post=session_post)  
     
-    return {"message": "Post updated successfully", "data": post}
+    return PostFiltersOut(post=post, filters=post.filters, message="Post updated successfully")
 
 # Delete post endpoint
 @router.delete("/{post_id}",
-             dependencies=[Depends(get_current_user)])
+               response_model=PostFiltersOut,
+               dependencies=[Depends(get_current_user)])
 def delete_user(post_id: int, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     # Get current post
     session_post : Post = crud.post.get_post(session=session, post_id=post_id)
@@ -115,9 +125,7 @@ def delete_user(post_id: int, session: Session = Depends(get_session), current_u
 
     post = crud.post.delete_post(session=session, db_post=session_post)
     
-    return {"message": "Post deleted successfully", "data": post}
-
-
+    return PostFiltersOut(post=post, filters=post.filters, message="Post deleted successfully")
 
 # These are the endpoints of post picture, that now are stored in the backend api server.
 # When we perform deployment these methods will be erased and the requests go directly to the storage server (Azure)
