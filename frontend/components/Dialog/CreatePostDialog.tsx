@@ -18,6 +18,7 @@ import {useFeed} from "@/contex/FeedContext";
 import {Badge} from "@/components/ui/badge";
 import Link from "next/link";
 import {Filter} from "@/app/types/Filter";
+import {Post} from "@/app/types/Post";
 
 type CreatePostDialogProps = {
     open: boolean;
@@ -34,9 +35,10 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters }: CreatePostD
     const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
     const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
-        selectedFilters.forEach((filter, index) => {
-            formData.append("tags", (index + 1).toString());
-        });
+        // Añadir los tags seleccionados
+        const filter_ids: number[] = selectedFilters.map((id) => Number(id));
+        console.log("FILTER IDS", filter_ids);
+        formData.append('filter_ids', JSON.stringify(filter_ids));
         const result = await CreatePost(prevState, formData);
         const submission: SubmissionResult = { status: "success" }
 
@@ -51,7 +53,10 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters }: CreatePostD
                     'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
                 sonido: true,
             });
-            if (result.data) addPost(result.data);
+            const resultPost: Post = result.data['post']
+            resultPost.filter_ids = result.data['filters']
+            console.log("RESULT POST", resultPost);
+            if (resultPost) addPost(resultPost);
             setIsDialogOpen(false);
         }
 

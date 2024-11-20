@@ -7,19 +7,11 @@ import PostDialog from "@/app/account/components/Dialogs/PostDialog";
 import React, {useState} from "react";
 import {Post} from "@/app/types/Post";
 import { PropsUser } from '@/app/types/PropsUser';
-import {Filter} from "@/app/types/Filter";
 
 const userPosts = [
   {
     id: 1,
-    title: "Name of the Book",
-    author: "Author's Name",
-    coverImage: "/book.jpg",
-    tags: ["Tag1", "Tag2", "Tag3", "Tag4", "Tag5", "Tag6"],
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     likes: 15,
-    comments: 3,
     book_id: 1,
     user_id: 1,
     created_at: "",
@@ -29,66 +21,11 @@ const userPosts = [
   {
     id: 2,
     title: "Name of the Book",
-    author: "Author's Name",
-    coverImage: "/book.jpg",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    tags: ["Tag1", "Tag2", "Tag3"],
     likes: 30,
-    comments: 8,
     book_id: 1,
     user_id: 1,
     created_at: "",
     description: "",
-    filter_ids: [{id: 1, name: "Tag1"}, {id: 2, name: "Tag2"}]
-  },
-  {
-    id: 3,
-    title: "Name of the Book",
-    author: "Author's Name",
-    coverImage: "/book.jpg",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
-    book_id: 1,
-    user_id: 1,
-    created_at: "",
-    description: "",
-    filter_ids: [{id: 1, name: "Tag1"}, {id: 2, name: "Tag2"}]
-  },
-  {
-    id: 4,
-    title: "Name of the Book",
-    author: "Author's Name",
-    coverImage: "/book.jpg",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
-    book_id: 1,
-    user_id: 1,
-    created_at: "",
-    description: "",
-    filter_ids: [{id: 1, name: "Tag1"}, {id: 2, name: "Tag2"}]
-  },
-  {
-    id: 5,
-    title: "Name of the Book",
-    author: "Author's Name",
-    coverImage: "/book.jpg",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    tags: ["Tag1", "Tag2", "Tag3"],
-    likes: 30,
-    comments: 8,
-    book_id: 1,
-    user_id: 1,
-    created_at: "",
-    description: "",
-    //id: number;name: string;
     filter_ids: [{id: 1, name: "Tag1"}, {id: 2, name: "Tag2"}]
   },
 ];
@@ -112,18 +49,18 @@ export default function PostsGrid( {userData}: PropsUser ) {
                   <span className="font-semibold">{userData.username}</span>
                 </div>*/}
                 <Image
-                    src={post.coverImage || "/book.jpeg"}
-                    alt={post.title} width={500} height={500}
+                    src="/book.jpeg"
+                    alt="Title" width={500} height={500}
                     className="w-full h-48 object-cover mb-4 cursor-pointer"
                 />
-                <h3 className="font-bold text-lg mb-2">{post.title}</h3>
-                <p className="text-sm text-gray-600 mb-2">{post.author}</p>
+                <h3 className="font-bold text-lg mb-2"> Title</h3>
+                <p className="text-sm text-gray-600 mb-2"> Author </p>
                 <div className="flex justify-between items-center text-sm text-gray-600">
                   <div className="flex items-center">
                     <Heart className="w-4 h-4 mr-1 text-red-600 fill-current"/> {post.likes}
                   </div>
                   <div className="flex items-center">
-                    <MessageCircle className="w-4 h-4 mr-1 fill-current"/> {post.comments} comments
+                    <MessageCircle className="w-4 h-4 mr-1 fill-current"/> 10 comments
                   </div>
                 </div>
               </div>

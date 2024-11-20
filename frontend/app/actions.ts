@@ -110,7 +110,7 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
    }
 import {Filter} from "@/app/types/Filter";
 // Function to load the posts in the home page
-export async function loadPosts(): Promise<{ status: number, message: string, post: Post[] | null, filters: Array<Filter[]>|null}> {
+export async function loadPosts(): Promise<{ status: number, message: string, post: Post[] | null}> {
     try {
         const response = await fetch(baseUrl + "/posts/all", {
             method: "GET",
@@ -125,7 +125,25 @@ export async function loadPosts(): Promise<{ status: number, message: string, po
         }
         const result = await response.json();
         console.log("POSTS", result);
-        return { status: 200, message: "Posts loaded successfully", post: result.posts, filters: result.filters };
+        const postResult = result.posts;
+        console.log("POSTS SOLOS", postResult);
+        const returnedPosts: Post[] = [];
+        postResult.forEach((post_info: any) => {
+            const post = post_info.post;
+            returnedPosts.push({
+                id: post.id,
+                book_id: post.book_id,
+                user_id: post.user_id,
+                description: post.description,
+                likes: post.likes,
+                created_at: post.created_at,
+                filter_ids: post_info.filters.map((filter: Filter) => filter)
+            });
+        });
+
+        console.log("POSTS RETURNED", returnedPosts);
+
+        return { status: 200, message: "Posts loaded successfully", post: returnedPosts};
 
 
         /*return response.map((post: Post) => {
@@ -143,10 +161,13 @@ export async function loadPosts(): Promise<{ status: number, message: string, po
     }
     catch (error:any) {
         console.error("Failed to load posts", error);
-        return  { status: 400, message: error.detail, post: null, filters: null };
+        return  { status: 400, message: error.detail, post: null };
     }
 }
-export async function CreatePost(prevState: unknown, formData: FormData): Promise<{ status: number, message: string, data: Post | null }> {
+
+
+export async function CreatePost(prevState: unknown, formData: FormData) {
+    // Validate the form data using Zod
     const submission = parseWithZod(formData, { schema: createPostSchema });
 
     if (submission.status !== "success") {
@@ -158,11 +179,11 @@ export async function CreatePost(prevState: unknown, formData: FormData): Promis
     if(!user || !accessToken) return { status: 403, message: "Unauthorized", data: null };
 
     const post_description = formData.get("post_description") as string;
-    const tags = formData.getAll("tags");
+    const tags = formData.getAll("filter_ids")
     console.log("TAGS", tags);
     // Delete the description from the formData
     formData.delete("post_description");
-    formData.delete("tags");
+    formData.delete("filter_ids");
 
     // Convert formData to a JSON object
     const data = Object.fromEntries(formData.entries());
@@ -191,16 +212,20 @@ export async function CreatePost(prevState: unknown, formData: FormData): Promis
         // If I can create the book, then I can create the post
         const book_id = bookData.data.id;
 
-        const filterIdsArray = tags.map(tag => Number(tag));
+
+        const filtersArray: number[] = JSON.parse(tags[0] as string);
+        console.log("FILTERS ARRAY", filtersArray);
         const postData = {
             book_id: book_id,
             user_id: user?.id,
             description: post_description,
             likes: 0,
             created_at: new Date().toISOString(),
-            filter_ids: filterIdsArray
-        };
+            filter_ids: filtersArray
+        }
+
         console.log("POST DATA", postData);
+        console.log("JSON POST DATA", JSON.stringify(postData));
 
         const postResponse = await fetch(baseUrl + "/posts/", {
             method: "POST",
@@ -219,9 +244,8 @@ export async function CreatePost(prevState: unknown, formData: FormData): Promis
         }
 
         // Si es un éxito la creación del post, entonces se retorna el post
-        const post = await postResponse.json();
-        console.log("POST", post.data);
-        return { status: 200, message: post.message, data: post.data };
+        const post_filters = await postResponse.json();
+        return { status: 200, message: post_filters.message, data: post_filters};
 
     } catch (error: any) {
         console.log("FAILDED to create the post or book", error);

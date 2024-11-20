@@ -14,7 +14,7 @@ import {toast} from "nextjs-toast-notify";
 export default function MainContent (){
 
     // Refresh feed Context to update the feed
-    const { refreshFeed, addPost } = useFeed();
+    const { addAllPosts} = useFeed();
 
     const [posts, setPosts] = useState<Post[] | null>(null);
     //const [filters, setFilters] = useState<Filter[] | null>(null);
@@ -32,23 +32,14 @@ export default function MainContent (){
                 }
 
                 const loadedPosts = result.post;
-                const loadedFilters = result.filters;
                 console.log("POSTS CARGADOS ", loadedPosts);
-                if(!loadedPosts || !loadedFilters) return;
-
-                console.log("FILTERS", loadedFilters);
-                // Set the filters to the respective posts
-                loadedPosts.forEach((post, index) => {
-                    post.filter_ids = loadedFilters[index];
-                });
+                if (! loadedPosts ) return;
 
                 // Sort the posts by date
                 loadedPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
                // setPosts(loadedPosts);
 
-                loadedPosts.forEach((post) => {
-                    addPost(post);
-                });
+                addAllPosts(loadedPosts);
 
                 //setPosts(loadedPosts);
             } catch (error) {

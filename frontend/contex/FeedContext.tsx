@@ -8,6 +8,7 @@ import {User} from "@/app/types/User";
 type FeedContextType = {
     refreshFeed: () => void;
     addPost: (post: Post) => void;
+    addAllPosts: (posts: Post[]) => void;
     posts: Post[];
     addBookToMap: (id: number, book: Book) => void;
     booksMap: { [key: number]: Book };
@@ -49,9 +50,12 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUsersMap(prevUserData => ({ ...prevUserData, [id]: user }));
     }
 
+    const addAllPosts = (posts: Post[]) => {
+        setPosts(posts);
+    }
 
     return (
-        <FeedContext.Provider value={{ refreshFeed, posts, addPost, booksMap, addBookToMap, usersMap, addUserToMap }}>
+        <FeedContext.Provider value={{ refreshFeed, posts, addPost, booksMap, addBookToMap, usersMap, addUserToMap, addAllPosts }}>
             {children}
         </FeedContext.Provider>
     );
