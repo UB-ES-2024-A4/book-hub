@@ -23,7 +23,7 @@ const  AccountPage = async () => {
     // Return page content with user data
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-950 to-gray-800">
-            <Header accessToken={accessToken}/>
+            <Header accessToken={accessToken} user_id={user.id}/>
             <main className="container mx-auto pt-16">
                 <MainContent  userData={user} ></MainContent>
             </main>

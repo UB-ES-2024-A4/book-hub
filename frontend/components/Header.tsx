@@ -12,9 +12,10 @@ import {toast} from "nextjs-toast-notify";
 
 type HeaderProps = {
     accessToken: string | null;
+    user_id: number;
 }
 
-export default function Header({accessToken}: HeaderProps) {
+export default function Header({accessToken, user_id}: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [filters, setFilters] = useState<Filter[] | null>(null);
@@ -98,7 +99,7 @@ return (
                 </nav>
             )}
         </header>
-        {filters ? <CreatePostDialog open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} filters={filters}/> : null }
+        {filters ? <CreatePostDialog open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} filters={filters} user_id={user_id}/> : null }
     </>
 );
 }
