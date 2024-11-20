@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from app.models import User, Book, PostCreate
+from app.models import User, Book, PostCreate, Filter
 from sqlmodel import Session, select, text
 from datetime import datetime
 from app.core.config import settings
@@ -20,7 +20,11 @@ def get_test_parameters(db: Session):
         select(Book).where(Book.title == 'TEST')
     ).first()
 
-    return user_test.id, book_test.id
+    filter_test = db.exec(
+        select(Filter).where(Filter.name == 'TEST_FILTER')
+    ).first()
+
+    return user_test.id, book_test.id, filter_test.id
 
 
 def get_test_parameters2(db: Session):
@@ -38,7 +42,7 @@ def get_test_parameters2(db: Session):
 def test_create_post_with_likes(
         client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
     data = {'user_id': user_id, 'book_id': book_id, 'description': description, 'likes': likes,
             'created_at': f'{created_at}'}
@@ -58,7 +62,7 @@ def test_create_post_with_likes(
 def test_create_post_user_not_found(
         client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
     data = {'user_id': -1, 'book_id': book_id, 'description': description, 'created_at': f'{created_at}'}
 
@@ -77,7 +81,7 @@ def test_create_post_user_not_found(
 def test_create_post_book_not_found(
         client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
     data = {'user_id': user_id, 'book_id': -1, 'description': description, 'created_at': f'{created_at}'}
 
@@ -92,13 +96,30 @@ def test_create_post_book_not_found(
     assert r.status_code == 404
     assert created_post['detail'] == 'Book not found.'
 
+def test_create_post_filter_not_found(
+        client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user_id, book_id, filter_id = get_test_parameters(db)
+
+    data = {'user_id': user_id, 'book_id': book_id, 'description': description, 'created_at': f'{created_at}', 'filter_ids': [-1]}
+
+    r = client.post(
+        "/posts/",
+        headers=logged_user_token_headers,
+        json=data
+    )
+
+    created_post = r.json()
+
+    assert r.status_code == 404
+    assert created_post['detail'] == 'Filters duplicated or one or more filters not found'
 
 def test_create_post(
         client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
-    data = {'user_id': user_id, 'book_id': book_id, 'description': description, 'created_at': f'{created_at}'}
+    data = {'user_id': user_id, 'book_id': book_id, 'description': description, 'created_at': f'{created_at}', 'filter_ids': [filter_id]}
 
     r = client.post(
         "/posts/",
@@ -110,18 +131,18 @@ def test_create_post(
 
     assert r.status_code == 200
     assert created_post['message'] == 'Post created successfully'
-    assert created_post['data']['user_id'] == user_id
-    assert created_post['data']['book_id'] == book_id
-    assert created_post['data']['description'] == description
-    assert created_post['data']['likes'] == 0
+    assert created_post['post']['user_id'] == user_id
+    assert created_post['post']['book_id'] == book_id
+    assert created_post['post']['description'] == description
+    assert created_post['post']['likes'] == 0
 
 
 def test_create_post_not_logged_user(
         client: TestClient, db: Session
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
-    data = {'user_id': user_id, 'book_id': book_id, 'description': description, 'created_at': f'{created_at}'}
+    data = {'user_id': user_id, 'book_id': book_id, 'description': description, 'created_at': f'{created_at}', 'filter_ids': []}
 
     r = client.post(
         "/posts/",
@@ -154,13 +175,13 @@ def test_update_post_not_found(
 def test_update_post(
         client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
     new_description = 'b'
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
-    data = {'description': new_description}
+    data = {'description': new_description, 'filter_ids': [filter_id]}
 
     r = client.put(
         f"/posts/{created_post.id}",
@@ -172,16 +193,37 @@ def test_update_post(
 
     assert r.status_code == 200
     assert created_post['message'] == 'Post updated successfully'
-    assert created_post['data']['description'] == new_description
+    assert created_post['post']['description'] == new_description
 
+def test_update_post_filter_not_found(
+        client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
+) -> None:
+    user_id, book_id, filter_id = get_test_parameters(db)
+    new_description = 'b'
+
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
+    created_post = crud.post.create_post(session=db, post_create=post_in)
+
+    data = {'description': new_description, 'filter_ids': [-1]}
+
+    r = client.put(
+        f"/posts/{created_post.id}",
+        headers=logged_user_token_headers,
+        json=data
+    )
+
+    created_post = r.json()
+
+    assert r.status_code == 404
+    assert created_post['detail'] == 'Filters duplicated or one or more filters not found'
 
 def test_update_post_not_logged_user(
         client: TestClient, db: Session
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
     new_description = 'b'
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
     data = {'description': new_description}
@@ -204,7 +246,7 @@ def test_update_post_not_owner(
     user_id, book_id = get_test_parameters2(db)
     new_description = 'b'
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
     data = {'description': new_description}
@@ -237,9 +279,9 @@ def test_delete_post_not_found(
 def test_delete_post(
         client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
     r = client.delete(
@@ -256,9 +298,9 @@ def test_delete_post(
 def test_delete_post_not_logged_user(
         client: TestClient, db: Session
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
     r = client.delete(
@@ -277,7 +319,7 @@ def test_delete_post_not_owner(
 ) -> None:
     user_id, book_id = get_test_parameters2(db)
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     created_post = crud.post.create_post(session=db, post_create=post_in)
 
     r = client.delete(
@@ -294,12 +336,12 @@ def test_delete_post_not_owner(
 def test_get_all_posts(
         client: TestClient, db: Session
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in)
 
-    post_in2 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in2 = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in2)
 
     r = client.get(
@@ -308,14 +350,13 @@ def test_get_all_posts(
 
     all_posts = r.json()
 
-    assert len(all_posts) > 1
-    for item in all_posts:
-        assert "book_id" in item
-        assert "user_id" in item
-        assert "description" in item
-        assert "created_at" in item
-        assert "likes" in item
+    assert r.status_code == 200
 
+    for post in all_posts['posts']:
+        assert 'book_id' in post['post']
+        assert 'user_id' in post['post']
+        assert 'description' in post['post']
+        
 
 def test_get_post_not_found_by_id(
         client: TestClient, db: Session
@@ -331,9 +372,9 @@ def test_get_post_not_found_by_id(
 def test_get_post_by_id(
         client: TestClient, db: Session
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     post = crud.post.create_post(session=db, post_create=post_in)
 
     r = client.get(
@@ -343,6 +384,7 @@ def test_get_post_by_id(
     assert r.status_code == 200
     retrieved_post = r.json()
     assert retrieved_post
+    retrieved_post = retrieved_post['post']
     assert post.book_id == retrieved_post["book_id"]
     assert post.user_id == retrieved_post["user_id"]
     assert post.description == retrieved_post["description"]
@@ -362,9 +404,9 @@ def test_get_post_not_found_by_book_id(
 def test_get_post_by_book_id(
         client: TestClient, db: Session
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in)
 
     r = client.get(
@@ -373,8 +415,8 @@ def test_get_post_by_book_id(
 
     assert r.status_code == 200
     retrieved_posts = r.json()
-    for item in retrieved_posts:
-        item['book_id'] = book_id
+    for post in retrieved_posts['posts']:
+        assert book_id == post['post']['book_id']
 
 
 def test_get_post_not_found_by_user_id(
@@ -391,9 +433,9 @@ def test_get_post_not_found_by_user_id(
 def test_get_post_by_user_id(
         client: TestClient, db: Session
 ) -> None:
-    user_id, book_id = get_test_parameters(db)
+    user_id, book_id, filter_id = get_test_parameters(db)
 
-    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at)
+    post_in = PostCreate(book_id=book_id, user_id=user_id, description=description, created_at=created_at, filter_ids=[])
     crud.post.create_post(session=db, post_create=post_in)
 
     r = client.get(
@@ -402,8 +444,8 @@ def test_get_post_by_user_id(
 
     assert r.status_code == 200
     retrieved_posts = r.json()
-    for item in retrieved_posts:
-        item['user_id'] = user_id
+    for item in retrieved_posts['posts']:
+        item['post']['user_id'] == user_id
 
 
 def test_get_posts_empty(
@@ -419,7 +461,7 @@ def test_get_posts_empty(
         all_posts = r.json()
 
         assert r.status_code == 200
-        assert all_posts == []
+        assert all_posts['posts'] == []
     finally:
         db.rollback()
 

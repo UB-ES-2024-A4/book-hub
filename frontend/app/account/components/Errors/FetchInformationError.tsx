@@ -1,17 +1,16 @@
 "use client";
-import Header from "@/components/Header";
 import Link from "next/link";
 import Image from "next/image";
+
 
 type Props = {
     error: string;
 }
 
-export default function FetchInformationError({error}: Props) {
+export default  function FetchInformationError({error}: Props) {
     return (
         <div
             className="min-h-screen bg-gray-100 bg-gradient-to-br from-blue-950 to-blue-200 flex items-center justify-center">
-            <Header/>
             <main className="container mx-auto pt-16">
                 <div className="bg-white shadow-xl rounded-lg overflow-hidden max-w-2xl mx-auto flex">
                     {/* Sección de la imagen de error */}

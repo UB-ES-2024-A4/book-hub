@@ -42,7 +42,7 @@ body {
     --main-color: #557ee8;
   }
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 100 100% 100%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -67,6 +67,9 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+}
+body {
+    @apply dark:bg-gray-800 bg-white
 }
 
 @layer base {

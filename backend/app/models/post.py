@@ -1,4 +1,5 @@
 from .deps import *
+from .filter import Filter
 from .user import User
 from .book import Book
 from .postFilter import PostFilter
@@ -19,7 +20,17 @@ class Post(PostBase, table=True):
     comments: list["Comment"] = Relationship(back_populates="post", cascade_delete=True) # type: ignore
 
 class PostCreate(PostBase):
-    pass
+    filter_ids: Optional[list[int]] = None
 
 class PostUpdate(SQLModel):
     description: str | None = None
+    filter_ids: Optional[list[int]] = None
+
+class PostFiltersOut(SQLModel):
+    post: Post
+    filters: list[Filter] = []
+    message: str | None = None
+
+class PostFiltersOutList(SQLModel):
+    posts: list[PostFiltersOut] = []
+    message: str | None = None

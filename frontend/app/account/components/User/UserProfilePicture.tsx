@@ -18,12 +18,12 @@ type Props = {
 export default function UserProfilePicture ({userDataMock, setIsHovering, isHovering, handleProfilePictureChange}: Props) {
     // TODO accept other formats
 
-    const [imageReload, setImageUrl] = useState(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png`);
+    const [imageReload, setImageUrl] = useState(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}`);
 
     console.log("Image URL", imageReload);
 
     const reloadImage = () => {
-        setImageUrl(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png?time=${new Date().getTime()}`);
+        setImageUrl(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}?time=${new Date().getTime()}`);
         console.log("Image reloaded", userDataMock.id);
     }
 

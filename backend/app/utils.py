@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from app.models import User, Book
+from app.models import User, Book, Filter
 from sqlmodel import select
 
 def check_email_name_length(username: str, first_name: str, last_name: str):
@@ -12,6 +12,12 @@ def check_email_name_length(username: str, first_name: str, last_name: str):
             detail="Username must contain at least 3 characters.",
         )
     
+    if username.find(" ") != -1:
+        raise HTTPException(
+            status_code=400,
+            detail="Username must not contain spaces."
+        )
+
     if (len(username) > max_length or len(first_name) > max_length or len(last_name) > max_length):
         raise HTTPException(
             status_code=400,
@@ -85,4 +91,20 @@ def check_ownership(current_usr_id: int, check_usr_id: int):
         raise HTTPException(
             status_code=403,
             detail="You do not have permission to do this action",
+        )
+    
+def check_book_fields(title: str, author: str, description: str):
+    if title == None or author == None or description == None or not title or not author or not description: 
+        raise HTTPException(
+            status_code=400,
+            detail="Created book is missing parameters",
+        )
+    
+def check_filters(filter_ids: list, session):
+    filters = session.exec(select(Filter).where(Filter.id.in_(filter_ids))).all()
+
+    if len(filters) != len(filter_ids):
+        raise HTTPException(
+            status_code=404, 
+            detail="Filters duplicated or one or more filters not found"
         )

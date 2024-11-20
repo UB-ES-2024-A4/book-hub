@@ -121,7 +121,7 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
 def delete_user(user_id: int, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     utils.check_ownership(current_usr_id=current_user.id, check_usr_id=user_id)
 
-    user = crud.user.delete_user(session=session, user_id=user_id)
+    user : User = crud.user.delete_user(session=session, user_id=user_id)
     if user:
         return {"message": "User deleted successfully"}
     raise HTTPException(
@@ -133,7 +133,7 @@ def delete_user(user_id: int, session: Session = Depends(get_session), current_u
 @router.get("/{user_id}",
     response_model=UserOut)
 def get_user(user_id: int, session: Session = Depends(get_session)):
-    user = crud.user.get_user(session=session, user_id=user_id)
+    user : User = crud.user.get_user(session=session, user_id=user_id)
     if user:
         return user
     raise HTTPException(
@@ -145,7 +145,7 @@ def get_user(user_id: int, session: Session = Depends(get_session)):
 @router.get("/name/{name}",
     response_model=UserOut)
 def get_user_by_name(name: str, session: Session = Depends(get_session)):
-    user = crud.user.get_user_by_name(session=session, name=name)
+    user : User = crud.user.get_user_by_name(session=session, name=name)
     if user:
         return user
     raise HTTPException(
