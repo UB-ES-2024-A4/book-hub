@@ -131,7 +131,7 @@ export default function SignInForm() {
                                     className="w-full inline-flex justify-center py-2 px-4 border-2
                                     border-gray-500 rounded-md shadow-sm bg-[#3B4C79] text-sm font-medium
                                     text-white hover:bg-gray-600 "
-                                    href="/auth/sign-up">
+                                    href="/sign-up">
                                 Sign Up
                             </Link>
                         </div>
