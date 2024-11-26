@@ -82,7 +82,7 @@ export async function SignInValidation(prevState: unknown, formData: FormData) {
         if (response.status !== 200) {
             const errorMessage = await response.text();
             console.error("Error WITH LOGIN:", errorMessage);
-            return {status: response.status, message: errorMessage, data: null};
+            return {status: response.status, message: errorMessage.detail, data: null};
         }
 
         const responseData = await response.json();
