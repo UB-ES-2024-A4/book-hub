@@ -45,7 +45,7 @@ export default  function FetchInformationError({error}: Props) {
                                 Go Home
                             </Link>
                             <Link
-                                href="/auth/sign-in"
+                                href="/sign-in"
                                 className="bg-green-500 text-white px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-green-800"
                             >
                                 Sign In

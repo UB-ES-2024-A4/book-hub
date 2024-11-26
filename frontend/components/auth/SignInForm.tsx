@@ -1,6 +1,6 @@
 "use client";
 import { Lock, User2 } from "lucide-react";
-import InputAuth from "./InputAuth";
+import InputAuth from "../InputAuth";
 import { Button } from '@/components/ui/button';
 import { SignInValidation} from "@/app/lib/authentication";
 import { useFormState  } from 'react-dom';
@@ -106,9 +106,12 @@ export default function SignInForm() {
                         </div>
                         <div>
                             <Button type="submit"
-                                    className="w-full px-4 py-2 bg-blue-500 text-white rounded-md border-2
-                                    border-gray-300 hover:bg-blue-600
-                                        ">
+                                    className="w-full px-4 py-2 bg-gradient-to-br from-blue-500 via-gray-400 to-blue-400
+                                    text-white rounded-md border-2 duration-300 transition-all
+                                    border-gray-300 hover:bg-gradient-to-br
+                                    hover:from-blue-600 hover:via-gray-500 hover:to-blue-500
+                                    hover:scale-105 hover:shadow-lg font-medium"
+                                >
                                 Sign In
                             </Button>
                         </div>
@@ -128,9 +131,8 @@ export default function SignInForm() {
 
                         <div className="mt-6">
                             <Link type="button"
-                                    className="w-full inline-flex justify-center py-2 px-4 border-2
-                                    border-gray-500 rounded-md shadow-sm bg-[#3B4C79] text-sm font-medium
-                                    text-white hover:bg-gray-600 "
+                                    className="w-full bg-[#3B4C79] rounded-lg shadow-md transition text-sm
+                                    duration-300 inline-block text-white hover:bg-gray-800 text-center py-2 px-4 "
                                     href="/sign-up">
                                 Sign Up
                             </Link>

@@ -9,7 +9,7 @@ export default async function Home() {
     const accessToken: string | null = await getAccessToken();
 
     if(! accessToken )
-        redirect("/auth/sign-in");
+        redirect("/explorer");
 
     const user : User | null = await getSession();
 

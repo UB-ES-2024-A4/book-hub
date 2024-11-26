@@ -1,6 +1,6 @@
 "use client";
 import { Lock, Mail, User } from "lucide-react";
-import InputAuth from "./InputAuth";
+import InputAuth from "../InputAuth";
 import { Button } from '@/components/ui/button';
 import { CreateUser} from "@/app/lib/authentication";
 import { useForm } from "@conform-to/react";

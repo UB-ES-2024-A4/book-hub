@@ -30,7 +30,7 @@ type CreatePostDialogProps = {
     open: boolean;
     setIsDialogOpen: (open: boolean) => void;
     filters: Filter[],
-    user_id: number;
+    user_id: number | undefined;
 }
 export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: CreatePostDialogProps) {
     const { addPost } = useFeed();
@@ -321,7 +321,7 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
                                 )}
                                 {serverError && serverError.status === 403 && (
                                     <Link
-                                        href="/auth/sign-in"
+                                        href="/sign-in"
                                         className="mt-4 w-full inline-block text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all"
                                     >
                                         Sign In

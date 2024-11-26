@@ -4,7 +4,7 @@ import React, {useEffect, useState} from 'react';
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
-import {CreatePostDialog} from "@/components/Dialog/CreatePostDialog";
+import {CreatePostDialog} from "@/components/dialog/CreatePostDialog";
 import {Filter} from "@/app/types/Filter";
 import {fetchUser, loadFilters} from "@/app/actions";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
@@ -12,7 +12,7 @@ import {toast} from "nextjs-toast-notify";
 
 type HeaderProps = {
     accessToken: string | null;
-    user_id: number;
+    user_id: number | undefined;
 }
 
 export default function Header({accessToken, user_id}: HeaderProps) {
@@ -58,11 +58,11 @@ export default function Header({accessToken, user_id}: HeaderProps) {
 
 return (
     <>
-        <header className="bg-gray-100 shadow-md fixed top-0 left-0 right-0 z-10">
+        <header className="bg-gray-100 shadow-md fixed top-0 left-0 right-0 z-50">
             <div className="container mx-auto flex justify-between items-center p-4">
                 <Link href="/home" className="text-[#4066cf] text-2xl font-bold">BookHub</Link>
                 <nav className="hidden md:flex space-x-8 items-center">
-                    <Link href="/home" className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}>Home</Link>
+                    {!accessToken ? null : ( <Link href="/home" className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}>Home</Link>)}
                     <Link href="/explorer" className={`path transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`}>Explorer</Link>
                     {!accessToken ? null : ( <CreatePostButton openDialog={openDialog}/> )}
                     <Link href="/account" className={`path transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}>Account</Link>
@@ -89,12 +89,6 @@ return (
                         <li><Link href="/account"
                                   className={`path block transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}
                                   onClick={() => setIsMenuOpen(false)}>Account</Link></li>
-                        <li><Link href="/auth/sign-in"
-                                  className="path block text-white bg-[#4066cf] px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-[#3050a6]"
-                                  onClick={() => setIsMenuOpen(false)}>Sign In</Link></li>
-                        <li><Link href="/auth/sign-up"
-                                  className="path block text-white bg-green-500 px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-green-600"
-                                  onClick={() => setIsMenuOpen(false)}>Sign Up</Link></li>
                     </ul>
                 </nav>
             )}

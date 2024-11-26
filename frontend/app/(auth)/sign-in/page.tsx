@@ -1,7 +1,7 @@
 
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
-import SignInForm from '@/components/SignInForm';
+import SignInForm from '@/components/auth/SignInForm';
 
 export default function SignInPage() {
   return (

@@ -39,7 +39,7 @@ export async function CreateUser(prevState: unknown, formData: FormData) {
             throw new Error(errorMessage || "Registration failed");
         }
 
-        redirectPath = '/auth/sign-in'; // Redirect upon successful registration
+        redirectPath = '/sign-in'; // Redirect upon successful registration
 
     } catch (error) {
         console.error("Error:", error);
@@ -80,7 +80,7 @@ export async function SignInValidation(prevState: unknown, formData: FormData) {
 
         // Handle the backend's response
         if (response.status !== 200) {
-            const errorMessage = await response.text();
+            const errorMessage = await response.json();
             console.error("Error WITH LOGIN:", errorMessage);
             return {status: response.status, message: errorMessage.detail, data: null};
         }
@@ -114,9 +114,9 @@ export async function SignInValidation(prevState: unknown, formData: FormData) {
 
         return { status: 200, message: "Success", data: user };
 
-    }catch(error){
+    }catch(error: any) {
         console.error("Error with the Server.");
-        return {status: 500, message: "There is an error with the server", data: null};
+        return {status: 500, message: error.message, data: null};
     }
 
 }
