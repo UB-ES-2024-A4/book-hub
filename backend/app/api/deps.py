@@ -67,6 +67,6 @@ def logout(token : str = Depends(reusable_oauth2)):
     try:
         blacklist.add(token)
     except:
-        raise HTTPException(status_code=400, detail="Could not add token to blacklist")
+        raise HTTPException(status_code=400, detail="Could not logout user successfully")
         
-    return UserLogout(token=token, expired=False, msj="Session added to blacklist")
+    return UserLogout(token=token, expired=False, msj="Logout successful")
