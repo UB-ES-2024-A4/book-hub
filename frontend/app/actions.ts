@@ -323,13 +323,13 @@ export async function followUser(followerId: number, followeeId: number) {
         if (response.status!==200) {
             const errorData = await response.json();
             console.error("Failed to follow user:", errorData.detail);
-            return null;
+            throw new Error(errorData.detail);
         }
 
-        return await response.json(); // Return the follow relationship data
-    } catch (error) {
+        return {status: 200, message: "User followed successfully", data: await response.json()};
+    } catch (error: any) {
         console.error("Error while following user:", error);
-        return null;
+        return {status: 400, message: error.message, data: null};
     }
 }
 
@@ -342,15 +342,20 @@ export async function unfollowUser(followerId: number, followeeId: number) {
             },
         });
 
+        if(response.status === 403) // Forbidden, user do not have permission to unfollow
+            return {status: 403, message: "Could not validate Credentials. Try Sign In again", data: null};
+
         if (!response.ok) {
             const errorData = await response.json();
             console.error("Failed to unfollow user:", errorData.detail);
-            return null;
+            throw new Error(errorData.detail);
         }
 
-        return await response.json(); // Return the response or confirmation
-    } catch (error) {
+        return {status: 200, message: "User unfollowed successfully", data: await response.json()};
+
+    } catch (error: any) {
         console.error("Error while unfollowing user:", error);
-        return null;
+        return { status: error.status, message: error.message, data: null };
     }
+
 }

@@ -56,20 +56,14 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
         if (result.status !== 200) {
             setServerError({ status: result.status, message: result.message });
         } else {
-            toast.info("¡ The post has been added to our Home successfully !", {
-                duration: 4000, progress: true, position: "bottom-center", transition: "swingInverted",
-                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
-                    'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
-                    'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
-                sonido: true,
-            });
-
             const resultPost: Post = result.data['post'];
             resultPost.filter_ids = result.data['filters'];
                 // Cargar la imagen seleccionada y enviarla al servidor
             if (fileInputRef.current?.files?.[0]) {
                 const imageFile = fileInputRef.current.files[0];
-                const imageFormData = new FormData();
+
+                console.log("SASS", NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS);
+                console.log("URL", NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`);
 
                 const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`, {
                     method: 'PUT',
@@ -81,19 +75,36 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
                     }
                 });
 
-                if (!imageUploadResponse.ok) {
+                console.log("RESPONSE", imageUploadResponse.status);
+                if ( imageUploadResponse.status !== 201 ) {
                     throw new Error('Image upload failed');
                 }
             }
+
+            toast.info("¡ The post has been added to our Home successfully !", {
+                duration: 4000, progress: true, position: "bottom-center", transition: "swingInverted",
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
+                    'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
+                    'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
+                sonido: true,
+            });
 
             if (resultPost) addPost(resultPost);
             setIsDialogOpen(false);
         }
 
         return submission;
-    } catch (error) {
+    } catch (error: any) {
+        toast.error(error.message, {
+            duration: 4000, progress: true, position: "bottom-center", transition: "swingInverted",
+            icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
+                'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
+                'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
+            sonido: true,
+        });
+
         console.error('Error during form submission:', error);
-        setServerError({ status: 500, message: 'An error occurred during form submission. Please try again.' });
+        setServerError({ status: 500, message: error.message});
         return { status: "error" };
     }
 }, undefined);
@@ -295,6 +306,7 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
                                         {imagePreview && (
                                             <Image
                                                 src={imagePreview}
+                                                width={64} height={64}
                                                 alt="Preview"
                                                 className="w-16 h-16 object-cover rounded"
                                             />
