@@ -41,7 +41,7 @@ class Settings(BaseSettings):
 
     # TODO: SECRET_KEY, TOKEN_EXPIRE_TIME variables del .env
     # Token creation
-    # 60 minutes * 24 hours * 8 days = 8 days
+    # 60 minutes * 24 hours * 2 days = 2 days
     TOKEN_EXPIRE_TIME: int = 60 * 24 * 2
     SECRET_KEY: str = secrets.token_urlsafe(32)
 
