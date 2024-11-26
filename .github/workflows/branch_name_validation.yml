@@ -1,17 +1,10 @@
 name: Branch Name Validation
 
 on:
-  push:
-    branches:
-      - "*"  # Run on pushes to all branches
-      - "!main"
-      - "!dev"
-
   pull_request:
     types:
       - opened
       - synchronize
-  
 
 jobs:
   validate-branch-name:
