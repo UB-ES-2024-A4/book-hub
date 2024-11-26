@@ -26,8 +26,8 @@ def init_db(session: Session) -> None:
     ).first()
 
     if not user:
-        session.add(User(username=username, email=email, password=password, first_name=first_name, last_name=last_name))
-        session.commit()
+        from app.crud.user import create_user
+        create_user(session=session, user_create=User(username=username, email=email, password=password, first_name=first_name, last_name=last_name))
 
     username = "TEST_NAME2"
     first_name = "TEST_FIRST_NAME2"
