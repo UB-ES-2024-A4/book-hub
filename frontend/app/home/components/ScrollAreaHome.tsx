@@ -192,7 +192,13 @@ export default function ScrollAreaHome({ userData }: Props) {
                                             <div className="flex items-center space-x-2">
                                                 <Avatar className="w-10 h-10 border-2 border-blue-400">
                                                     <AvatarImage src={user? `${baseUrl}/users/pfp/${user.id}`: "/book-signup.jpg"} />
-                                                    <AvatarFallback>{user?.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                        <AvatarFallback
+                                                            className="bg-blue-500 text-white font-semibold text-sm flex items-center justify-center"
+                                                        >
+                                                            {user?.username
+                                                                ? user.username.substring(0, 2).toUpperCase()
+                                                                : '?'}
+                                                        </AvatarFallback>
                                                 </Avatar>
                                                 <span className="font-semibold text-blue-300">@{user?.username || "Unknown User"}</span>
                                                 {currentUserId != user?.id && (
