@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Any
 from jose import jwt
+
+from passlib.context import CryptContext
 from app.core.config import settings
 
+pwd_crypt = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
 
@@ -16,4 +19,7 @@ def create_access_token(subject: str | Any, expires_delta: timedelta = settings.
     return encoded_jwt
 
 def verify_password(user_password: str, userLogin_password: str) -> bool:
-    return user_password == userLogin_password
+    return pwd_crypt.verify(userLogin_password, user_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_crypt.hash(password)

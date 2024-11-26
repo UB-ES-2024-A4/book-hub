@@ -2,12 +2,13 @@
 from typing import Any
 from sqlmodel import Session, select
 from app.models import User, UserCreate, UserUpdate
-from app.core.security import verify_password
+from app.core.security import get_password_hash, verify_password
 from sqlalchemy import or_
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
     user = User.model_validate(
-        user_create
+        user_create,
+        update={"password": get_password_hash(user_create.password)}
     )
 
     session.add(user)
@@ -20,6 +21,10 @@ def update_user(*, session: Session, user_id: int, user: UserUpdate) -> Any:
 
     if db_user:
         user_data = user.model_dump(exclude_unset=True)
+        if "password" in user_data:
+            password = get_password_hash(user_data["password"])
+            user_data["password"] = password
+            
         db_user.sqlmodel_update(user_data)
         session.add(db_user)
         session.commit()
