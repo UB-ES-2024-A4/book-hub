@@ -18,6 +18,7 @@ import {Book} from "@/app/types/Book";
 import {useFeed} from "@/contex/FeedContext";
 import {toast} from "nextjs-toast-notify";
 import {getColorFromInitials} from "@/app/lib/colorHash";
+import UserNoLogged from "@/components/auth/UserNoLogged";
 
 type Props = {
   userData: User;
@@ -229,7 +230,7 @@ export default function ScrollAreaHome({ userData }: Props) {
                                     <CardContent className="pt-4">
                                         <div className="grid md:grid-cols-[150px_1fr] gap-4">
                                             <Image alt="Book cover" className="rounded-lg object-cover shadow-md"
-                                                   width={150} height={200}
+                                                   width={500} height={500}
                                                    src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${post_I.book_id}.png` || 'logo.png'}/>
                                             <div className="space-y-3">
                                                 <div>
