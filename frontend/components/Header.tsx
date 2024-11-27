@@ -9,7 +9,6 @@ import {Filter} from "@/app/types/Filter";
 import {fetchUser, loadFilters} from "@/app/actions";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {toast} from "nextjs-toast-notify";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Dropdown from "./Dropdown";
 
 
@@ -23,10 +22,6 @@ export interface MenuItem {
     route?: string;
     children?: MenuItem[];
   }
-
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
-const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 
 const menuItems: MenuItem[] = [
     {
@@ -95,7 +90,8 @@ return (
                     {!accessToken ? null : ( <CreatePostButton openDialog={openDialog}/> )}
                     {!accessToken ? null : ( <div className="flex gap-8 items-center text-white">
                         {menuItems.map((item) => {
-                        return <Dropdown item={item} user_id={user_id} />
+                            <div key={item.title}></div>
+                        return <div key={item.title}> <Dropdown item={item} user_id={user_id} /></div>
                         })}
                     </div> )}
                 </nav>
@@ -111,7 +107,7 @@ return (
                     <ul className="space-y-2 p-4">
                         {!accessToken ? null : ( <div className="flex gap-8 items-center text-white">
                             {menuItems.map((item) => {
-                            return <Dropdown item={item} user_id={user_id} />
+                            return <div key={item.title}> <Dropdown item={item} user_id={user_id} /></div>
                             })}
                         </div> )}
                         <li><Link href="/home"
