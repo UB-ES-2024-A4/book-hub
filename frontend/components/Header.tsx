@@ -9,11 +9,34 @@ import {Filter} from "@/app/types/Filter";
 import {fetchUser, loadFilters} from "@/app/actions";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {toast} from "nextjs-toast-notify";
+import Dropdown from "./Dropdown";
+
 
 type HeaderProps = {
     accessToken: string | null;
     user_id: number;
 }
+
+export interface MenuItem {
+    title: string;
+    route?: string;
+    children?: MenuItem[];
+  }
+
+const menuItems: MenuItem[] = [
+    {
+      title: "Account",
+      children: [
+        {
+          title: "My Profile",
+          route: "/account",
+        },
+        {
+          title: "Log Out",
+        },
+      ],
+    },
+  ];
 
 export default function Header({accessToken, user_id}: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,7 +46,7 @@ export default function Header({accessToken, user_id}: HeaderProps) {
     const pathname = usePathname(); // Obtener la ruta actual
 
     const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+        setIsMenuOpen(!isMenuOpen);
     };
 
     const openDialog = () => {
@@ -65,7 +88,12 @@ return (
                     <Link href="/home" className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}>Home</Link>
                     <Link href="/explorer" className={`path transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`}>Explorer</Link>
                     {!accessToken ? null : ( <CreatePostButton openDialog={openDialog}/> )}
-                    <Link href="/account" className={`path transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}>Account</Link>
+                    {!accessToken ? null : ( <div className="flex gap-8 items-center text-white">
+                        {menuItems.map((item) => {
+                            <div key={item.title}></div>
+                        return <div key={item.title}> <Dropdown item={item} user_id={user_id} /></div>
+                        })}
+                    </div> )}
                 </nav>
                 <button className="md:hidden flex items-center text-gray-600 focus:outline-none" onClick={toggleMenu}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,6 +105,11 @@ return (
             {isMenuOpen && (
                 <nav className="bg-white md:hidden">
                     <ul className="space-y-2 p-4">
+                        {!accessToken ? null : ( <div className="flex gap-8 items-center text-white">
+                            {menuItems.map((item) => {
+                            return <div key={item.title}> <Dropdown item={item} user_id={user_id} /></div>
+                            })}
+                        </div> )}
                         <li><Link href="/home"
                                   className={`path block transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}
                                   onClick={() => setIsMenuOpen(false)}>Home</Link></li>
