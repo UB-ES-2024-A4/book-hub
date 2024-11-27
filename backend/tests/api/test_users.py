@@ -523,3 +523,44 @@ def test_login_user_incorrect_pwd(
     assert r.status_code == 400
     logged_user = r.json()
     assert logged_user['detail'] == 'Either a user with this email or username does not exist or the password is incorrect.'
+
+def test_logout_user(
+    client: TestClient, db: Session
+) -> None:
+    
+    email = 'logout@logout.com'
+    username = 'logout'
+    user_in = UserCreate(email=email, username=username, first_name=first_name, last_name=last_name, password=password)
+    crud.user.create_user(session=db, user_create=user_in)
+
+    data = {"username": email, "password": password}
+
+    r = client.post(
+        f"/users/login/access-token",
+        data=data,
+    )
+
+    logged_user = r.json()
+    assert "access_token" in logged_user
+
+    headers = {"Authorization": f"Bearer {logged_user['access_token']}"}
+
+    r = client.post(
+        f"/users/logout",
+        headers=headers,
+    )
+
+    assert r.status_code == 200
+    response = r.json()
+    assert response["msj"] == "Logout successful"
+    assert response["token"] == logged_user['access_token']
+
+
+def test_logout_bad_token(client: TestClient, db: Session) -> None:
+    r = client.post(
+        f"/users/logout",
+        headers={"Authorization" : "Bearer bad_token"},
+        data={}
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Could not logout user successfully"
