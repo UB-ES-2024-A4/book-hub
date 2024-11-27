@@ -22,7 +22,7 @@ export default function Dropdown({item, user_id}: DropdownProps) {
         setIsOpen(old => !old);
     }
 
-    const transClass = isOpen ? "flex" : "hidden";
+    const transClass = isOpen ? "flex" : "invisible";
 
     const handleLogout = async () => {
         await logOut();
@@ -35,12 +35,15 @@ export default function Dropdown({item, user_id}: DropdownProps) {
                     <AvatarImage src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user_id}.png`}/>
                     <img src={'/logo.png'} alt=''/>
                 </Avatar>
-                <div className={`absolute top-8 z-30 w-[250px] min-h-[100px] flex flex-col py-4 bg-zinc-400 rounded-md bg-black/40 ${transClass}`} style={{ width: 130 }}>
+                <div className={`absolute top-8 z-30 flex flex-col py-2 bg-zinc-400 rounded-md bg-black/40 transition-all duration-500 transform ${transClass} ${
+                        isOpen ? 'scale-100 opacity-100' : 'scale-75'
+                    }`}
+                    style={{ width: 130 }}>
                     {
                         menuItems.map(item =>
                             <Link
                                 key={item.route}
-                                className="hover:bg-zinc-300 hover:text-zinc-500 px-4 py-1"
+                                className={item.title == 'Log Out' ? "bg-red-600 hover:text-zinc-950 px-4 py-1" : "hover:bg-zinc-300 hover:text-zinc-500 px-4 py-1"}
                                 href={item?.route || ''}
                                 onClick={item.title == 'Log Out' ? handleLogout : toggle}
                             >{item.title}</Link>
