@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import Link from 'next/link';
 
 import { MenuItem } from './Header';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { logOut } from "@/app/actions";
 
 interface DropdownProps {
     item: MenuItem;
@@ -23,6 +24,10 @@ export default function Dropdown({item, user_id}: DropdownProps) {
 
     const transClass = isOpen ? "flex" : "hidden";
 
+    const handleLogout = async () => {
+        await logOut();
+    }
+
     return (
         <>
             <div className="relative">
@@ -30,14 +35,14 @@ export default function Dropdown({item, user_id}: DropdownProps) {
                     <AvatarImage src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user_id}.png`}/>
                     <img src={'/logo.png'} alt=''/>
                 </Avatar>
-                <div className={`absolute top-8 z-30 w-[250px] min-h-[100px] flex flex-col py-4 bg-zinc-400 rounded-md bg-black/40 ${transClass}`}>
+                <div className={`absolute top-8 z-30 w-[250px] min-h-[100px] flex flex-col py-4 bg-zinc-400 rounded-md bg-black/40 ${transClass}`} style={{ width: 130 }}>
                     {
                         menuItems.map(item =>
                             <Link
                                 key={item.route}
                                 className="hover:bg-zinc-300 hover:text-zinc-500 px-4 py-1"
                                 href={item?.route || ''}
-                                onClick={toggle}
+                                onClick={item.title == 'Log Out' ? handleLogout : toggle}
                             >{item.title}</Link>
                         )
                     }

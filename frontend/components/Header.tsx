@@ -21,7 +21,7 @@ export interface MenuItem {
     title: string;
     route?: string;
     children?: MenuItem[];
-  }
+}
 
 const menuItems: MenuItem[] = [
     {
@@ -33,6 +33,7 @@ const menuItems: MenuItem[] = [
         },
         {
           title: "Log Out",
+          route: '/auth/sign-in'
         },
       ],
     },
