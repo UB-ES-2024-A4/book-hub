@@ -27,6 +27,10 @@ export default function UserProfilePicture ({userDataMock, setIsHovering, isHove
         console.log("Image reloaded", userDataMock.id);
     }
 
+    function setImageSrc(s: string) {
+        setImageUrl(s);
+    }
+
     return (
         <div className="relative">
             <Image
@@ -44,11 +48,12 @@ export default function UserProfilePicture ({userDataMock, setIsHovering, isHove
                 >
                     <Image
                         key={imageReload}
-                        src={ imageReload || "/book.jpg"}
+                        src={ imageReload }
                         alt={`${userDataMock.first_name}'s picture`}
                         width={100}
                         height={100}
-                        className="w-24 h-24 rounded-full border-4 border-white"
+                        className="w-24 h-24 rounded-full border-4 border-white bg-white"
+                        onError={() => setImageSrc("/logo.png")}
                     />
                     <label
                         htmlFor="profile-picture-input"

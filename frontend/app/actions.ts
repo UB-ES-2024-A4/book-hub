@@ -13,6 +13,7 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 import {createPostSchema} from "@/app/lib/zodSchemas";
+import {toast} from "nextjs-toast-notify";
 
 // Function to update the user's information
 export async function UpdateUser(prevState: unknown, formData: FormData) {
@@ -100,10 +101,22 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
                'x-ms-blob-type': 'BlockBlob',
                'x-ms-date': new Date().toUTCString(),
            }
+         }).then((response) => {
+              if (! response.ok) {
+                 throw new Error(response.statusText);
+              }
          });
 
-       } catch (error) {
+       } catch (error:any) {
          console.error("Failed to upload the image", error);
+
+            toast.warning(error.message, {
+                duration: 4000, progress: true, position: "top-right", transition: "swingInverted",
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"> ' +
+                    '<g fill="none" stroke="#FF4500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> ' +
+                    '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/> <path d="M12 9v4M12 17h.01"/> </g> </svg>',
+                sonido: true,
+            });
        }
    }
 import {Filter} from "@/app/types/Filter";
@@ -323,13 +336,13 @@ export async function followUser(followerId: number, followeeId: number) {
         if (response.status!==200) {
             const errorData = await response.json();
             console.error("Failed to follow user:", errorData.detail);
-            return null;
+            throw new Error(errorData.detail);
         }
 
-        return await response.json(); // Return the follow relationship data
-    } catch (error) {
+        return {status: 200, message: "User followed successfully", data: await response.json()};
+    } catch (error: any) {
         console.error("Error while following user:", error);
-        return null;
+        return {status: 400, message: error.message, data: null};
     }
 }
 
@@ -342,15 +355,20 @@ export async function unfollowUser(followerId: number, followeeId: number) {
             },
         });
 
+        if(response.status === 403) // Forbidden, user do not have permission to unfollow
+            return {status: 403, message: "Could not validate Credentials. Try Sign In again", data: null};
+
         if (!response.ok) {
             const errorData = await response.json();
             console.error("Failed to unfollow user:", errorData.detail);
-            return null;
+            throw new Error(errorData.detail);
         }
 
-        return await response.json(); // Return the response or confirmation
-    } catch (error) {
+        return {status: 200, message: "User unfollowed successfully", data: await response.json()};
+
+    } catch (error: any) {
         console.error("Error while unfollowing user:", error);
-        return null;
+        return { status: error.status, message: error.message, data: null };
     }
+
 }

@@ -1,18 +1,41 @@
 "use client";
 import { Lock, User2 } from "lucide-react";
-import InputAuth from "./InputAuth";
+import InputAuth from "../InputAuth";
 import { Button } from '@/components/ui/button';
 import { SignInValidation} from "@/app/lib/authentication";
 import { useFormState  } from 'react-dom';
-import {useForm} from "@conform-to/react";
+import {SubmissionResult, useForm} from "@conform-to/react";
 import {parseWithZod} from "@conform-to/zod";
 import {signInSchema} from "@/app/lib/zodSchemas";
 import Link from "next/link";
 import Image from "next/image";
+import {toast} from "nextjs-toast-notify";
+import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
+import {redirect} from "next/navigation";
 
 export default function SignInForm() {
-    // Using useActionState hook to manage the state of CreateUser action
-    const [lastResult, action] = useFormState(SignInValidation, undefined);
+    // Using useFormState hook to manage form state and validation
+     const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
+        const result = await SignInValidation(prevState, formData);
+        console.log("MESSAGE FRON SIGN IN", result.status);
+        if( result.status !== 200 ) {
+            toast.warning(result.message, {
+                duration: 4000, progress: true, position: "top-right", transition: "swingInverted",
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"> ' +
+                    '<g fill="none" stroke="#FF4500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> ' +
+                    '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/> <path d="M12 9v4M12 17h.01"/> </g> </svg>',
+                sonido: true,
+            });
+        }
+        else{
+            redirect('/home');
+        }
+
+        const submission: SubmissionResult = {status: "success",}
+
+
+        return submission;
+    }, undefined);
 
     // Using useForm hook to manage form state and validation
     const [form, fields] = useForm({
@@ -83,9 +106,12 @@ export default function SignInForm() {
                         </div>
                         <div>
                             <Button type="submit"
-                                    className="w-full px-4 py-2 bg-blue-500 text-white rounded-md border-2
-                                    border-gray-300 hover:bg-blue-600
-                                        ">
+                                    className="w-full px-4 py-2 bg-gradient-to-br from-blue-500 via-gray-400 to-blue-400
+                                    text-white rounded-md border-2 duration-300 transition-all
+                                    border-gray-300 hover:bg-gradient-to-br
+                                    hover:from-blue-600 hover:via-gray-500 hover:to-blue-500
+                                    hover:scale-105 hover:shadow-lg font-medium"
+                                >
                                 Sign In
                             </Button>
                         </div>
@@ -105,10 +131,9 @@ export default function SignInForm() {
 
                         <div className="mt-6">
                             <Link type="button"
-                                    className="w-full inline-flex justify-center py-2 px-4 border-2
-                                    border-gray-500 rounded-md shadow-sm bg-[#3B4C79] text-sm font-medium
-                                    text-white hover:bg-gray-600 "
-                                    href="/auth/sign-up">
+                                    className="w-full bg-[#3B4C79] rounded-lg shadow-md transition text-sm
+                                    duration-300 inline-block text-white hover:bg-gray-800 text-center py-2 px-4 "
+                                    href="/sign-up">
                                 Sign Up
                             </Link>
                         </div>

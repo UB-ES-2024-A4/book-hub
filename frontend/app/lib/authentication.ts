@@ -39,7 +39,7 @@ export async function CreateUser(prevState: unknown, formData: FormData) {
             throw new Error(errorMessage || "Registration failed");
         }
 
-        redirectPath = '/auth/sign-in'; // Redirect upon successful registration
+        redirectPath = '/sign-in'; // Redirect upon successful registration
 
     } catch (error) {
         console.error("Error:", error);
@@ -61,7 +61,7 @@ export async function SignInValidation(prevState: unknown, formData: FormData) {
 
     // If the validation fails, return the submission reply (with errors)
     if (submission.status !== "success") {
-        return submission.reply();
+        return { status: 400, message: "Validation failed", data: null };
     }
 
     // Convert formData to URLSearchParams for application/x-www-form-urlencoded format
@@ -69,48 +69,55 @@ export async function SignInValidation(prevState: unknown, formData: FormData) {
     data.append("username", formData.get("user") as string);
     data.append("password", formData.get("password") as string);
 
-    const response = await fetch(baseUrl + '/users/login/access-token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: data.toString(),  // Use URL-encoded string
-    });
+    try {
+        const response = await fetch(baseUrl + '/users/login/access-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: data.toString(),  // Use URL-encoded string
+        });
 
-    // Handle the backend's response
-    if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage || "LogIn failed");
+        // Handle the backend's response
+        if (response.status !== 200) {
+            const errorMessage = await response.json();
+            console.error("Error WITH LOGIN:", errorMessage);
+            return {status: response.status, message: errorMessage.detail, data: null};
+        }
+
+        const responseData = await response.json();
+        console.log("Response data:", responseData);
+        const {access_token, user, token_type} = responseData;
+
+        console.log("User data:", user);
+
+        // Set the access token in an HTTP-only cookie
+        cookies().set({
+            name: 'accessToken',
+            value: access_token,
+            httpOnly: true, // Ensures the cookie is only accessible by the server
+            secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
+            maxAge: 60 * 60 * 24, // 1 day
+            path: '/',
+        });
+
+        user.biography = user.biography || "Add your biography here";
+
+        cookies().set({
+            name: 'user',
+            value: JSON.stringify(user),
+            httpOnly: true, // Ensures the cookie is only accessible by the server
+            secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
+            maxAge: 60 * 60 * 24, // 1 day
+            path: '/',
+        });
+
+        return { status: 200, message: "Success", data: user };
+
+    }catch(error: any) {
+        console.error("Error with the Server.");
+        return {status: 500, message: error.message, data: null};
     }
-
-    const responseData = await response.json();
-    console.log("Response data:", responseData);
-    const {access_token, user, token_type} = responseData;
-
-    console.log("User data:", user);
-
-    // Set the access token in an HTTP-only cookie
-    cookies().set({
-        name: 'accessToken',
-        value: access_token,
-        httpOnly: true, // Ensures the cookie is only accessible by the server
-        secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
-        maxAge: 60 * 60 * 24, // 1 day
-        path: '/',
-    });
-
-    user.biography = user.biography || "Add your biography here";
-
-    cookies().set({
-        name: 'user',
-        value: JSON.stringify(user),
-        httpOnly: true, // Ensures the cookie is only accessible by the server
-        secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
-        maxAge: 60 * 60 * 24, // 1 day
-        path: '/',
-    });
-
-    redirect('/home');
 
 }
 

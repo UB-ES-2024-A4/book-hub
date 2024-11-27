@@ -10,7 +10,7 @@ import {redirect} from "next/navigation";
 const  AccountPage = async () => {
 
     if(! await getAccessToken())
-        redirect("/auth/sign-in");
+        redirect("/sign-in");
 
     const user : User | null = await getSession();
 

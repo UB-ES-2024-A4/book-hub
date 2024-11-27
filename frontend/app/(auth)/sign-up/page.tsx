@@ -1,5 +1,5 @@
 
-import SignUpForm from '@/components/SignUpForm';
+import SignUpForm from '@/components/auth/SignUpForm';
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 

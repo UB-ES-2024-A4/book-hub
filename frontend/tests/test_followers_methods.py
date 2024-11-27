@@ -20,7 +20,7 @@ def go_to_sign_in_page(driver):
 def go_to_sign_up_page(driver):
     # Esperamos a que cargue la página y hacemos click en el botón sign-up
     sign_up_link = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/auth/sign-up']"))
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/sign-up']"))
     )
     sign_up_link.click()
 

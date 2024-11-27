@@ -17,6 +17,8 @@ import {getAccessToken} from "@/app/lib/authentication";
 import {Book} from "@/app/types/Book";
 import {useFeed} from "@/contex/FeedContext";
 import {toast} from "nextjs-toast-notify";
+import {getColorFromInitials} from "@/app/lib/colorHash";
+import UserNoLogged from "@/components/auth/UserNoLogged";
 
 type Props = {
   userData: User;
@@ -129,19 +131,15 @@ export default function ScrollAreaHome({ userData }: Props) {
       if (isCurrentlyFollowing) {
         // Unfollow the user
         const result = await unfollowUser(currentUserId, postUserId);
-        if (!result) {
-          throw new Error("Unfollow action failed");
-        }
+        if ( result.status !== 200)
+          throw new Error(result.message);
+
       } else {
-        // Follow the user
-          console.log("CURRENT USER ID", currentUserId);
-          console.log("POST USER ID", postUserId);
         const result = await followUser(currentUserId, postUserId);
-        if (!result) {
-          throw new Error("Follow action failed");
-        }
+        if (result.status !== 200)
+          throw new Error(result.message);
       }
-    } catch (error) {
+    } catch (error: any) {
           console.error("Failed to update following status", error);
 
           // Revert the following status in state
@@ -153,12 +151,16 @@ export default function ScrollAreaHome({ userData }: Props) {
             },
           }));
           // Show a toast notification
-            toast.error("Action Failed", {
+            toast.error(error.message, {
                 duration: 4000,
                 progress: true,
                 position: "top-center",
                 transition: "swingInverted",
-                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n' +
+                    '  <circle cx="12" cy="12" r="10"/>\n' +
+                    '  <line x1="12" y1="8" x2="12" y2="12"/>\n' +
+                    '  <line x1="12" y1="16" x2="12.01" y2="16"/>\n' +
+                    '</svg>',
                 sonido: true,
               });
     }
@@ -171,66 +173,86 @@ export default function ScrollAreaHome({ userData }: Props) {
 
     return (
         <div className="flex-1 overflow-hidden pt-5">
-              <ScrollArea className="h-[calc(100vh-64px)] w-full">
-                <div className="p-4 space-y-4">
-                  {postsContext.length === 0 || error ? (
-                    error ? (
-                      <FetchError />
+            <ScrollArea className="h-[calc(100vh-64px)] w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 p-4">
+                    {postsContext.length === 0 || error ? (
+                        error ? (
+                            <FetchError/>
+                        ) : (
+                            <NoPostError/>
+                        )
                     ) : (
-                      <NoPostError />
-                    )
-                  ) : (
-                   postsContext && postsContext.map((post_I: Post) => {
-                        const userInfo = postUsersData[post_I.user_id];
-                        const user = userInfo?.user;
-                        const isFollowing = userInfo?.isFollowing;
-                        const book: Book = booksMap[post_I.book_id]
-                       console.log("user ID", user?.id, "current user ID", currentUserId);
+                        postsContext && postsContext.map((post_I: Post) => {
+                            const userInfo = postUsersData[post_I.user_id];
+                            const user = userInfo?.user;
+                            const isFollowing = userInfo?.isFollowing;
+                            const book: Book = booksMap[post_I.book_id]
+                            console.log("user ID", user?.id, "current user ID", currentUserId);
                             return (
-                                <Card key={post_I.id} className="mx-auto md:mx-20 max-w-4xl bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl">
-                                        <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
-                                            <div className="flex items-center space-x-2">
-                                                <Avatar className="w-10 h-10 border-2 border-blue-400">
-                                                    <AvatarImage src={user? `${baseUrl}/users/pfp/${user.id}`: "/book-signup.jpg"} />
-                                                    <AvatarFallback>{user?.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                                </Avatar>
-                                                <span className="font-semibold text-blue-300">@{user?.username || "Unknown User"}</span>
-                                                {currentUserId != user?.id && (
-                                                      <Button
-                                                        variant={isFollowing ? "default" : "outline"}
-                                                        className={`relative h-8 ${
-                                                          isFollowing ? "bg-gray-500" : "bg-blue-500"
-                                                        } text-white font-semibold py-2 px-4 rounded-l-md group`}
-                                                        onClick={() =>
-                                                          handleFollowClick(post_I.user_id, isFollowing)
-                                                        }
-                                                      >
-                                                        {isFollowing ? "Following" : `Follow`}
-                                                      </Button>
-                                                    )}
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="pt-4">
-                                            <div className="grid md:grid-cols-[150px_1fr] gap-4">
-                                                <Image alt="Book cover" className="rounded-lg object-cover shadow-md" width={150} height={200} 
-                                                      src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${post_I.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`} />
-                                                <div className="space-y-3">
-                                                    <div>
-                                                        <h2 className="text-xl font-bold text-blue-200">{book?.title}</h2>
-                                                        <p className="text-blue-400">by {book?.author}</p>
-                                                    </div>
-                                                    <p className="text-sm text-gray-300">{post_I.description}</p>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {post_I.filter_ids && post_I.filter_ids.map((tag: { id: number, name: string }) => (
-                                                            <Badge key={tag.id} variant="secondary" className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
-                                                                {tag.name}
-                                                            </Badge>
-                                                        ))}
-                                                    </div>
+                                <Card key={post_I.id}
+                                      className="max-w-7xl bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl col-span-1">
+                                    <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
+                                        <div className="flex items-center space-x-2">
+                                            <Avatar className="w-10 h-10 border-2 border-blue-400">
+                                                <AvatarImage
+                                                    src={user ? `${baseUrl}/users/pfp/${user.id}` : "/logo.png"}/>
+                                                <AvatarFallback
+                                                    style={{
+                                                        backgroundColor: user?.username
+                                                            ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
+                                                            : 'hsl(215, 100%, 50%)',
+                                                    }}
+                                                    className="text-white font-semibold text-sm flex items-center justify-center"
+                                                >
+                                                    {user?.username
+                                                        ? user.username.substring(0, 2).toUpperCase()
+                                                        : '?'}
+                                                </AvatarFallback>
+                                            </Avatar>
+
+                                            <span
+                                                className="font-semibold text-blue-300">@{user?.username || "Unknown User"}</span>
+                                            {currentUserId != user?.id && (
+                                                <Button
+                                                    variant={isFollowing ? "default" : "outline"}
+                                                    className={`relative h-8 ${
+                                                        isFollowing ? "bg-gray-500" : "bg-blue-500"
+                                                    } text-white font-semibold py-2 px-4 rounded-l-md group`}
+                                                    onClick={() =>
+                                                        handleFollowClick(post_I.user_id, isFollowing)
+                                                    }
+                                                >
+                                                    {isFollowing ? "Following" : `Follow`}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pt-4">
+                                        <div className="grid md:grid-cols-[150px_1fr] gap-4">
+                                            <Image alt="Book cover" className="rounded-lg object-cover shadow-md"
+                                                   width={500} height={500}
+                                                   src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${post_I.book_id}.png` || 'logo.png'}/>
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <h2 className="text-xl font-bold text-blue-200">{book?.title}</h2>
+                                                    <p className="text-blue-400">by {book?.author}</p>
+                                                </div>
+                                                <p className="text-sm text-gray-300">{post_I.description}</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {post_I.filter_ids && post_I.filter_ids.map((tag: {
+                                                        id: number,
+                                                        name: string
+                                                    }) => (
+                                                        <Badge key={tag.id} variant="secondary"
+                                                               className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
+                                                            {tag.name}
+                                                        </Badge>
+                                                    ))}
                                                 </div>
                                             </div>
-                                        </CardContent>
-                                {/*<CardFooter className="flex justify-between">
+                                        </div>
+                                    </CardContent>
+                                    {/*<CardFooter className="flex justify-between">
                                     <div className="flex gap-4">
                                       <Button variant="ghost" size="sm">
                                         <Heart className="w-4 h-4 mr-2" />
@@ -245,11 +267,11 @@ export default function ScrollAreaHome({ userData }: Props) {
                                       Comment Book
                                     </Button>
                                   </CardFooter>*/}
-                            </Card>
+                                </Card>
                             )
                         })
                     )
-                  }
+                    }
                 </div>
             </ScrollArea>
         </div>
