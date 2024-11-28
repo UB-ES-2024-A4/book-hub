@@ -354,3 +354,29 @@ export async function unfollowUser(followerId: number, followeeId: number) {
         return null;
     }
 }
+
+
+export async function logOut() {
+    try {
+        const response = await fetch(`${baseUrl}/users/logout`, {
+            method: 'POST',
+            headers: {
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to logout user:", errorData.detail);
+            return null;
+        }
+
+        (await cookies()).delete('user');
+        (await cookies()).delete('accessToken');
+
+        return await response.json();// // Return the response or confirmation
+    } catch (error) {
+        console.error("Error while logging user out:", error);
+        return null;
+    }
+}
