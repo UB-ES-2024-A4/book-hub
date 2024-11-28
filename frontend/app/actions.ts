@@ -120,14 +120,21 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
        }
    }
 import {Filter} from "@/app/types/Filter";
+import {PostStorage} from "@/app/types/PostStorage";
+import {Book} from "@/app/types/Book";
 // Function to load the posts in the home page
-export async function loadPosts(): Promise<{ status: number, message: string, post: Post[] | null}> {
+export async function loadPosts(): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
     try {
-        const response = await fetch(baseUrl + "/posts/all", {
+        const accessToken = await getAccessToken();
+
+        // Se cargar los posts de la API con un límite de 10
+        const response = await fetch(baseUrl + "/posts/all?limit=10", {
             method: "GET",
             headers: {
-                "Accept": "application/json"
-            },
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                authorization: `Bearer ${accessToken}`,
+            }
         });
 
         if (response.status != 200) {
@@ -135,31 +142,32 @@ export async function loadPosts(): Promise<{ status: number, message: string, po
             throw new Error(errorData.detail);
         }
         const result = await response.json();
-        console.log("POSTS", result);
         const postResult = result.posts;
-        console.log("POSTS SOLOS", postResult);
-        const returnedPosts: Post[] = [];
+        console.log("POSTS SOLOS POSTSTORAGE___________-", postResult);
+        const returnedPosts: PostStorage[] = [];
+
+       /*Almacenar los posts en un arreglo de objetos PostStorage*/
         postResult.forEach((post_info: any) => {
-            const post = post_info.post;
-            returnedPosts.push({
-                id: post.id,
-                book_id: post.book_id,
-                user_id: post.user_id,
-                description: post.description,
-                likes: post.likes,
-                created_at: post.created_at,
-                filter_ids: post_info.filters.map((filter: Filter) => filter)
-            });
+            const postStorage: PostStorage = {
+                user: post_info.user,
+                post: post_info.post,
+                book: post_info.book,
+                filters: post_info.filters,
+                likes_set: post_info.likes_set,
+                n_comments: post_info.n_comments,
+                comments: post_info.comments
+            }
+            returnedPosts.push(postStorage);
         });
 
         console.log("POSTS RETURNED", returnedPosts);
 
-        return { status: 200, message: "Posts loaded successfully", post: returnedPosts};
+        return { status: 200, message: "Posts loaded successfully", data: returnedPosts};
 
     }
     catch (error:any) {
         console.error("Failed to load posts", error);
-        return  { status: 400, message: error.detail, post: null };
+        return  { status: 400, message: error.detail, data: null };
     }
 }
 
