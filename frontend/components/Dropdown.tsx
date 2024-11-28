@@ -35,15 +35,16 @@ export default function Dropdown({item, user_id}: DropdownProps) {
                     <AvatarImage src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user_id}.png`}/>
                     <img src={'/logo.png'} alt=''/>
                 </Avatar>
-                <div className={`absolute top-8 z-30 flex flex-col py-2 bg-zinc-400 rounded-md bg-black/40 transition-all duration-500 transform ${transClass} ${
-                        isOpen ? 'scale-100 opacity-100' : 'scale-75'
+                <div className={`absolute z-30 flex flex-col bg-blue-400 rounded-md bg-black/40 transition-all duration-500 ease-in-out transform ${transClass} ${
+                        isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 -translate-y-2'
                     }`}
+
                     style={{ width: 130 }}>
                     {
                         menuItems.map(item =>
                             <Link
                                 key={item.route}
-                                className={item.title == 'Log Out' ? "bg-red-600 hover:text-zinc-950 px-4 py-1" : "hover:bg-zinc-300 hover:text-zinc-500 px-4 py-1"}
+                                className={item.title == 'Log Out' ? "bg-red-600 hover:text-zinc-950 rounded-md px-4 py-2 " : "hover:bg-blue-300 hover:text-zinc-950 rounded-md px-4 py-2"}
                                 href={item?.route || ''}
                                 onClick={item.title == 'Log Out' ? handleLogout : toggle}
                             >{item.title}</Link>
