@@ -10,25 +10,22 @@ from app.utils import get_home_posts_for_user
 router = APIRouter()
 
 
-@router.post("/",
+@router.get("/",
               response_model=list[PostOutHome],
               dependencies=[Depends(get_session)]
               )
 def get_home_posts(skip: int = 0,
                     limit : int = 0,
-                    filters: list[int] = [],
+                    filters: str = "",
                     user: User = Depends(get_current_user),
                     session: Session = Depends(get_session)):
-
-    # Transform list of filters in string e.g [1,2,3] -> "1,2,3"
-    str_filters = ",".join([str(f) for f in filters])
 
     try:
         return get_home_posts_for_user(session=session, 
                                         user=user,
                                         skip=skip,
                                         limit=limit,
-                                        filters=str_filters)
+                                        filters=filters)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Something went wrong, retrive post is not posible")
     
