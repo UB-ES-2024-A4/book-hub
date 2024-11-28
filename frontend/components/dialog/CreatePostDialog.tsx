@@ -29,15 +29,15 @@ const NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS = process.env.NEXT_PUBLIC_AZURE_SAS_ST
 type CreatePostDialogProps = {
     open: boolean;
     setIsDialogOpen: (open: boolean) => void;
-    filters: Filter[],
     user_id: number | undefined;
 }
-export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: CreatePostDialogProps) {
-    const { addPost } = useFeed();
-    const filters_ = filters || [];
+export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostDialogProps) {
+    const { addPost, filters} = useFeed();
 
+    // The user can view the updated description of the book and the post up to 200 characters
     const [book_description, setBookDescription] = useState('');
     const [post_description, setPostDescription] = useState('');
+    // If there is an error in the server, it will be displayed
     const [serverError, setServerError] = useState<{ status: number, message: string } | null>(null);
     const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     // Image Control
@@ -46,7 +46,6 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
 
     const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
          try {
-
         // Añadir los tags seleccionados
         const filter_ids: number[] = selectedFilters.map((id) => Number(id));
         formData.append('filter_ids', JSON.stringify(filter_ids));
@@ -208,9 +207,9 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
                                                 Selecciona una opción
                                             </option>
 
-                                            {filters_ && filters_.map((filter) => (
-                                                <option key={filter.id} value={filter.id}>
-                                                    {filter.name}
+                                            {filters && Object.values(filters).map((filter, index) => (
+                                                <option key={index} value={filter}>
+                                                    {filter}
                                                 </option>
                                             ))}
                                         </select>
@@ -224,7 +223,7 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
                                                 className="bg-gradient-to-br from-gray-300 via-blue-800   to-gray-800 p-1
                                     hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200"
                                             >
-                                                {filters_ && filters_.find((f) => f.id.toString() === filterId)?.name}
+                                                {filters && filters[Number(filterId)]}
                                                 <button
                                                     className="ml-1 text-blue-200 hover:text-blue-100"
                                                     onClick={() => handleFilterChange(filterId)}

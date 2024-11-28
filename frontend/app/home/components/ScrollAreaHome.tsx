@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {Suspense, useEffect, useState} from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -12,13 +12,15 @@ import "../style.css";
 import NoPostError from "@/app/home/Errors/NoPostError";
 import {User} from "@/app/types/User";
 import FetchError from "@/components/FetchError";
-import { fetchUser, isUserFollowing, followUser, unfollowUser } from "@/app/actions";
+import {fetchUser, isUserFollowing, followUser, unfollowUser, loadPosts} from "@/app/actions";
 import {getAccessToken} from "@/app/lib/authentication";
 import {Book} from "@/app/types/Book";
 import {useFeed} from "@/contex/FeedContext";
 import {toast} from "nextjs-toast-notify";
 import {getColorFromInitials} from "@/app/lib/colorHash";
 import UserNoLogged from "@/components/auth/UserNoLogged";
+import LoadingSpinner from "@/components/Loading";
+import {PostStorage} from "@/app/types/PostStorage";
 
 type Props = {
   userData: User;
@@ -30,7 +32,9 @@ const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
 const NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS;
 
 export default function ScrollAreaHome({ userData }: Props) {
+
   const currentUserId = userData.id;
+  const [loading, setLoading] = useState(true);
   console.log("USER DATA ID", userData.id);
 
   // State to hold other users' data and following status
@@ -41,76 +45,10 @@ export default function ScrollAreaHome({ userData }: Props) {
     };
   }>({});
 
-    const [booksMap, setBooksMap] = useState<{ [key: number]: Book }>({});
-    const [error, setError] = useState<string | null>(null);
-    const { posts:postsContext, booksMap: booksContext, usersMap: usersContex,
-        addBookToMap, addUserToMap
-    } = useFeed();
+    const { posts:postsContext,  addAllPosts } = useFeed();
 
   useEffect(() => {
-    if ( postsContext && currentUserId) {
-        console.log("POSTS CONTEXT", postsContext);
-        const usersMap: { [key: number]: { user: User; isFollowing: boolean }; } = {};
 
-        const fetchUserData = async () => {
-        try {
-            console.log("POSTS CONTEXT", postsContext);
-            postsContext.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-            const booksMap: { [key: number]: Book } = {};
-
-                await Promise.all(
-                    postsContext.map(async (post) => {
-
-                        // Verify if the user is already in the map
-                        if (usersMap[post.user_id]) {
-                            return;
-                        }
-
-                        // Fetch the post author's data
-                        const result = await fetchUser(post.user_id);
-
-                        // If no user is found, skip processing this post
-                        if (result.status !== 200) {
-                            console.warn(`User with ID ${post.user_id} not found.`);
-                            return;
-                        }
-                        const user = result.data;
-                        // Check if the current user is following the post author
-                        const isFollowing =
-                            (await isUserFollowing(currentUserId, post.user_id)) ?? false;
-
-                        console.log(
-                            `Current user is ${
-                                isFollowing ? "following" : "not following"
-                            } the post author.`
-                        );
-
-                        // Add to usersMap only if user exists
-                        usersMap[post.user_id] = { user, isFollowing };
-
-                        const bookResponse = await fetch(baseUrl + `/books/${post.book_id}`, {
-                            method: "GET",
-                            headers: {
-                                authorization: `Bearer ${ await getAccessToken() }` || "",
-                            },
-                        });
-                        booksMap[post.book_id] = await bookResponse.json();
-                    })
-                );
-
-                setPostUsersData(usersMap);
-                setBooksMap(booksMap);
-            } catch (error) {
-                console.error("Failed to fetch user data", error);
-                setError(`Failed to fetch user data ${error}`); // Establece el estado de error
-            }
-        };
-
-        fetchUserData();
-        console.log("USERS MAP: ", usersMap);
-        console.log("BOOKS MAP: ", booksMap);
-    }
   }, [postsContext, currentUserId]);
 
   // Handle follow/unfollow button click
@@ -166,30 +104,25 @@ export default function ScrollAreaHome({ userData }: Props) {
     }
   };
 
-    if (!postsContext) {
-        return <div className="flex-1 overflow-hidden pt-5">Loading...</div>;
-    }
 
+    // Mostrar el estado de carga o error
+    if (loading) return <LoadingSpinner />;
 
     return (
         <div className="flex-1 overflow-hidden pt-5">
             <ScrollArea className="h-[calc(100vh-64px)] w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 p-4">
-                    {postsContext.length === 0 || error ? (
-                        error ? (
-                            <FetchError/>
-                        ) : (
+                    {Object.keys(postsContext).length === 0 ?(
                             <NoPostError/>
                         )
-                    ) : (
-                        postsContext && postsContext.map((post_I: Post) => {
-                            const userInfo = postUsersData[post_I.user_id];
-                            const user = userInfo?.user;
-                            const isFollowing = userInfo?.isFollowing;
-                            const book: Book = booksMap[post_I.book_id]
+                    : (
+                        postsContext && Object.values(postsContext).map((post_I: PostStorage) => {
+                            const user = post_I.user;
+                            const isFollowing = user.is_following
+                            const book: Book = post_I.book;
                             console.log("user ID", user?.id, "current user ID", currentUserId);
                             return (
-                                <Card key={post_I.id}
+                                <Card key={post_I.post.id}
                                       className="max-w-7xl bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl col-span-1">
                                     <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
                                         <div className="flex items-center space-x-2">
@@ -219,7 +152,7 @@ export default function ScrollAreaHome({ userData }: Props) {
                                                         isFollowing ? "bg-gray-500" : "bg-blue-500"
                                                     } text-white font-semibold py-2 px-4 rounded-l-md group`}
                                                     onClick={() =>
-                                                        handleFollowClick(post_I.user_id, isFollowing)
+                                                        handleFollowClick(user.id, isFollowing)
                                                     }
                                                 >
                                                     {isFollowing ? "Following" : `Follow`}
@@ -231,15 +164,15 @@ export default function ScrollAreaHome({ userData }: Props) {
                                         <div className="grid md:grid-cols-[150px_1fr] gap-4">
                                             <Image alt="Book cover" className="rounded-lg object-cover shadow-md"
                                                    width={500} height={500}
-                                                   src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${post_I.book_id}.png` || 'logo.png'}/>
+                                                   src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png` || 'logo.png'}/>
                                             <div className="space-y-3">
                                                 <div>
                                                     <h2 className="text-xl font-bold text-blue-200">{book?.title}</h2>
                                                     <p className="text-blue-400">by {book?.author}</p>
                                                 </div>
-                                                <p className="text-sm text-gray-300">{post_I.description}</p>
+                                                <p className="text-sm text-gray-300">{post_I.post.description}</p>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {post_I.filter_ids && post_I.filter_ids.map((tag: {
+                                                    {post_I.filters && post_I.filters.map((tag: {
                                                         id: number,
                                                         name: string
                                                     }) => (

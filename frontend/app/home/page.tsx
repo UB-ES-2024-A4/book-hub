@@ -4,13 +4,15 @@ import { getAccessToken, getSession } from "../lib/authentication";
 import { redirect } from "next/navigation";
 import { User } from "../types/User";
 import FetchInformationError from "../account/components/Errors/FetchInformationError";
+import {Suspense} from "react";
 
 export default async function Home() {
     const accessToken: string | null = await getAccessToken();
 
-    if(! accessToken )
+    if(! accessToken ) {
+        console.log("NO ACCESS")
         redirect("/explorer");
-
+    }
     const user : User | null = await getSession();
 
     // Handle error state
