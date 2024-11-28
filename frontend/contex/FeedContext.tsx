@@ -1,61 +1,57 @@
 // context/FeedContext.tsx
 "use client";
 import React, { createContext, useContext, useState } from 'react';
-import {Post} from "@/app/types/Post";
-import {Book} from "@/app/types/Book";
-import {User} from "@/app/types/User";
+import {PostStorage} from "@/app/types/PostStorage";
 
 type FeedContextType = {
     refreshFeed: () => void;
-    addPost: (post: Post) => void;
-    addAllPosts: (posts: Post[]) => void;
-    posts: Post[];
-    addBookToMap: (id: number, book: Book) => void;
-    booksMap: { [key: number]: Book };
-    addUserToMap: (id: number, user: User) => void;
-    usersMap: { [key: number]: User };
+    addPost: (post: PostStorage) => void;
+    addAllPosts: (posts: PostStorage[]) => void;
+    posts: { [key: number]: PostStorage };
+    filters: { [key: number]: string };
+    addAllFilters: (filters: { [key: number]: string }) => void;
 };
 
 const FeedContext = createContext<FeedContextType | undefined>(undefined);
 
 export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [refreshKey, setRefreshKey] = useState(0);
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [usersMap, setUsersMap] = useState<{ [key: number]: User }>({});
-    const [booksMap, setBooksMap] = useState<{ [key: number]: Book }>({});
+    const [posts, setPosts] = useState<{ [key: number]: PostStorage }>({});
+    const [filters, setFilters] = useState<{ [key: number]: string }>({});
 
     const refreshFeed = () => {
         setRefreshKey(prevKey => prevKey + 1);
     };
 
-    const addPost = (post: Post) => {
-
+    const addPost = (post: PostStorage) => {
         console.log("SE ESTÁ AÑADIENDO UN POST", post);
-        posts.forEach((p) => {
-            if (p.id === post.id) {
-                console.log("EL POST YA EXISTE");
-                return;
+        setPosts(prevPosts => {
+            // Check if the post already exists
+            if (!prevPosts[post.post.id]) {
+                return { ...prevPosts, [post.post.id]: post };
+            } else {
+                console.log("El post con id", post.post.id, "ya existe.");
+                return prevPosts;
             }
         });
-        setPosts(prevPosts => [...prevPosts, post]);
+    };
+
+    const addAllPosts = (posts: PostStorage[]) => {
+        setPosts(prevPosts => {
+            const newPosts: { [key: number]: PostStorage } = {};
+            posts.forEach(post => {
+                newPosts[post.post.id] = post;
+            });
+            return { ...prevPosts, ...newPosts };
+        });
     }
 
-    const addBookToMap = (id: number, book: Book) => {
-        console.log("SE ESTÁ AÑADIENDO UN LIBRO", book);
-        setBooksMap(prevBooksMap => ({ ...prevBooksMap, [id]: book }));
-    }
-
-    const addUserToMap = (id: number, user: User) => {
-        console.log("SE ESTÁ AÑADIENDO UN USUARIO", user);
-        setUsersMap(prevUserData => ({ ...prevUserData, [id]: user }));
-    }
-
-    const addAllPosts = (posts: Post[]) => {
-        setPosts(posts);
+    const addAllFilters = (filters: { [key: number]: string }) => {
+        setFilters(filters);
     }
 
     return (
-        <FeedContext.Provider value={{ refreshFeed, posts, addPost, booksMap, addBookToMap, usersMap, addUserToMap, addAllPosts }}>
+        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters }}>
             {children}
         </FeedContext.Provider>
     );
