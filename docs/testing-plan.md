@@ -29,6 +29,8 @@ These tests focus on the system as a whole, ensuring that all components (backen
 - **End-to-End Tests**: Simulate real user scenarios, testing both frontend and backend together.
 
 
+![alt text](image.png)
+
 ## Folder Structure
 
 The tests will be organized as follows:
