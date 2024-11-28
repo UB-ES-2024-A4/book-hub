@@ -4,11 +4,12 @@ import React, {useEffect, useState} from 'react';
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
-import {CreatePostDialog} from "@/components/dialog/CreatePostDialog";
-import {Filter} from "@/app/types/Filter";
-import {fetchUser, loadFilters} from "@/app/actions";
+import { CreatePostDialog } from "@/components/dialog/CreatePostDialog";
+import { Filter } from "@/app/types/Filter";
+import { loadFilters } from "@/app/actions";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {toast} from "nextjs-toast-notify";
+import {useFeed} from "@/contex/FeedContext";
 
 type HeaderProps = {
     accessToken: string | null;
@@ -16,9 +17,11 @@ type HeaderProps = {
 }
 
 export default function Header({accessToken, user_id}: HeaderProps) {
+
+    const { addAllFilters, filters } = useFeed();
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [filters, setFilters] = useState<Filter[] | null>(null);
 
     const pathname = usePathname(); // Obtener la ruta actual
 
@@ -34,12 +37,16 @@ export default function Header({accessToken, user_id}: HeaderProps) {
        console.log("SE EJECUTA FILTROS 1");
         // Load filters if they are not loaded then Fetch Error
         async function fetchFilters() {
+
+            // If filters are already loaded, do not load them again
+            if(filters && Object.keys(filters).length > 0) return;
+
             const result = await loadFilters();
 
             console.log("Filters IN THE HEADER", result.data);
 
             if (result.status !== 200) {
-                toast.error(" Could not connect to the server !", {
+                toast.error(result.message, {
                     duration: 4000,
                     progress: true,
                     position: "top-left",
@@ -49,7 +56,13 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                   });
                 return;
             }else {
-                setFilters(result.data);
+                const filters : Filter[] = result.data;
+                // Cargar en el contexto los filters
+                const filtersObject: { [key: number]: string } = {};
+                filters.forEach(filter => {
+                    filtersObject[filter.id] = filter.name;
+                });
+                addAllFilters(filtersObject);
             }
         }
 
@@ -62,7 +75,7 @@ return (
             <div className="container mx-auto flex justify-between items-center p-4">
                 <Link href="/home" className="text-[#4066cf] text-2xl font-bold">BookHub</Link>
                 <nav className="hidden md:flex space-x-8 items-center">
-                    {!accessToken ? null : ( <Link href="/home" className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}>Home</Link>)}
+                    {! accessToken ? null : ( <Link href="/home" className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}>Home</Link>)}
                     <Link href="/explorer" className={`path transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`}>Explorer</Link>
                     {!accessToken ? null : ( <CreatePostButton openDialog={openDialog}/> )}
                     <Link href="/account" className={`path transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}>Account</Link>
@@ -93,7 +106,7 @@ return (
                 </nav>
             )}
         </header>
-        {filters ? <CreatePostDialog open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} filters={filters} user_id={user_id}/> : null }
+        {filters ? <CreatePostDialog open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} user_id={user_id}/> : null }
     </>
 );
 }
