@@ -45,7 +45,7 @@ export default function ScrollAreaHome({ userData }: Props) {
     };
   }>({});
 
-    const { posts:postsContext,  addAllPosts } = useFeed();
+    const { posts:postsContext,  addAllPosts, filters } = useFeed();
 
   useEffect(() => {
 
@@ -172,13 +172,10 @@ export default function ScrollAreaHome({ userData }: Props) {
                                                 </div>
                                                 <p className="text-sm text-gray-300">{post_I.post.description}</p>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {post_I.filters && post_I.filters.map((tag: {
-                                                        id: number,
-                                                        name: string
-                                                    }) => (
-                                                        <Badge key={tag.id} variant="secondary"
+                                                    {post_I.filters && Object.values(post_I.filters).map((id: number, index) => (
+                                                        <Badge key={index} variant="secondary"
                                                                className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
-                                                            {tag.name}
+                                                            {filters[id]}
                                                         </Badge>
                                                     ))}
                                                 </div>

@@ -120,7 +120,7 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
        }
    }
 import {Filter} from "@/app/types/Filter";
-import {PostStorage} from "@/app/types/PostStorage";
+import {CommentUnic, PostStorage} from "@/app/types/PostStorage";
 import {Book} from "@/app/types/Book";
 // Function to load the posts in the home page
 export async function loadPosts(): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
@@ -172,7 +172,7 @@ export async function loadPosts(): Promise<{ status: number, message: string, da
 }
 
 
-export async function CreatePost(prevState: unknown, formData: FormData) {
+export async function CreatePost(prevState: unknown, formData: FormData) : Promise<{status: number, message:string, data: PostStorage | null}> {
     // Validate the form data using Zod
     const submission = parseWithZod(formData, { schema: createPostSchema });
 
@@ -218,7 +218,6 @@ export async function CreatePost(prevState: unknown, formData: FormData) {
         // If I can create the book, then I can create the post
         const book_id = bookData.data.id;
 
-
         const filtersArray: number[] = JSON.parse(tags[0] as string);
         console.log("FILTERS ARRAY", filtersArray);
         const postData = {
@@ -251,7 +250,20 @@ export async function CreatePost(prevState: unknown, formData: FormData) {
 
         // Si es un éxito la creación del post, entonces se retorna el post
         const post_filters = await postResponse.json();
-        return { status: 200, message: post_filters.message, data: post_filters};
+
+        const postStorage: PostStorage = {
+            user: post_filters.user,
+            post: post_filters['post'],
+            book: bookData.data,
+            filters: post_filters['filters'],
+            likes_set: false,
+            n_comments: 0,
+            comments: []
+        }
+
+        console.log("POST STORAGE CREATED WITH ALL FETCH: ", postStorage);
+
+        return { status: 200, message: post_filters.message, data: postStorage};
 
     } catch (error: any) {
         console.log("FAILDED to create the post or book", error);

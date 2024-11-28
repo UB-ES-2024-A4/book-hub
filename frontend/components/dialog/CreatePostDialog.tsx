@@ -21,6 +21,7 @@ import {Filter} from "@/app/types/Filter";
 import {Post} from "@/app/types/Post";
 import {AlertCircle, Upload} from "lucide-react";
 import Image from "next/image";
+import {PostStorage} from "@/app/types/PostStorage";
 
 // URL de la API de Azure Storage
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
@@ -52,11 +53,15 @@ export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostD
         const result = await CreatePost(prevState, formData);
         const submission: SubmissionResult<string[]> | null | undefined = { status: "success" };
 
-        if (result.status !== 200) {
+        if (result.status !== 200 ) {
             setServerError({ status: result.status, message: result.message });
         } else {
-            const resultPost: Post = result.data['post'];
-            resultPost.filter_ids = result.data['filters'];
+
+            // Ahora creo el nuevo PostStorage con componentes vacíos
+            if( result.data === null ) { return }
+            const postStorage: PostStorage = result.data;
+            const resultPost: Post = postStorage.post;
+
                 // Cargar la imagen seleccionada y enviarla al servidor
             if (fileInputRef.current?.files?.[0]) {
                 const imageFile = fileInputRef.current.files[0];
@@ -87,6 +92,16 @@ export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostD
                     'class="lucide lucide-check z-50"><path d="M20 6 9 17l-5-5"/></svg>',
                 sonido: true,
             });
+
+            const newPostStorage: PostStorage = {
+                post: resultPost.data['post'],
+                book: result.data['book'],
+                user: result.data['user'],
+                filters: result.data['filters'],
+                likes: result.data['likes'],
+                comments: result.data['comments'],
+
+            }
 
             if (resultPost) addPost(resultPost);
             setIsDialogOpen(false);

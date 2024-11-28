@@ -1,4 +1,5 @@
 import {Book} from "@/app/types/Book";
+import {Post} from "@/app/types/Post";
 
 interface UserBasic {
     username: string;
@@ -15,19 +16,12 @@ interface UserUnic extends UserBasic {
     is_following: boolean; // `boolean | undefined` => `?`.
 }
 
-interface PostUnic {
-  id: number
-  likes: number;
-  description: string;
-  created_at: string;
-}
-
 export interface PostStorage{
     user: UserUnic
-    post: PostUnic
+    post: Post
     book: Book;
     filters: number[]
     likes_set: boolean
     n_comments: number
-    comments:CommentUnic
+    comments: CommentUnic[]
 }
