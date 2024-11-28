@@ -1,7 +1,6 @@
 from .deps import *
 
-from .user import User
-from .post import Post
+from .user import User, UserOutHome
 
 class Comment(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -11,4 +10,10 @@ class Comment(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
 
     user: User = Relationship(back_populates="comments")
-    post: Post = Relationship(back_populates="comments")
+    post: "Post" = Relationship(back_populates="comments")
+
+class CommentOutHome(SQLModel):
+    id: int
+    user: UserOutHome
+    comment: str
+    created_at: datetime
