@@ -4,7 +4,7 @@ import React, {Suspense} from "react";
 import { useEffect, useState } from "react";
 import SearchHome from "@/app/home/components/SearchHome";
 import ScrollAreaHome from "@/app/home/components/ScrollAreaHome";
-import {loadFilters, loadPosts} from "@/app/actions";
+import { loadPosts } from "@/app/actions";
 import { Post } from "@/app/types/Post";
 import FetchError from "@/components/FetchError";
 import {useFeed} from "@/contex/FeedContext";
@@ -21,6 +21,8 @@ export default function MainContent ({ userData }: Props){
 
     // Refresh feed Context to update the feed
     const { addAllPosts, posts:PostContexApp } = useFeed();
+    // Loading state, while fetching posts
+    const [loading, setLoading] = useState(true);
 
     const [fetchError, setError] = useState<string | null>(null);
 
@@ -28,51 +30,54 @@ export default function MainContent ({ userData }: Props){
         async function fetchPosts() {
 
             // Si en el contexto ya hay posts, no se vuelve a cargar
-            console.log("Use EFFECT MAIN BEFORE");
+            console.log("Fetching Posts if there are no posts in the context");
             // Si ya existe posts en el contexto, no se vuelve a cargar
-            if( PostContexApp && Object.keys(PostContexApp).length > 0) return;
-            console.log("POSTS CONTEXT IN EFFECt", PostContexApp);
+            if( PostContexApp && Object.keys(PostContexApp).length > 0) {
+                // Stop the loading state
+                setLoading(false);
+                return;
+            }
+            console.log("Fetching Posts");
 
             try {
                 const result = await loadPosts();
 
                 if (result.status !== 200) {
-                    setError("Failed to fetch posts");
+                    setError(result.message || "An unknown error occurred");
+                    // Stop the loading state
+                    setLoading(false);
                     return;
                 }
-                /*const postStorage: PostStorage = {
-                user: post_info.user,
-                post: post_info.post,
-                book: post_info.book,
-                filters: post_info.filters,
-                likes_set: post_info.likes_set,
-                n_comments: post_info.n_comments,
-                comments: post_info.comments
-            }*/
 
                 const loadedPosts = result.data;
-                console.log("POSTS CARGADOS ", loadedPosts);
                 if (! loadedPosts ) return;
 
                 // Sort the posts by date
                 loadedPosts.sort((a, b) => new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime());
                 addAllPosts(loadedPosts);
+                console.log("POSTS CARGADOS ", loadedPosts);
 
-            } catch (error) {
-                console.error("Failed to fetch posts", error);
-                setError("Failed to fetch posts");
+            } catch (error:any) {
+                console.error("Failed to fetch POST", error);
+                setError(error.message);
             }
+            // Stop the loading state
+            setLoading(false);
         }
         fetchPosts();
     }, []);
 
+
+    // Mostrar el estado de carga o error
+    if (loading) return <LoadingSpinner />;
+
     return (
         fetchError ? (
             <div className="min-h-screen flex items-center justify-center">
-                <FetchError />
+                <FetchError errorDetail={fetchError} />
             </div>
         ) : (
-            <div className="flex flex-1 flex-col md:flex-row overflow-hidden pt-10">
+            <div className="flex flex-1 flex-col md:flex-row overflow-hidden pt-10 md:pt-0">
                 {/* Sidebar (Search) */}
                 { /*<SearchHome/> */}
                 {/* Feed Section */}

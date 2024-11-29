@@ -4,7 +4,6 @@ import { getAccessToken, getSession } from "../lib/authentication";
 import { redirect } from "next/navigation";
 import { User } from "../types/User";
 import FetchInformationError from "../account/components/Errors/FetchInformationError";
-import {Suspense} from "react";
 
 export default async function Home() {
     const accessToken: string | null = await getAccessToken();
@@ -20,7 +19,7 @@ export default async function Home() {
         return (<FetchInformationError error={"Failed to load user information."}/>);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-950 to-gray-800 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-[#051B32] via-[#051B32] to-blue-700 flex flex-col pl-60">
             <Header accessToken={accessToken} user_id={user.id}/>
             <MainContent userData={user}/>
         </div>
