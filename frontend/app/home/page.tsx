@@ -19,7 +19,7 @@ export default async function Home() {
         return (<FetchInformationError error={"Failed to load user information."}/>);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#051B32] via-[#051B32] to-blue-700 flex flex-col pl-60">
+        <div className="min-h-screen bg-gradient-to-br bg-[#051B32] flex flex-col pl-60">
             <Header accessToken={accessToken} user_id={user.id}/>
             <MainContent userData={user}/>
         </div>
