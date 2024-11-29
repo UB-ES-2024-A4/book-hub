@@ -37,6 +37,7 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const addAllPosts = (posts: PostStorage[]) => {
+        console.log("SE ESTÁN AÑADIENDO VARIOS POSTS", posts);
         setPosts(prevPosts => {
             const newPosts: { [key: number]: PostStorage } = {};
             posts.forEach(post => {

@@ -13,7 +13,7 @@ interface CommentUnic {
 }
 
 interface UserUnic extends UserBasic {
-    is_following: boolean; // `boolean | undefined` => `?`.
+    following: boolean; // `boolean | undefined` => `?`.
 }
 
 export interface PostStorage{
@@ -21,7 +21,7 @@ export interface PostStorage{
     post: Post
     book: Book;
     filters: number[]
-    likes_set: boolean
+    like_set: boolean
     n_comments: number
     comments: CommentUnic[]
 }

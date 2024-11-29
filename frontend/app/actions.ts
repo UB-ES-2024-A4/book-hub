@@ -119,8 +119,8 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
             });
        }
    }
-import {Filter} from "@/app/types/Filter";
-import {CommentUnic, PostStorage} from "@/app/types/PostStorage";
+
+import { PostStorage } from "@/app/types/PostStorage";
 import {Book} from "@/app/types/Book";
 // Function to load the posts in the home page
 export async function loadPosts(): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
@@ -128,7 +128,7 @@ export async function loadPosts(): Promise<{ status: number, message: string, da
         const accessToken = await getAccessToken();
 
         // Se cargar los posts de la API con un límite de 10
-        const response = await fetch(baseUrl + "/posts/all?limit=10", {
+        const response = await fetch(baseUrl + "/home/?skip=0&limit=10", {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -141,8 +141,7 @@ export async function loadPosts(): Promise<{ status: number, message: string, da
             const errorData = await response.json();
             throw new Error(errorData.detail);
         }
-        const result = await response.json();
-        const postResult = result.posts;
+        const postResult = await response.json();
         console.log("POSTS SOLOS POSTSTORAGE___________-", postResult);
         const returnedPosts: PostStorage[] = [];
 
@@ -153,7 +152,7 @@ export async function loadPosts(): Promise<{ status: number, message: string, da
                 post: post_info.post,
                 book: post_info.book,
                 filters: post_info.filters,
-                likes_set: post_info.likes_set,
+                like_set: post_info.like_set,
                 n_comments: post_info.n_comments,
                 comments: post_info.comments
             }
@@ -167,7 +166,7 @@ export async function loadPosts(): Promise<{ status: number, message: string, da
     }
     catch (error:any) {
         console.error("Failed to load posts", error);
-        return  { status: 400, message: error.detail, data: null };
+        return  { status: 400, message: error.message, data: null };
     }
 }
 
@@ -250,13 +249,14 @@ export async function CreatePost(prevState: unknown, formData: FormData) : Promi
 
         // Si es un éxito la creación del post, entonces se retorna el post
         const post_filters = await postResponse.json();
+        console.log("POST FILTERS FOR POST STORAGE", post_filters);
 
         const postStorage: PostStorage = {
-            user: post_filters.user,
+            user: { id: user.id, username: user.username, following: false},
             post: post_filters['post'],
             book: bookData.data,
             filters: post_filters['filters'],
-            likes_set: false,
+            like_set: false,
             n_comments: 0,
             comments: []
         }
