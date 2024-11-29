@@ -28,6 +28,7 @@ export default function SignInForm() {
             });
         }
         else{
+            console.log("SUCCESS, REDIRECTING TO HOME");
             redirect('/home');
         }
 

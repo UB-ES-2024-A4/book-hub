@@ -119,52 +119,59 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
             });
        }
    }
-import {Filter} from "@/app/types/Filter";
+
+import { PostStorage } from "@/app/types/PostStorage";
+import {Book} from "@/app/types/Book";
 // Function to load the posts in the home page
-export async function loadPosts(): Promise<{ status: number, message: string, post: Post[] | null}> {
+export async function loadPosts(): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
     try {
-        const response = await fetch(baseUrl + "/posts/all", {
+        const accessToken = await getAccessToken();
+
+        // Se cargar los posts de la API con un límite de 10
+        const response = await fetch(baseUrl + "/home/?skip=0&limit=10", {
             method: "GET",
             headers: {
-                "Accept": "application/json"
-            },
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                authorization: `Bearer ${accessToken}`,
+            }
         });
 
         if (response.status != 200) {
             const errorData = await response.json();
             throw new Error(errorData.detail);
         }
-        const result = await response.json();
-        console.log("POSTS", result);
-        const postResult = result.posts;
-        console.log("POSTS SOLOS", postResult);
-        const returnedPosts: Post[] = [];
+        const postResult = await response.json();
+        console.log("POSTS SOLOS POSTSTORAGE___________-", postResult);
+        const returnedPosts: PostStorage[] = [];
+
+       /*Almacenar los posts en un arreglo de objetos PostStorage*/
         postResult.forEach((post_info: any) => {
-            const post = post_info.post;
-            returnedPosts.push({
-                id: post.id,
-                book_id: post.book_id,
-                user_id: post.user_id,
-                description: post.description,
-                likes: post.likes,
-                created_at: post.created_at,
-                filter_ids: post_info.filters.map((filter: Filter) => filter)
-            });
+            const postStorage: PostStorage = {
+                user: post_info.user,
+                post: post_info.post,
+                book: post_info.book,
+                filters: post_info.filters,
+                like_set: post_info.like_set,
+                n_comments: post_info.n_comments,
+                comments: post_info.comments
+            }
+            returnedPosts.push(postStorage);
         });
 
         console.log("POSTS RETURNED", returnedPosts);
 
-        return { status: 200, message: "Posts loaded successfully", post: returnedPosts};
+        return { status: 200, message: "Posts loaded successfully", data: returnedPosts};
 
     }
     catch (error:any) {
         console.error("Failed to load posts", error);
-        return  { status: 400, message: error.detail, post: null };
+        return  { status: 400, message: error.message, data: null };
     }
 }
 
 
-export async function CreatePost(prevState: unknown, formData: FormData) {
+export async function CreatePost(prevState: unknown, formData: FormData) : Promise<{status: number, message:string, data: PostStorage | null}> {
     // Validate the form data using Zod
     const submission = parseWithZod(formData, { schema: createPostSchema });
 
@@ -210,7 +217,6 @@ export async function CreatePost(prevState: unknown, formData: FormData) {
         // If I can create the book, then I can create the post
         const book_id = bookData.data.id;
 
-
         const filtersArray: number[] = JSON.parse(tags[0] as string);
         console.log("FILTERS ARRAY", filtersArray);
         const postData = {
@@ -243,7 +249,21 @@ export async function CreatePost(prevState: unknown, formData: FormData) {
 
         // Si es un éxito la creación del post, entonces se retorna el post
         const post_filters = await postResponse.json();
-        return { status: 200, message: post_filters.message, data: post_filters};
+        console.log("POST FILTERS FOR POST STORAGE", post_filters);
+
+        const postStorage: PostStorage = {
+            user: { id: user.id, username: user.username, following: false},
+            post: post_filters['post'],
+            book: bookData.data,
+            filters: post_filters['filters'],
+            like_set: false,
+            n_comments: 0,
+            comments: []
+        }
+
+        console.log("POST STORAGE CREATED WITH ALL FETCH: ", postStorage);
+
+        return { status: 200, message: post_filters.message, data: postStorage};
 
     } catch (error: any) {
         console.log("FAILDED to create the post or book", error);

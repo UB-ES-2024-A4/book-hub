@@ -59,7 +59,7 @@ const [currentFeature, setCurrentFeature] = useState(0)
   }
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-br from-blue-600 via-gray-200 to-blue-700 overflow-hidden pb-2 mb-4">
+        <div className="relative min-h-screen bg-gradient-to-br bg-[#051B32] overflow-hidden pb-2 mb-4">
             {/* Floating Book Icons Background */}
             <div className="absolute inset-0 pointer-events-none opacity-10">
                 {[...Array(20)].map((_, i) => (
@@ -77,13 +77,18 @@ const [currentFeature, setCurrentFeature] = useState(0)
                         }}
                         className="absolute"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="100"  height="100" viewBox="0 0 24 24" fill="none" stroke="#000000"
-                            strokeWidth="1"
-                        >
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        <svg width="100px" height="100px" viewBox="0 0 24 24" fill="none"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <rect width="24" height="24"/>
+                            <path d="M12 6.90909C10.8999 5.50893 9.20406 4.10877 5.00119 4.00602C4.72513 3.99928 4.5
+                            4.22351 4.5 4.49965C4.5 6.54813 4.5 14.3034 4.5 16.597C4.5 16.8731 4.72515 17.09 5.00114
+                            17.099C9.20405 17.2364 10.8999 19.0998 12 20.5M12 6.90909C13.1001 5.50893 14.7959 4.10877
+                            18.9988 4.00602C19.2749 3.99928 19.5 4.21847 19.5 4.49461C19.5 6.78447 19.5 14.3064 19.5
+                            16.5963C19.5 16.8724 19.2749 17.09 18.9989 17.099C14.796 17.2364 13.1001 19.0998 12 20.5M12 6.90909L12 20.5"
+                                  stroke="#8dc5fe" stroke-linejoin="round"/>
+                            <path
+                                d="M19.2353 6H21.5C21.7761 6 22 6.22386 22 6.5V19.539C22 19.9436 21.5233 20.2124 21.1535 20.0481C20.3584 19.6948 19.0315 19.2632 17.2941 19.2632C14.3529 19.2632 12 21 12 21C12 21 9.64706 19.2632 6.70588 19.2632C4.96845 19.2632 3.64156 19.6948 2.84647 20.0481C2.47668 20.2124 2 19.9436 2 19.539V6.5C2 6.22386 2.22386 6 2.5 6H4.76471"
+                                stroke="#8dc5fe" stroke-linejoin="round"/>
                         </svg>
                     </motion.div>
                 ))}
@@ -91,7 +96,7 @@ const [currentFeature, setCurrentFeature] = useState(0)
 
             <div className="flex flex-col items-center justify-center min-h-screen px-4 lg:flex-row lg:space-x-16">
                 {/* Welcome Section */}
-                <div className="relative z-10 flex flex-col justify-center w-full max-w-md">
+                <div className="relative z-10 flex flex-col justify-center w-full max-w-md pt-20 md:pt-0">
                     <motion.div
                         initial={{opacity: 0, y: -50}}
                         animate={{opacity: 1, y: 0}}
@@ -108,7 +113,7 @@ const [currentFeature, setCurrentFeature] = useState(0)
                                     alt="BookHub Logo"
                                     width={80}
                                     height={80}
-                                    className="rounded-full shadow-lg"
+                                    className="rounded-full shadow-lg bg-white p-2"
                                 />
                             </motion.div>
                         </div>
@@ -166,7 +171,7 @@ const [currentFeature, setCurrentFeature] = useState(0)
                             exit={{opacity: 0, x: -100}}
                             transition={{duration: 0.3}}
                             className="p-6  rounded-lg bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl w-full max-w-md h-auto"
-                            style={{maxHeight: "400px"}} // Puedes limitar la altura máxima si lo necesitas
+                            style={{maxHeight: "400px"}} // Limitar la altura máxima
                         >
                             <div className="flex mb-6">
                                 <Image

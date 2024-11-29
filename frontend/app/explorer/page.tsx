@@ -11,7 +11,7 @@ export default async function Explorer() {
     const user : User | null = await getSession();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-950 to-blue-200">
+        <div className="min-h-screen bg-[#051B32] pl-0 md:pl-36 lg:pl-80">
             <Header accessToken={accessToken} user_id={user?.id}/>
 
             <div className="flex flex-col">

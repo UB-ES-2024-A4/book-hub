@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
 		extend: {
 			colors: {
+				customBlue: 'hsl(var(--blue))', // Aquí define tu color basado en la variable
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				card: {
