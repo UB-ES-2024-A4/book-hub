@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import {Heart, MessageCircle, Share2} from "lucide-react";
 import { CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {ScrollArea, ScrollBar} from "@/components/ui/scroll-area";
 import { Post } from "@/app/types/Post";
 import "../style.css";
 import NoPostError from "@/app/home/Errors/NoPostError";
@@ -18,6 +18,8 @@ import {useFeed} from "@/contex/FeedContext";
 import {toast} from "nextjs-toast-notify";
 import {getColorFromInitials} from "@/app/lib/colorHash";
 import {PostStorage} from "@/app/types/PostStorage";
+import {Input} from "@/components/ui/input";
+import {X} from 'lucide-react'
 
 type Props = {
   userData: User;
@@ -81,83 +83,137 @@ export default function ScrollAreaHome({ userData }: Props) {
               });
     }
   };
+const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
 
+  const handleFilterToggle = (filterId: number) => {
+    setSelectedFilters(prev =>
+      prev.includes(filterId)
+        ? prev.filter(id => id !== filterId)
+        : [...prev, filterId]
+    );
+  };
 
+  const filteredFilters = Object.entries(filters)
+    .filter(([_, filterName]) =>
+      filterName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
-        <div className="flex-1 overflow-hidden pt-5">
-            <ScrollArea className="h-full w-full">
-                <div className=" gap-4 p-4">
-                    {Object.keys(postsContext).length === 0 ?(
-                            <NoPostError/>
-                        )
-                    : (
-                        postsContext && Object.values(postsContext).map((post_I: PostStorage) => {
-                            const user = post_I.user;
-                            const book: Book = post_I.book;
-                            return (
-                                <Card key={post_I.post.id}
-                                      className="max-w-7xl bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl col-span-1 mb-2">
-                                    <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
-                                        <div className="flex items-center space-x-2">
-                                            <Avatar className="w-10 h-10 border-2 border-blue-400">
-                                                <AvatarImage
-                                                    src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user.id}.png`}/>
-                                                <AvatarFallback
-                                                    style={{
-                                                        backgroundColor: user?.username
-                                                            ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
-                                                            : 'hsl(215, 100%, 50%)',
-                                                    }}
-                                                    className="text-white font-semibold text-sm flex items-center justify-center"
-                                                >
-                                                    {user?.username
-                                                        ? user.username.substring(0, 2).toUpperCase()
-                                                        : '?'}
-                                                </AvatarFallback>
-                                            </Avatar>
+        <div className="container mx-auto">
+            {/* Sección de Filtros */}
+            <div className=" p-4 border-b rounded-t-lg pt-16 md:pt-4">
+                <div className="mb-4">
+                    <Input
+                        placeholder="Search a Filter..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full"
+                    />
+                </div>
+                {/* Scroll Horizontal de Filtros */}
+                <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="flex space-x-2 pb-2">
+                        {filteredFilters.map(([id, filterName]) => (
+                            <Badge
+                                key={id}
+                                onClick={() => handleFilterToggle(Number(id))}
+                                className={`cursor-pointer hover:bg-blue-400 transition-colors text-gray-100 bg-gray-600
+                                ${selectedFilters.includes(Number(id)) ? 
+                                    'bg-gradient-to-br from-blue-100 via-gray-300 to-blue-400 text-black' : 
+                                    ''}`}
+                            >
+                                {filterName}
+                                {selectedFilters.includes(Number(id)) && (
+                                    <X className="ml-2 w-4 h-4"/>
+                                )}
+                            </Badge>
+                        ))}
+                    </div>
+                    <ScrollBar orientation="horizontal"/>
+                </ScrollArea>
+            </div>
 
-                                            <span
-                                                className="font-semibold text-blue-300">@{user?.username || "Unknown User"}</span>
-                                            {currentUserId != user?.id && (
-                                                <Button
-                                                    variant={user.following ? "default" : "outline"}
-                                                    className={`relative h-8 ${
-                                                        user.following ? "bg-gray-500" : "bg-blue-500"
-                                                    } text-white font-semibold py-2 px-4 rounded-l-md group`}
-                                                    onClick={() =>
-                                                        handleFollowClick(user.id, user.following )
-                                                    }
-                                                >
-                                                    {user.following  ? "Following" : `Follow`}
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="pt-4">
-                                        <div className="grid md:grid-cols-[150px_1fr] gap-4">
-                                            <Image alt="Book cover" className="rounded-lg object-cover shadow-md"
-                                                   width={500} height={500}
-                                                   src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
-                                            />
-                                            <div className="space-y-3">
-                                                <div>
-                                                    <h2 className="text-xl font-bold text-blue-200">{book?.title}</h2>
-                                                    <p className="text-blue-400">by {book?.author}</p>
+            <div className="flex-1 overflow-hidden pt-5">
+                <ScrollArea className="h-full w-full">
+                    <div className=" gap-4 p-4">
+                        {Object.keys(postsContext).length === 0 ? (
+                                <NoPostError/>
+                            )
+                            : (
+                                postsContext && Object.values(postsContext).map((post_I: PostStorage) => {
+                                    const user = post_I.user;
+                                    const book: Book = post_I.book;
+                                    return (
+                                        <Card key={post_I.post.id}
+                                              className="max-w-7xl bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl col-span-1 mb-2">
+                                            <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
+                                                <div className="flex items-center space-x-2">
+                                                    <Avatar className="w-10 h-10 border-2 border-blue-400">
+                                                        <AvatarImage
+                                                            src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user.id}.png`}/>
+                                                        <AvatarFallback
+                                                            style={{
+                                                                backgroundColor: user?.username
+                                                                    ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
+                                                                    : 'hsl(215, 100%, 50%)',
+                                                            }}
+                                                            className="text-white font-semibold text-sm flex items-center justify-center"
+                                                        >
+                                                            {user?.username
+                                                                ? user.username.substring(0, 2).toUpperCase()
+                                                                : '?'}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+
+                                                    <span
+                                                        className="font-semibold text-blue-300">@{user?.username || "Unknown User"}</span>
+                                                    {currentUserId != user?.id && (
+                                                        <Button
+                                                            variant={user.following ? "default" : "outline"}
+                                                            className={`relative h-8 ${
+                                                                user.following ? "bg-gray-500" : "bg-blue-500"
+                                                            } text-white font-semibold py-2 px-4 rounded-l-md group`}
+                                                            onClick={() =>
+                                                                handleFollowClick(user.id, user.following)
+                                                            }
+                                                        >
+                                                            {user.following ? "Following" : `Follow`}
+                                                        </Button>
+                                                    )}
                                                 </div>
-                                                <p className="text-sm text-gray-300">{post_I.post.description}</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {post_I.filters && Object.values(post_I.filters).map((id: number, index) => (
-                                                        <Badge key={index} variant="secondary"
-                                                               className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
-                                                            {filters[id]}
-                                                        </Badge>
-                                                    ))}
+                                            </CardHeader>
+                                            <CardContent className="pt-4">
+                                                <div
+                                                    className="grid md:grid-cols-[150px_1fr] justify-items-center md:justify-items-start">
+                                                    <Image alt="Book cover"
+                                                           className="rounded-lg object-cover shadow-md mb-2 pr-4 hidden md:block"
+                                                           width={200} height={200}
+                                                           src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
+                                                    />
+                                                    <div className="space-y-3">
+                                                        <div>
+                                                            <h2 className="text-xl font-bold text-blue-200">{book?.title}</h2>
+                                                            <p className="text-blue-400">by {book?.author}</p>
+                                                        </div>
+                                                        <Image alt="Book cover"
+                                                               className="rounded-lg object-cover shadow-md mb-2 md:hidden"
+                                                               width={200} height={200}
+                                                               src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
+                                                        />
+                                                        <p className="text-sm text-gray-300">{post_I.post.description}</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {post_I.filters && Object.values(post_I.filters).map((id: number, index) => (
+                                                                <Badge key={index} variant="secondary"
+                                                                       className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
+                                                                    {filters[id]}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                    {/*<CardFooter className="flex justify-between">
+                                            </CardContent>
+                                            {/*<CardFooter className="flex justify-between">
                                     <div className="flex gap-4">
                                       <Button variant="ghost" size="sm">
                                         <Heart className="w-4 h-4 mr-2" />
@@ -172,13 +228,14 @@ export default function ScrollAreaHome({ userData }: Props) {
                                       Comment Book
                                     </Button>
                                   </CardFooter>*/}
-                                </Card>
+                                        </Card>
+                                    )
+                                })
                             )
-                        })
-                    )
-                    }
-                </div>
-            </ScrollArea>
+                        }
+                    </div>
+                </ScrollArea>
+            </div>
         </div>
-    );
-}
+            );
+            }
