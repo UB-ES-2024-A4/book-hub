@@ -10,6 +10,7 @@ import { loadFilters } from "@/app/actions";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {toast} from "nextjs-toast-notify";
 import {useFeed} from "@/contex/FeedContext";
+import Image from "next/image";
 
 type HeaderProps = {
     accessToken: string | null;
@@ -17,28 +18,22 @@ type HeaderProps = {
 }
 
 export default function Header({accessToken, user_id}: HeaderProps) {
-
     const { addAllFilters, filters } = useFeed();
-
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-    const pathname = usePathname(); // Obtener la ruta actual
+    const pathname = usePathname();
 
     const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+        setIsMenuOpen(!isMenuOpen);
     };
 
     const openDialog = () => {
         setIsDialogOpen(true);
     };
 
-   useEffect(() => {
-       console.log("SE EJECUTA FILTROS 1");
-        // Load filters if they are not loaded then Fetch Error
+    useEffect(() => {
+        console.log("SE EJECUTA FILTROS 1");
         async function fetchFilters() {
-
-            // If filters are already loaded, do not load them again
             if(filters && Object.keys(filters).length > 0) return;
 
             const result = await loadFilters();
@@ -53,11 +48,10 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                     transition: "swingInverted",
                     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
                     sonido: true,
-                  });
+                });
                 return;
-            }else {
+            } else {
                 const filters : Filter[] = result.data;
-                // Cargar en el contexto los filters
                 const filtersObject: { [key: number]: string } = {};
                 filters.forEach(filter => {
                     filtersObject[filter.id] = filter.name;
@@ -69,44 +63,56 @@ export default function Header({accessToken, user_id}: HeaderProps) {
         fetchFilters();
     }, []);
 
-return (
-    <>
-        <header className="bg-gray-100 shadow-md fixed top-0 left-0 right-0 z-50">
-            <div className="container mx-auto flex justify-between items-center p-4">
-                <Link href="/home" className="text-[#4066cf] text-2xl font-bold">BookHub</Link>
-                <nav className="hidden md:flex space-x-8 items-center">
-                    {! accessToken ? null : ( <Link href="/home" className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}>Home</Link>)}
-                    <Link href="/explorer" className={`path transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`}>Explorer</Link>
-                    {!accessToken ? null : ( <CreatePostButton openDialog={openDialog}/> )}
-                    <Link href="/account" className={`path transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}>Account</Link>
-                </nav>
-                <button className="md:hidden flex items-center text-gray-600 focus:outline-none" onClick={toggleMenu}>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7"/>
-                    </svg>
-                </button>
-            </div>
+    return (
+        <>
+            <header className="bg-[#051B32] shadow-md shadow-blue-400 fixed z-50 top-0 left-0 right-0
+                                md:bottom-0 md:w-56 md:right-auto flex flex-col">
+                <div className="container mx-auto flex justify-between items-center pl-4 pt-2 md:flex-col md:items-start">
+                     <Link href="/home" className="text-[#4066cf] text-2xl font-bold md:hidden">
+                        BookHub
+                    </Link>
+                    <button className="md:hidden flex items-center text-gray-400 focus:outline-none" onClick={toggleMenu}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7"/>
+                        </svg>
+                    </button>
+                </div>
 
-            {isMenuOpen && (
-                <nav className="bg-white md:hidden">
-                    <ul className="space-y-2 p-4">
-                        <li><Link href="/home"
-                                  className={`path block transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-600'}`}
-                                  onClick={() => setIsMenuOpen(false)}>Home</Link></li>
-                        <li><Link href="/explorer"
-                                  className={`path block transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-600'}`}
-                                  onClick={() => setIsMenuOpen(false)}>Explorer</Link></li>
-                        <li>
-                            {!accessToken ? null : (<CreatePostButton openDialog={openDialog}/>)}
-                        </li>
-                        <li><Link href="/account"
-                                  className={`path block transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-600'}`}
-                                  onClick={() => setIsMenuOpen(false)}>Account</Link></li>
-                    </ul>
+                <nav className={`${isMenuOpen ? 'flex' : 'hidden'} h-full md:flex flex-col space-y-4 p-4 flex-grow`}>
+                    {/* Navigation Links */}
+                    <div className="flex flex-col space-y-4">
+                        {accessToken && (
+                            <Link href="/home"
+                                  className={`path transition-colors duration-300 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-300'}`}
+                                  onClick={() => setIsMenuOpen(false)}>
+                                Home
+                            </Link>
+                        )}
+                        <Link href="/explorer"
+                              className={`path transition-colors duration-300 ${pathname === '/explorer' ? 'text-blue-600' : 'text-gray-300'}`}
+                              onClick={() => setIsMenuOpen(false)}>
+                            Explorer
+                        </Link>
+                        {accessToken && (
+                            <CreatePostButton openDialog={openDialog} />
+                        )}
+                        <Link href="/account"
+                              className={`path transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-300'}`}
+                              onClick={() => setIsMenuOpen(false)}>
+                            Account
+                        </Link>
+                    </div>
                 </nav>
-            )}
-        </header>
-        {filters ? <CreatePostDialog open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} user_id={user_id}/> : null }
-    </>
-);
+
+                {/* App Title */}
+                <div className="p-4 mt-auto text-left md:text-left">
+                    <Link href="/home" className="text-[#4066cf] text-2xl font-bold hidden md:block">
+                        BookHub
+                    </Link>
+                </div>
+            </header>
+
+            {filters ? <CreatePostDialog open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} user_id={user_id}/> : null }
+        </>
+    );
 }
