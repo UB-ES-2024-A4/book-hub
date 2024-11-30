@@ -73,9 +73,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: python-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
+          path: ./
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -84,3 +82,4 @@ jobs:
           app-name: 'bookhubapidev'
           slot-name: 'production'
           publish-profile: ${{ secrets.PUBLISH_PROFILE_API_PREPRODUCTION }}
+          package: release.zip
