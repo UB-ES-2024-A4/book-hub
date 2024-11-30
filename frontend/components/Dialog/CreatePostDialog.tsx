@@ -24,7 +24,7 @@ import Image from "next/image";
 
 // URL de la API de Azure Storage
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
-const NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 
 type CreatePostDialogProps = {
     open: boolean;
@@ -71,7 +71,7 @@ export function CreatePostDialog({ open, setIsDialogOpen, filters, user_id }: Cr
                 const imageFile = fileInputRef.current.files[0];
                 const imageFormData = new FormData();
 
-                const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`, {
+                const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE}`, {
                     method: 'PUT',
                     body: imageFile,
                     headers: {

@@ -6,7 +6,6 @@ import React, {useState} from "react";
 import {User} from "@/app/types/User";
 
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
-const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 
 type Props = {
     userDataMock: User;
