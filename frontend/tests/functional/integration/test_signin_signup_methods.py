@@ -13,7 +13,7 @@ def go_to_sign_in_page(driver):
     account_link.click()
 
     WebDriverWait(driver, 5).until(
-        EC.url_to_be("http://localhost:3000/auth/sign-in")
+        EC.url_to_be("http://localhost:3000/sign-in")
     )
 
 
@@ -25,7 +25,7 @@ def go_to_sign_up_page(driver):
     sign_up_link.click()
 
     WebDriverWait(driver, 5).until(
-        EC.url_to_be("http://localhost:3000/auth/sign-up")
+        EC.url_to_be("http://localhost:3000/sign-up")
     )
 
 def sign_up(driver, username, first_name, last_name, email, password):
@@ -102,46 +102,3 @@ def login(driver, username, password):
     # Hacer clic en el botón
     sign_in_button.click()
 
-def follow_user(driver):
-    # Esperar a que el texto del usuario "William" esté visible
-    user_element = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, "//span[text()='Alejandro']"))
-    )
-
-    # Encontrar el contenedor principal que incluye el usuario y el botón
-    container = user_element.find_element(By.XPATH,
-                                          "./ancestor::div[@class='rounded-xl border text-card-foreground shadow mx-5 md:mx-20 bg-white/80 backdrop-blur-sm']")
-
-    # Dentro del contenedor, encontrar el botón "Follow"
-    follow_button = container.find_element(By.XPATH, ".//button[contains(text(), 'Follow')]")
-
-    # Verificar si el texto del botón es "Follow"
-    if follow_button.text.strip() == "Follow":
-        print("El botón dice 'Follow'. Haciendo clic...")
-        follow_button.click()
-    else:
-        print(f"El botón ya está en estado '{follow_button.text.strip()}'. No se hace clic.")
-
-    return follow_button
-
-def unfollow_user(driver):
-    # Esperar a que el texto del usuario "William" esté visible
-    user_element = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, "//span[text()='Alejandro']"))
-    )
-
-    # Encontrar el contenedor principal que incluye el usuario y el botón
-    container = user_element.find_element(By.XPATH,
-                                          "./ancestor::div[@class='rounded-xl border text-card-foreground shadow mx-5 md:mx-20 bg-white/80 backdrop-blur-sm']")
-
-    # Dentro del contenedor, encontrar el botón "Following"
-    follow_button = container.find_element(By.XPATH, ".//button[contains(text(), 'Following')]")
-
-    # Verificar si el texto del botón es "Following"
-    if follow_button.text.strip() == "Following":
-        print("El botón dice 'Following'. Haciendo clic...")
-        follow_button.click()
-    else:
-        print(f"El botón ya está en estado '{follow_button.text.strip()}'. No se hace clic.")
-
-    return follow_button
