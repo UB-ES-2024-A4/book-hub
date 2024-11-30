@@ -1,0 +1,86 @@
+name: Build and deploy Python app to Azure Web App - bookhubapi
+
+on:
+  push:
+    branches:
+      - "US1.4/devops/feat/backend-preproduction"  # Triggers deployment on pushes to the main branch
+  workflow_dispatch:
+
+env:
+  APP_NAME: bookhubapi
+  DB_HOST: ${{ secrets.DB_HOST_AZURE }}
+  DB_PORT: 3306
+  DB_USER: bookhubdb_user
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD_AZURE }}
+  DB_NAME: bookhubdev
+  AZURE_PATH: "./backend"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python version
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.x'
+
+      - name: Install Poetry
+        run: |
+          pip install poetry
+
+      - uses: Gr1N/setup-poetry@v8
+      - run: poetry --version
+      
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          poetry lock
+          poetry install
+          
+      - name: Run Alembic migrations
+        working-directory: ./backend
+        run: |
+          poetry run alembic upgrade head
+
+      - name: Generate requirements.txt
+        working-directory: ./backend
+        run: |
+          poetry export --dev --all-extras --without-hashes --format=requirements.txt 1> requirements.txt
+
+      - name: Zip artifact for deployment
+        run: zip release.zip ./backend/* -r
+
+      - name: Upload artifact for deployment jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-app
+          path: |
+            release.zip
+            !venv/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # Only run if the build job succeeds
+    environment:
+      name: 'PreProduction'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: python-app
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: 'bookhubapidev'
+          slot-name: 'production'
+          publish-profile: ${{ secrets.PUBLISH_PROFILE_API_PREPRODUCTION }}
