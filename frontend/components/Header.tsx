@@ -66,12 +66,12 @@ export default function Header({accessToken, user_id}: HeaderProps) {
     return (
         <>
             <header className="bg-[#051B32] shadow-md shadow-blue-400 fixed z-50 top-0 left-0 right-0
-                                md:bottom-0 md:w-56 md:right-auto flex flex-col">
+                                md:bottom-0 md:w-40 lg:w-52 md:right-auto flex flex-col">
                 <div className="container mx-auto flex justify-between items-center pl-4 pt-2 md:flex-col md:items-start">
                      <Link href="/home" className="text-[#4066cf] text-2xl font-bold md:hidden">
                         BookHub
                     </Link>
-                    <button className="md:hidden flex items-center text-gray-400 focus:outline-none" onClick={toggleMenu}>
+                    <button className="md:hidden flex items-center text-gray-400 focus:outline-none pr-4" onClick={toggleMenu}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7"/>
                         </svg>

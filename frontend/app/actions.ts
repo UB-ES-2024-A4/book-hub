@@ -123,12 +123,16 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
 import { PostStorage } from "@/app/types/PostStorage";
 import {Book} from "@/app/types/Book";
 // Function to load the posts in the home page
-export async function loadPosts(): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
+export async function loadPosts(filters: string|undefined = undefined, skip: number = 0, limit: number = 10
+                                ): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
     try {
         const accessToken = await getAccessToken();
 
+        const urlHome = baseUrl + "/home" + (filters ? `?filters=${filters}&skip=${skip}&limit=${limit}` :
+                                                                `/?skip=${skip}&limit=${limit}`);
+
         // Se cargar los posts de la API con un límite de 10
-        const response = await fetch(baseUrl + "/home/?skip=0&limit=10", {
+        const response = await fetch(urlHome, {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -362,7 +366,7 @@ export async function followUser(followerId: number, followeeId: number) {
         return {status: 200, message: "User followed successfully", data: await response.json()};
     } catch (error: any) {
         console.error("Error while following user:", error);
-        return {status: 400, message: error.message, data: null};
+        return { status: 400, message: error.message, data: null };
     }
 }
 
