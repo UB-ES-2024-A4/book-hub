@@ -1,5 +1,4 @@
 export const dummyDatabase = {
-    "categories": ["Drama", "Comedia", "Romance", "Fantasy", "Sci-Fi"],
     "users": [
       {
         "id": 1,
@@ -128,7 +127,8 @@ export const dummyDatabase = {
         "created_at": "2023-05-01T12:00:00Z",
         "filter_ids": [
           { "id": 1, "name": "Drama" },
-          { "id": 3, "name": "Comedia" }
+          { "id": 2, "name": "Comedia" },
+          { "id": 3, "name": "Romance" }
         ]
       },
       {
@@ -161,6 +161,7 @@ export const dummyDatabase = {
         "description": "1984 es un libro impactante. Me hizo cuestionar todo sobre el poder y la libertad.",
         "created_at": "2023-05-03T12:00:00Z",
         "filter_ids": [
+          { "id": 1, "name": "Drama" },
           { "id": 5, "name": "Sci-Fi" }
         ]
       },
@@ -194,6 +195,7 @@ export const dummyDatabase = {
         "description": "Una aventura llena de lecciones de vida y humor. ¡El principito siempre será un clásico!",
         "created_at": "2023-05-06T12:00:00Z",
         "filter_ids": [
+          { "id": 1, "name": "Drama" },
           { "id": 2, "name": "Comedia" },
           { "id": 3, "name": "Romance" }
         ]
@@ -206,6 +208,7 @@ export const dummyDatabase = {
         "description": "Un mundo lleno de criaturas mágicas y aventuras épicas. No me canso de leerlo.",
         "created_at": "2023-05-07T12:00:00Z",
         "filter_ids": [
+          { "id": 1, "name": "Drama" },
           { "id": 4, "name": "Fantasy" }
         ]
       },
@@ -217,6 +220,7 @@ export const dummyDatabase = {
         "description": "El futuro distópico de 1984 sigue siendo una advertencia para todos nosotros.",
         "created_at": "2023-05-08T12:00:00Z",
         "filter_ids": [
+          { "id": 1, "name": "Drama" },
           { "id": 5, "name": "Sci-Fi" }
         ]
       }
@@ -234,7 +238,8 @@ export const dummyDatabase = {
           "created_at": "2023-05-01T12:00:00Z",
           "filter_ids": [
             { "id": 1, "name": "Drama" },
-            { "id": 3, "name": "Comedia" }
+            { "id": 2, "name": "Comedia" },
+            { "id": 3, "name": "Romance" }
           ]
         },
         {
@@ -269,6 +274,55 @@ export const dummyDatabase = {
           "filter_ids": [
             { "id": 1, "name": "Drama" }
           ]
+        },
+        {
+          "id": 4,
+          "book_id": 3,
+          "user_id": 4,
+          "likes": 8,
+          "description": "1984 es un libro impactante. Me hizo cuestionar todo sobre el poder y la libertad.",
+          "created_at": "2023-05-03T12:00:00Z",
+          "filter_ids": [
+            { "id": 1, "name": "Drama" },
+            { "id": 5, "name": "Sci-Fi" }
+          ]
+        },
+        {
+          "id": 7,
+          "book_id": 4,
+          "user_id": 1,
+          "likes": 14,
+          "description": "Una aventura llena de lecciones de vida y humor. ¡El principito siempre será un clásico!",
+          "created_at": "2023-05-06T12:00:00Z",
+          "filter_ids": [
+            { "id": 1, "name": "Drama" },
+            { "id": 2, "name": "Comedia" },
+            { "id": 3, "name": "Romance" }
+          ]
+        },
+        {
+          "id": 8,
+          "book_id": 5,
+          "user_id": 2,
+          "likes": 15,
+          "description": "Un mundo lleno de criaturas mágicas y aventuras épicas. No me canso de leerlo.",
+          "created_at": "2023-05-07T12:00:00Z",
+          "filter_ids": [
+            { "id": 1, "name": "Drama" },
+            { "id": 4, "name": "Fantasy" }
+          ]
+        },
+        {
+          "id": 9,
+          "book_id": 3,
+          "user_id": 3,
+          "likes": 11,
+          "description": "El futuro distópico de 1984 sigue siendo una advertencia para todos nosotros.",
+          "created_at": "2023-05-08T12:00:00Z",
+          "filter_ids": [
+            { "id": 1, "name": "Drama" },
+            { "id": 5, "name": "Sci-Fi" }
+          ]
         }
       ]
     },
@@ -301,6 +355,19 @@ export const dummyDatabase = {
           "description": "Una aventura llena de lecciones de vida y humor. ¡El principito siempre será un clásico!",
           "created_at": "2023-05-06T12:00:00Z",
           "filter_ids": [
+            { "id": 2, "name": "Comedia" },
+            { "id": 3, "name": "Romance" }
+          ]
+        },
+        {
+          "id": 1,
+          "book_id": 1,
+          "user_id": 1,
+          "likes": 45,
+          "description": "Exploring the themes of wealth and morality in Gatsby.",
+          "created_at": "2023-05-01T12:00:00Z",
+          "filter_ids": [
+            { "id": 1, "name": "Drama" },
             { "id": 2, "name": "Comedia" },
             { "id": 3, "name": "Romance" }
           ]
