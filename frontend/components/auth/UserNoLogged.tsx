@@ -170,10 +170,9 @@ const [currentFeature, setCurrentFeature] = useState(0)
                             animate={{opacity: 1, x: 0}}
                             exit={{opacity: 0, x: -100}}
                             transition={{duration: 0.3}}
-                            className="p-6  rounded-lg bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl w-full max-w-md h-auto"
-                            style={{maxHeight: "400px"}} // Limitar la altura máxima
+                            className="p-6 rounded-lg bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl w-full max-w-md h-auto"
                         >
-                            <div className="flex mb-6">
+                            <div className="flex mb-6" style={{maxHeight: "160px"}}>
                                 <Image
                                     src={features[currentFeature].image}
                                     alt={features[currentFeature].title}
