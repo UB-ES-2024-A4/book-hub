@@ -138,7 +138,7 @@ const [searchTerm, setSearchTerm] = useState('');
                         placeholder="Search a Filter..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full text-wihte"
+                        className="w-full text-white"
                     />
                 </div>
                 {/* Scroll Horizontal de Filtros */}
