@@ -11,7 +11,7 @@ import { Post } from "@/app/types/Post";
 import "../style.css";
 import NoPostError from "@/app/home/Errors/NoPostError";
 import {User} from "@/app/types/User";
-import {followUser, unfollowUser} from "@/app/actions";
+import {followUser, loadPosts, unfollowUser} from "@/app/actions";
 import {getAccessToken} from "@/app/lib/authentication";
 import {Book} from "@/app/types/Book";
 import {useFeed} from "@/contex/FeedContext";
@@ -56,14 +56,14 @@ export default function ScrollAreaHome({ userData }: Props) {
       }
         // Update the following status in the post of PostContext
         postsContext[postUserId].user.following = !isCurrentlyFollowing;
-      toast.success("Everything went well", {
-        duration: 4000,
-        progress: true,
-        position: "top-right",
-        transition: "bounceIn",
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
-        sonido: true,
-      });
+          toast.success("Everything went well", {
+            duration: 4000,
+            progress: true,
+            position: "top-right",
+            transition: "bounceIn",
+            icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
+            sonido: true,
+          });
 
     } catch (error: any) {
           console.error("Failed to update following status", error);
@@ -83,17 +83,47 @@ export default function ScrollAreaHome({ userData }: Props) {
               });
     }
   };
+
+
 const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
 
-  const handleFilterToggle = (filterId: number) => {
-    setSelectedFilters(prev =>
-      prev.includes(filterId)
-        ? prev.filter(id => id !== filterId)
-        : [...prev, filterId]
-    );
+  const handleFilterToggle = async (filterId: number) => {
+      setSelectedFilters(prev =>
+          prev.includes(filterId)
+              ? prev.filter(id => id !== filterId)
+              : [...prev, filterId]
+      );
+      // Call the API to get the posts with the selected filters
+      // Load Post return an array of PostStorage
+      // So, after loading the posts, we need to add them to the context
+      // First we need to create an String of filters
+      if(selectedFilters.includes(filterId)){
+            const filters_ID = selectedFilters.filter((id) => id !== filterId).join(",");
+            await reloadScrollPosts(filters_ID);
+      }else {
+          const filters_ID = filterId + ',' + selectedFilters.join(",");
+          await reloadScrollPosts(filters_ID);
+      }
   };
 
+  const reloadScrollPosts = async (filters_ID: string) => {
+      const result = await loadPosts(filters_ID);
+      if (result.status !== 200) {
+          console.error("Failed to load posts", result.message);
+          // Show a toast notification
+          toast.error(result.message, {
+            duration: 4000, progress: true, position: "top-center", transition: "swingInverted",
+            icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n' +
+                '  <circle cx="12" cy="12" r="10"/>\n' + '  <line x1="12" y1="8" x2="12" y2="12"/>\n' +
+                '  <line x1="12" y1="16" x2="12.01" y2="16"/>\n' + '</svg>',
+            sonido: true,});
+          return;
+      }else {
+          if(result.data!=null)
+            addAllPosts(result.data);
+      }
+  }
   const filteredFilters = Object.entries(filters)
     .filter(([_, filterName]) =>
       filterName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -108,7 +138,7 @@ const [searchTerm, setSearchTerm] = useState('');
                         placeholder="Search a Filter..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full"
+                        className="w-full text-wihte"
                     />
                 </div>
                 {/* Scroll Horizontal de Filtros */}
