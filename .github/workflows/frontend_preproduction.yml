@@ -21,7 +21,6 @@ jobs:
         run: |
           echo "${{ secrets.FRONTEND_ENV_PREPRODUCTION }}" > .env
           sed -i 's/|||/\n/g' .env
-
         working-directory: frontend    
 
       - name: Build Next.js application
@@ -52,7 +51,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: BookHub_dev
+          app-name: bookhbdev
           slot-name: production
           publish-profile: ${{ secrets.FRONTEND_AZURE_PUBLISH_PREPRODUCTION }}
           package: frontend.zip
