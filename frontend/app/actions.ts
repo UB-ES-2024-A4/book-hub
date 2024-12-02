@@ -415,6 +415,25 @@ export async function fetchCommentsByPostID(postId: number): Promise<{status: nu
         console.error("Error fetching comments:", error);
         return {status: 400, message: error.message, data: null};
     }
+    // I will return dummy data for now
+    /*const data: CommentUnic[] = [
+        {
+            created_at: new Date(),
+            comment: "This is a comment",
+            user: { id: 1, username: "user1" }
+        },
+        {
+            created_at: new Date(),
+            comment: "This is another comment",
+            user: { id: 2, username: "user2" }
+        },
+        {
+            created_at: new Date(),
+            comment: "This is a third comment",
+            user: { id: 3, username: "user3" }
+        }
+    ]
+    return {status: 200, message: "Comments fetched successfully", data: data};*/
 }
 
 

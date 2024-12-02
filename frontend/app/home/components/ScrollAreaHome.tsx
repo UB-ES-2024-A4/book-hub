@@ -216,10 +216,11 @@ const [searchTerm, setSearchTerm] = useState('');
                                             </CardHeader>
                                             <CardContent className="pt-4">
                                                 <div
-                                                    className="grid md:grid-cols-[150px_1fr] lg:grid-cols-[150px_2fr_minmax(100px,300px)] gap-4 items-start justify-items-center md:justify-items-start">
+                                                    className="grid md:grid-cols-[150px_1fr] lg:grid-cols-[200px_2fr_minmax(100px,300px)]
+                                                    gap-4 items-start justify-items-center md:justify-items-start">
                                                     <Image alt="Book cover Big Screen"
                                                            className="rounded-lg object-cover shadow-md mb-2 hidden md:block"
-                                                           width={200} height={200}
+                                                           width={400} height={400}
                                                            src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
                                                     />
                                                     <div className="space-y-3">
@@ -229,7 +230,7 @@ const [searchTerm, setSearchTerm] = useState('');
                                                         </div>
                                                         <Image alt="Book cover Small Screen"
                                                                className="rounded-lg object-cover shadow-md mb-2 md:hidden"
-                                                               width={200} height={200}
+                                                               width={400} height={400}
                                                                src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
                                                         />
                                                         <p className="text-sm text-gray-300">{post_I.post.description}</p>
@@ -245,25 +246,22 @@ const [searchTerm, setSearchTerm] = useState('');
                                                     {/* Columna 3: Comentarios */}
                                                     <div className="max-w-[300px]">
                                                         <CommentsPreview comments={post_I.comments} n_comments={post_I.n_comments}
-                                                                            postId={post_I.post.id}
+                                                                            postStorage={post_I}
                                                         />
                                                     </div>
                                                 </div>
                                             </CardContent>
                                             {/*<CardFooter className="flex justify-between">
                                     <div className="flex gap-4">
-                                      <Button variant="ghost" size="sm">
-                                        <Heart className="w-4 h-4 mr-2" />
+                                      <Button variant="ghost">
+                                        <Heart className="w-10 h-10 mr-2" />
                                         Like
                                       </Button>
-                                      <Button variant="ghost" size="sm">
+                                        {/*<Button variant="ghost" size="sm">
                                         <Share2 className="w-4 h-4 mr-2" />
                                         Share
                                       </Button>
                                     </div>
-                                    <Button variant="outline" size="sm">
-                                      Comment Book
-                                    </Button>
                                   </CardFooter>*/}
                                         </Card>
                                     )

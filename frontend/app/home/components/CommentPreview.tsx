@@ -100,7 +100,7 @@ const CommentsPreview = ({ n_comments, comments, postStorage }: CommentProps) =>
           </button>
         </div>
 
-        {/*<PostsPreviewHome open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} postsStorage={postStorage} />*/}
+        <PostsPreviewHome open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} postsStorage={postStorage} />
     </div>
   );
 };
