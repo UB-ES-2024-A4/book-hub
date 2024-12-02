@@ -244,7 +244,9 @@ const [searchTerm, setSearchTerm] = useState('');
                                                     </div>
                                                     {/* Columna 3: Comentarios */}
                                                     <div className="max-w-[300px]">
-                                                        <CommentsPreview comments={post_I.comments} n_comments={post_I.n_comments}/>
+                                                        <CommentsPreview comments={post_I.comments} n_comments={post_I.n_comments}
+                                                                            postId={post_I.post.id}
+                                                        />
                                                     </div>
                                                 </div>
                                             </CardContent>
