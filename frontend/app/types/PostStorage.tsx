@@ -6,7 +6,7 @@ interface UserBasic {
     id: number;
 }
 
-interface CommentUnic {
+export interface CommentUnic {
     created_at: Date
     comment: string
     user: UserBasic

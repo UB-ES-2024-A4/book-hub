@@ -16,10 +16,11 @@ import {getAccessToken} from "@/app/lib/authentication";
 import {Book} from "@/app/types/Book";
 import {useFeed} from "@/contex/FeedContext";
 import {toast} from "nextjs-toast-notify";
-import {getColorFromInitials} from "@/app/lib/colorHash";
+import {getColorFromInitials} from "@/app/lib/hashHelpers";
 import {PostStorage} from "@/app/types/PostStorage";
 import {Input} from "@/components/ui/input";
 import {X} from 'lucide-react'
+import CommentsPreview from "@/app/home/components/CommentPreview";
 
 type Props = {
   userData: User;
@@ -201,8 +202,8 @@ const [searchTerm, setSearchTerm] = useState('');
                                                     {currentUserId != user?.id && (
                                                         <Button
                                                             variant={user.following ? "default" : "outline"}
-                                                            className={`relative h-8 ${
-                                                                user.following ? "bg-gray-500" : "bg-blue-500"
+                                                            className={` h-8  ${
+                                                                user.following ? "bg-blue-500/10" : "bg-blue-500"
                                                             } text-white font-semibold py-2 px-4 rounded-l-md group`}
                                                             onClick={() =>
                                                                 handleFollowClick(user.id, user.following)
@@ -215,9 +216,9 @@ const [searchTerm, setSearchTerm] = useState('');
                                             </CardHeader>
                                             <CardContent className="pt-4">
                                                 <div
-                                                    className="grid md:grid-cols-[150px_1fr] justify-items-center md:justify-items-start">
-                                                    <Image alt="Book cover"
-                                                           className="rounded-lg object-cover shadow-md mb-2 pr-4 hidden md:block"
+                                                    className="grid md:grid-cols-[150px_1fr] lg:grid-cols-[150px_2fr_minmax(100px,300px)] gap-4 items-start justify-items-center md:justify-items-start">
+                                                    <Image alt="Book cover Big Screen"
+                                                           className="rounded-lg object-cover shadow-md mb-2 hidden md:block"
                                                            width={200} height={200}
                                                            src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
                                                     />
@@ -226,7 +227,7 @@ const [searchTerm, setSearchTerm] = useState('');
                                                             <h2 className="text-xl font-bold text-blue-200">{book?.title}</h2>
                                                             <p className="text-blue-400">by {book?.author}</p>
                                                         </div>
-                                                        <Image alt="Book cover"
+                                                        <Image alt="Book cover Small Screen"
                                                                className="rounded-lg object-cover shadow-md mb-2 md:hidden"
                                                                width={200} height={200}
                                                                src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
@@ -240,6 +241,10 @@ const [searchTerm, setSearchTerm] = useState('');
                                                                 </Badge>
                                                             ))}
                                                         </div>
+                                                    </div>
+                                                    {/* Columna 3: Comentarios */}
+                                                    <div className="max-w-[300px]">
+                                                        <CommentsPreview comments={post_I.comments} n_comments={post_I.n_comments}/>
                                                     </div>
                                                 </div>
                                             </CardContent>

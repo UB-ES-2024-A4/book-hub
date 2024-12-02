@@ -78,10 +78,10 @@ insert into `like` values (   3,    1);
 insert into `like` values (   3,    8);
 insert into `like` values (   4,    1);
 
-# Insert Comments         ID, USERID, POSTID, CONTENT, CREATED_AT
-insert into comment values (NULL, 1, 1, "¡Me encantó el final! Agatha Christie es increíble.", CURRENT_TIMESTAMP);
-insert into comment values (NULL, 2, 1, "Poirot es un genio, este caso fue alucinante.", CURRENT_TIMESTAMP);
-insert into comment values (NULL, 4, 1, "Cuando acabes el libro, con Poirot hablando a todos, ¡qué genial! No me esperaba ese final, increíble!", CURRENT_TIMESTAMP);
+# Insert Comments          ID,USERID,POSTID, CONTENT, CREATED_AT
+insert into comment values (NULL, 1, 2, "¡Me encantó el final! Agatha Christie es increíble.", CURRENT_TIMESTAMP);
+insert into comment values (NULL, 2, 2, "Poirot es un genio, este caso fue alucinante.", "2021-06-01 12:00:00");
+insert into comment values (NULL, 4, 2, "Cuando acabes el libro, con Poirot hablando a todos, ¡qué genial! No me esperaba ese final, increíble!", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 3, 3, "La historia de los Buendía es tan compleja como hermosa.", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 4, 4, "1984 me dejó pensando mucho en la privacidad hoy en día.", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 5, 5, "La Tierra Media es un mundo espectacular. Recomendado.", CURRENT_TIMESTAMP);
