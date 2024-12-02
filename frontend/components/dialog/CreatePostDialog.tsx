@@ -64,7 +64,7 @@ export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostD
                     if (result.data === null) {
                         return
                     }
-                    const newPostStorage: PostStorage = result.data;
+                    const newPostStorage = result.data;
                     const resultPost: Post = newPostStorage.post;
 
                     const imageFile = fileInputRef.current.files[0];
@@ -97,6 +97,8 @@ export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostD
 
                     if (newPostStorage) addPost(newPostStorage);
                     setIsDialogOpen(false);
+                    setServerError(null);
+                    setImagePreview(null);
                 }
             } else {
                 setServerError({status: 400, message: 'Please select an image to upload'});

@@ -122,6 +122,7 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
 
 import {CommentUnic, PostStorage} from "@/app/types/PostStorage";
 import {Book} from "@/app/types/Book";
+import {Filter} from "@/app/types/Filter";
 // Function to load the posts in the home page
 export async function loadPosts(filters: string|undefined = undefined, skip: number = 0, limit: number = 10
                                 ): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
@@ -255,11 +256,14 @@ export async function CreatePost(prevState: unknown, formData: FormData) : Promi
         const post_filters = await postResponse.json();
         console.log("POST FILTERS FOR POST STORAGE", post_filters);
 
+        const filters = post_filters['filters'];
+        // Convertirlo en Array Number
+        const filtersArrayNumber: number[] = filters.map((filter: Filter) => filter.id);
         const postStorage: PostStorage = {
             user: { id: user.id, username: user.username, following: false},
             post: post_filters['post'],
             book: bookData.data,
-            filters: post_filters['filters'],
+            filters: filtersArrayNumber,
             like_set: false,
             n_comments: 0,
             comments: []
