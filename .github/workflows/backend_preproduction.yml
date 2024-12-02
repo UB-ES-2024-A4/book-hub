@@ -3,7 +3,7 @@ name: Build and deploy Python app to Azure Web App - bookhubapi
 on:
   push:
     branches:
-      - "US1.4/devops/feat/backend-preproduction"  # Triggers deployment on pushes to the main branch
+      - "PreProduction"  # Triggers deployment on pushes to the main branch
   workflow_dispatch:
 
 env:
