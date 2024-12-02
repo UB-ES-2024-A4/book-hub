@@ -4,6 +4,7 @@ import {User} from "@/app/types/User";
 import FetchInformationError from "@/app/account/components/Errors/FetchInformationError";
 import UserNoLogged from "@/components/auth/UserNoLogged";
 import React from "react";
+import MainContent from "@/app/explorer/components/MainContent";
 
 export default async function Explorer() {
 
@@ -11,13 +12,10 @@ export default async function Explorer() {
     const user : User | null = await getSession();
 
     return (
-        <div className="min-h-screen bg-[#051B32] pl-0 md:pl-36 lg:pl-80">
-            <Header accessToken={accessToken} user_id={user?.id}/>
-
-            <div className="flex flex-col">
-                {! accessToken && ( <UserNoLogged /> )}
-                <h1 className="text-4xl font-bold text-center p-20">Explorer</h1>
-            </div>
+        <div className="min-h-screen bg-gradient-to-br from-blue-950 to-gray-800 flex flex-col">
+            <Header accessToken={accessToken} user_id={user?.id} />
+            {user && <MainContent userData={user} />}
+            {!user && <p className="text-center text-white p-10">User not logged in</p>}
         </div>
     );
 }
