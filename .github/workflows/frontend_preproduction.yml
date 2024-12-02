@@ -3,7 +3,7 @@ name: Deploy to Azure Web App
 on:
   push:
     branches:
-      - "US1.4/devops/feat/frontend-preproduction"  # Triggers deployment on pushes to the main branch
+      - "PreProduction"  # Triggers deployment on pushes to the main branch
 
 jobs:
   build:
