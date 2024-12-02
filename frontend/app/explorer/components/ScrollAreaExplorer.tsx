@@ -6,6 +6,7 @@ import { Post } from "@/app/types/Post";
 import { User } from "@/app/types/User";
 import { getColorFromInitials } from "@/app/lib/colorHash";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from 'next/image'
 //Mine
 
 import { dummyDatabase } from "../dummy_data/dummyDatabase";
@@ -40,7 +41,7 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                     return (
                       <Card
                         key={post.id}
-                        className="h-110 w-96 flex-shrink-0 bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl"
+                        className="h-110 md:w-96 w-72 flex-shrink-0 bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl"
                       >
                         <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
                           <div className="flex items-center space-x-2">
@@ -68,7 +69,7 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                         </CardHeader>
                         <CardContent className="pt-4">
                           <div className="grid md:grid-cols-[150px_1fr] gap-4">
-                            <img alt="Book cover" className="rounded-lg object-cover shadow-md"
+                            <Image alt="Book cover" className="rounded-lg object-cover shadow-md md:w-[250px] md:h-[250px]"
                               width={500} height={500}
                               src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${post.book_id}.png` || 'logo.png'}/>
                             <div className="space-y-3 whitespace-normal max-w-full overflow-hidden break-words">
@@ -77,17 +78,17 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                                 <p className="text-blue-400">by {book?.author}</p>
                               </div>
                               <p className="text-sm text-gray-300">{post.description}</p>
-                            </div>
-                            <div className="flex flex-wrap gap-2 self-end">
-                              {post.filter_ids && post.filter_ids.map((tag: {
-                                id: number,
-                                name: string
-                              }) => (
-                                <Badge key={tag.id} variant="secondary"
-                                    className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
-                                  {tag.name}
-                                </Badge>
-                              ))}
+                              <div className="flex flex-wrap gap-2 self-end">
+                                {post.filter_ids && post.filter_ids.map((tag: {
+                                  id: number,
+                                  name: string
+                                }) => (
+                                  <Badge key={tag.id} variant="secondary"
+                                      className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200">
+                                    {tag.name}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </CardContent>
