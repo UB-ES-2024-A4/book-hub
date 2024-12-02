@@ -11,9 +11,10 @@ from app.core.config import settings
 from app.models import User, TokenPayload
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/users/login/access-token")
+reusable_optional_oauth2 = OAuth2PasswordBearer(tokenUrl="/users/login/access-token", auto_error=False)
 
-
-def get_current_user(token: str = Depends(reusable_oauth2), session: Session = Depends(get_session)) -> User:
+def get_user(token: str | None, session: Session) -> User:
+    if token == None: return None
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
@@ -30,3 +31,10 @@ def get_current_user(token: str = Depends(reusable_oauth2), session: Session = D
         raise HTTPException(status_code=404, detail="User not found")
 
     return user
+
+def get_current_user(token: str = Depends(reusable_oauth2), session: Session = Depends(get_session)) -> User:
+    return get_user(token, session)
+
+# To users screen where beeing logged in is optional
+def get_optional_user(token: str | None = Depends(reusable_optional_oauth2), session: Session = Depends(get_session)) -> User:
+    return get_user(token, session)
