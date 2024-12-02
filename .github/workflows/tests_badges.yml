@@ -3,7 +3,7 @@ name: Tests
 on:
   push:  # Ejecutar solo en ramas específicas
     branches:
-      - "US1.4/devops/feat/tests-badges"
+      - PreProduction
 
 env:
   APP_NAME: BookHub
