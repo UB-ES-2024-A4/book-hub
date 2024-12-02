@@ -120,7 +120,7 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
        }
    }
 
-import { PostStorage } from "@/app/types/PostStorage";
+import {CommentUnic, PostStorage} from "@/app/types/PostStorage";
 import {Book} from "@/app/types/Book";
 // Function to load the posts in the home page
 export async function loadPosts(filters: string|undefined = undefined, skip: number = 0, limit: number = 10
@@ -395,4 +395,71 @@ export async function unfollowUser(followerId: number, followeeId: number) {
         return { status: error.status, message: error.message, data: null };
     }
 
+}
+
+//Fetch All Comments by posts ID
+export async function fetchCommentsByPostID(postId: number): Promise<{status: number, message: string, data: CommentUnic[] | null}> {
+    try {
+        const response = await fetch(`${baseUrl}/comments/${postId}`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to unfollow user:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        return {status: 200, message: "Comments fetched successfully", data: await response.json()};
+    } catch (error: any) {
+        console.error("Error fetching comments:", error);
+        return {status: 400, message: error.message, data: null};
+    }
+}
+
+
+// Method that post a comment in a post
+export async function postComment(postId: number, comment: string) {
+    try {
+        const response = await fetch(`${baseUrl}/comments/${postId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+            body: JSON.stringify({ comment }),
+        });
+
+        if (response.status !== 200) {
+            const errorData = await response.json();
+            console.error("Failed to post comment:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        return {status: 200, message: "Comment posted successfully", data: await response.json()};
+
+    } catch (error: any) {
+        console.error("Error while posting comment:", error);
+        return { status: 400, message: error.message, data: null };
+    }
+}
+
+// Method that deletes a comment in a post
+export async function deleteComment(commentId: number) {
+    try {
+        const response = await fetch(`${baseUrl}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (response.status !== 200) {
+            const errorData = await response.json();
+            console.error("Failed to delete comment:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        return {status: 200, message: "Comment deleted successfully", data: await response.json()};
+
+    } catch (error: any) {
+        console.error("Error while deleting comment:", error);
+        return { status: 400, message: error.message, data: null };
+    }
 }
