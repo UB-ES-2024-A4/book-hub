@@ -6,6 +6,7 @@ on:
       - "*"  # Run on pushes to all branches
       - "!main"
       - "!dev"
+      - "!PreProduction"
 
   pull_request:
     types:
