@@ -403,7 +403,7 @@ export async function unfollowUser(followerId: number, followeeId: number) {
 
 //Fetch All Comments by posts ID
 export async function fetchCommentsByPostID(postId: number): Promise<{status: number, message: string, data: CommentUnic[] | null}> {
-    try {
+    /*try {
         const response = await fetch(`${baseUrl}/comments/${postId}`);
         if (!response.ok) {
             const errorData = await response.json();
@@ -414,9 +414,9 @@ export async function fetchCommentsByPostID(postId: number): Promise<{status: nu
     } catch (error: any) {
         console.error("Error fetching comments:", error);
         return {status: 400, message: error.message, data: null};
-    }
+    }*/
     // I will return dummy data for now
-    /*const data: CommentUnic[] = [
+    const data: CommentUnic[] = [
         {
             created_at: new Date(),
             comment: "This is a comment",
@@ -431,9 +431,39 @@ export async function fetchCommentsByPostID(postId: number): Promise<{status: nu
             created_at: new Date(),
             comment: "This is a third comment",
             user: { id: 3, username: "user3" }
+        },
+        {
+            created_at: new Date(),
+            comment: "This is another comment",
+            user: { id: 4, username: "user2" }
+        },
+        {
+            created_at: new Date(),
+            comment: "This is a third comment",
+            user: { id: 5, username: "user3" }
+        },
+        {
+            created_at: new Date(),
+            comment: "This is another comment",
+            user: { id: 2, username: "user2" }
+        },
+        {
+            created_at: new Date(),
+            comment: "This is a third comment",
+            user: { id: 4, username: "user3" }
+        },
+        {
+            created_at: new Date(),
+            comment: "This is another comment",
+            user: { id: 5, username: "user2" }
+        },
+        {
+            created_at: new Date(),
+            comment: "This is a third comment",
+            user: { id: 3, username: "user3" }
         }
     ]
-    return {status: 200, message: "Comments fetched successfully", data: data};*/
+    return {status: 200, message: "Comments fetched successfully", data: data};
 }
 
 

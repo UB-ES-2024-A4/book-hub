@@ -78,8 +78,7 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
     }
     return (
-        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters,
-            comments, addCommentByUser, addComments }}>
+        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters, comments, addCommentByUser, addComments }}>
             {children}
         </FeedContext.Provider>
     );

@@ -50,10 +50,8 @@ export default function MainContent ({ userData }: Props){
                 }
 
                 const loadedPosts = result.data;
-                if (! loadedPosts ){
-                    setLoading(false);
-                    return;
-                }
+                if (! loadedPosts ) return;
+
                 // Sort the posts by date
                 loadedPosts.sort((a, b) => new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime());
                 addAllPosts(loadedPosts);
