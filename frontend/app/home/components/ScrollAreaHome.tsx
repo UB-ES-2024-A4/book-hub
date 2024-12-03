@@ -243,21 +243,21 @@ const [searchTerm, setSearchTerm] = useState('');
                                                     </div>
                                                 </div>
                                             </CardContent>
-                                            {/*<CardFooter className="flex justify-between">
-                                    <div className="flex gap-4">
-                                      <Button variant="ghost" size="sm">
-                                        <Heart className="w-4 h-4 mr-2" />
-                                        Like
-                                      </Button>
-                                      <Button variant="ghost" size="sm">
-                                        <Share2 className="w-4 h-4 mr-2" />
-                                        Share
-                                      </Button>
-                                    </div>
-                                    <Button variant="outline" size="sm">
-                                      Comment Book
-                                    </Button>
-                                  </CardFooter>*/}
+                                            <CardFooter className="flex justify-between">
+                                                <div className="flex gap-4">
+                                                <Button variant="ghost" size="sm">
+                                                    <Heart className="w-4 h-4 mr-2" />
+                                                    Like
+                                                </Button>
+                                                <Button variant="ghost" size="sm">
+                                                    <Share2 className="w-4 h-4 mr-2" />
+                                                    Share
+                                                </Button>
+                                                </div>
+                                                <Button variant="outline" size="sm">
+                                                Comment Book
+                                                </Button>
+                                            </CardFooter>
                                         </Card>
                                     )
                                 })
