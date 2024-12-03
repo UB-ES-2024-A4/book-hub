@@ -11,10 +11,7 @@ type FeedContextType = {
     posts: { [key: number]: PostStorage };
     filters: { [key: number]: string };
     addAllFilters: (filters: { [key: number]: string }) => void;
-    // A map for comments by post id
-    comments: { [key: number]: CommentUnic[] };
     addCommentByUser: (comment: CommentUnic, postId: number) => void;
-    addComments: (comments: CommentUnic[], postId: number) => void;
 };
 
 const FeedContext = createContext<FeedContextType | undefined>(undefined);
@@ -23,7 +20,6 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [refreshKey, setRefreshKey] = useState(0);
     const [posts, setPosts] = useState<{ [key: number]: PostStorage }>({});
     const [filters, setFilters] = useState<{ [key: number]: string }>({});
-    const [comments, setComments] = useState<{ [key: number]: CommentUnic[] }>({});
 
     const refreshFeed = () => {
         setRefreshKey(prevKey => prevKey + 1);
@@ -62,23 +58,20 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const addCommentByUser = (comment: CommentUnic, postId: number) => {
         console.log("SE ESTÁ AÑADIENDO UN COMENTARIO By USER", comment);
-        setComments(prevComments => {
-            if (!prevComments[postId]) {
-                return { ...prevComments, [postId]: [comment] };
+        setPosts(prevPosts => {
+            const post = prevPosts[postId];
+            if (post) {
+                post.comments.push(comment);
+                post.n_comments += 1;
+                return { ...prevPosts, [postId]: post };
             } else {
-                return { ...prevComments, [postId]: [...prevComments[postId], comment] };
+                return prevPosts;
             }
         });
     }
 
-    const addComments = (comments: CommentUnic[], postId: number) => {
-        console.log("SE ESTÁN AÑADIENDO VARIOS COMENTARIOS", comments);
-        setComments(prevComments => {
-            return { ...prevComments, [postId]: comments };
-        });
-    }
     return (
-        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters, comments, addCommentByUser, addComments }}>
+        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters, addCommentByUser }}>
             {children}
         </FeedContext.Provider>
     );
