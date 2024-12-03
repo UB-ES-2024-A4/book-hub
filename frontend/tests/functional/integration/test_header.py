@@ -5,8 +5,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from .test_signin_signup_methods import login
 from .test_header_methods import go_to_create_post
+from ..config import driver
 
-driver = webdriver.Chrome()
 driver.get("http://localhost:3000")
 
 driver.get("http://localhost:3000/sign-in")

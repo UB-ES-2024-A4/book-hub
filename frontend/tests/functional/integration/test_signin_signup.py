@@ -4,8 +4,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 from .test_signin_signup_methods import go_to_sign_in_page, go_to_sign_up_page, sign_up, login
+from ..config import driver
 
-driver = webdriver.Chrome()
 driver.get("http://localhost:3000")
 
 def test_go_to_sign_up_page():

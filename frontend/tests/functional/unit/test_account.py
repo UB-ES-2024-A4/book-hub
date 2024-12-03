@@ -3,9 +3,9 @@ import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from ..integration.test_signin_signup_methods import login
+from ..config import driver
 
 def setUp():
-    driver = webdriver.Chrome()
     driver.get("http://localhost:3000")
     driver.get("http://localhost:3000/sign-in")
     login(driver, "user_test", "contraseña")
@@ -14,7 +14,8 @@ def setUp():
     time.sleep(1)
     return driver
 
-driver = setUp()
+setUp()
+
 def tearDown(driver):
     time.sleep(1)
     driver.quit()

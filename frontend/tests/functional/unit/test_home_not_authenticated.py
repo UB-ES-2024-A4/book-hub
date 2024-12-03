@@ -3,8 +3,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from ..config import driver
 
-driver = webdriver.Chrome()
 driver.get("http://localhost:3000")
 
 def test_identify_go_to_sign_in_page():

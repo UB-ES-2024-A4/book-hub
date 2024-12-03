@@ -4,9 +4,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from ..integration.test_signin_signup_methods import login
+from ..config import driver
 
 # Configuración del controlador de Selenium
-driver = webdriver.Chrome()
 
 driver.get("http://localhost:3000/sign-in")
 login(driver, "Victor", "contraseña")
