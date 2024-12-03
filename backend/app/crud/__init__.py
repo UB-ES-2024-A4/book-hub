@@ -1,1 +1,1 @@
-from . import user, post, book, filter, followers
+from . import like, user, post, book, filter, followers, like
