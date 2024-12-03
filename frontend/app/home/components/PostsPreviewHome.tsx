@@ -6,13 +6,15 @@ import { Textarea } from '@/components/ui/textarea';
 import {ScrollArea, ScrollBar} from '@/components/ui/scroll-area';
 import {BookImage, Bookmark, Heart, MessageCircle, Share2} from 'lucide-react';
 import {toast} from "nextjs-toast-notify";
-import {fetchCommentsByPostID} from "@/app/actions";
+import {fetchCommentsByPostID, postComment} from "@/app/actions";
 import {useFeed} from "@/contex/FeedContext";
-import {CommentUnic, PostStorage} from "@/app/types/PostStorage";
+import {CommentUnic, PostStorage, UserUnic} from "@/app/types/PostStorage";
 import CommentsPreview from "@/app/home/components/CommentPreview";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {formatRelativeTime, getColorFromInitials} from "@/app/lib/hashHelpers";
+import {formatRelativeTime, getColorFromInitials, handleSubmitCommentInPost} from "@/app/lib/hashHelpers";
 import Image from "next/image";
+import {getSession} from "@/app/lib/authentication";
+import {CommentTextArea} from "@/app/home/components/CommentTextArea";
 
 type PostsPreviewProps = {
     open: boolean;
@@ -24,57 +26,28 @@ const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PRO
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
 
 const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) => {
-    const { comments: commentsContext, addComments, addCommentByUser } = useFeed();
+    const { addCommentByUser } = useFeed();
     const [ comments, setComments ] = useState<CommentUnic[]>([]);
     const [ newComment, setNewComment ] = useState('');
+    const [ user, setUser] = useState<UserUnic| null>(null);
 
     useEffect(() => {
-        async function fetchComments() {
-            const postID = postsStorage.post.id;
-            if (commentsContext[postID]) {
-                setComments(commentsContext[postID]);
-                return;
-            }
-            const response = await fetchCommentsByPostID(postID);
-            if (response.status !== 200) {
-                console.error(response.message);
-                return;
-            } else {
-                const commentsUnics = response.data;
-                if (commentsUnics) {
-                    setComments(commentsUnics);
-                    addComments(commentsUnics, postID);
-                }
-            }
-        }
-        fetchComments()
+        const fetchUser = async () => {
+            const user = await getSession();
+            setComments(postsStorage.comments);
+            setUser({
+                following: false,
+                username: user?.username || '',
+                id: user?.id || -1
+            });
+        };
+        fetchUser();
     }, []);
 
-    const handleSubmitComment = () => {
-        if (newComment.trim() === '') {
-            toast.error("You should enter a comment to submit", {
-                duration: 4000,
-                progress: true,
-                position: "bottom-left",
-                transition: "swingInverted",
-                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n' +
-                    '  <circle cx="12" cy="12" r="10"/>\n' +
-                    '  <line x1="12" y1="8" x2="12" y2="12"/>\n' +
-                    '  <line x1="12" y1="16" x2="12.01" y2="16"/>\n' +
-                '</svg>',
-                sonido: true,
-            });
-            return;
-        }
-        const commentToAdd : CommentUnic = {
-            created_at: new Date(),
-            comment: newComment,
-            user: postsStorage.user
-        }
-        setComments([commentToAdd, ...comments]);
-        setNewComment('');
-        addCommentByUser(commentToAdd, postsStorage.post.id);
-    };
+    const handleSubmitComment = async () => {
+        await handleSubmitCommentInPost(newComment, setComments, comments,
+                                setNewComment, postsStorage, addCommentByUser, user);
+    }
 
     return (
     <Dialog open={open} onOpenChange={setIsDialogOpen}>
@@ -84,21 +57,32 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                 <div className="w-full md:w-1/2 bg-gray-900/70 text-white flex flex-col px-6 md:px-10 lg:px-16 py-4">
                     {/* Header */}
                     <div className="flex items-center space-x-3 mb-4">
-                        <Avatar className="w-10 h-10 border-2 border-white/20">
+                        <Avatar className="w-10 h-10 border-2 border-blue-400">
                             <AvatarImage
-                                src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${postsStorage.user.id}.png`}
-                                alt={postsStorage.user.username}
-                            />
-                            <AvatarFallback className="bg-blue-600 text-white font-bold">
-                                {postsStorage.user.username.substring(0, 2).toUpperCase()}
+                                src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${postsStorage.post.id}.png`}/>
+                            <AvatarFallback
+                                style={{
+                                    backgroundColor: postsStorage.user.username
+                                        ? getColorFromInitials(postsStorage.user.username.substring(0, 2).toUpperCase())
+                                        : 'hsl(215, 100%, 50%)',
+                                }}
+                                className="text-white font-semibold text-sm flex items-center justify-center"
+                            >
+                                {postsStorage.user.username
+                                    ? postsStorage.user.username.substring(0, 2).toUpperCase()
+                                    : '?'}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="space-y-1">
-                            <p className="font-semibold text-sm">@{postsStorage.user.username}</p>
-                            <p className="text-xs text-gray-400">{postsStorage.book.title}</p>
+
+                        <div className="flex flex-row space-x-10">
+                            <div className="flex flex-col">
+                                <span className="font-semibold">{postsStorage.user.username}</span>
+                                <span className="text-xs text-gray-500">
+                                    {postsStorage.book.title}
+                                </span>
+                            </div>
                         </div>
                     </div>
-
                     {/* Book Image */}
                     <Image
                         src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${postsStorage.book.id}.png`}
@@ -115,26 +99,28 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                     <div className="border-b border-white/20 my-2" />
                     {/* Caption */}
                     <div>
-                        <p className="text-sm font-semibold mb-2">@{postsStorage.user.username}</p>
-                        <p className="text-sm text-white/70 mb-2">{postsStorage.post.description}</p>
+                        <div className="text-sm mb-2">
+                            <span className="font-semibold">@{postsStorage.user.username} </span>
+                            <span className="text-white/70">{postsStorage.post.description}</span>
+                        </div>
                         <p className="text-xs text-gray-500">Book by {postsStorage.book.author}</p>
                     </div>
                 </div>
 
                 {/* Comments Section */}
-                <div className="w-full md:w-1/2 flex flex-col justify-between p-4 bg-[#051B32] md:pt-8 lg:pt-8">
+                <div className="w-full md:w-1/2 flex flex-col justify-between p-4 bg-[#1e4e83]/40 md:pt-8 lg:pt-8">
                     {/* Comments Scroll Area */}
                     <ScrollArea className="h-[500px] rounded-md border bg-gray-800/10 mb-4">
                         <div className="p-4 space-y-2 ">
-                            {comments.map((comment, index) => (
+                            {comments.map((comment) => (
                                 <div
-                                    key={index}
+                                    key={comment.id}
                                     className="bg-gray-800/40 hover:bg-gray-800/90 transition-all duration-300 rounded-xl p-3"
                                 >
                                     <div className="flex items-start space-x-3">
                                         <Avatar className="w-7 h-7 border-2 border-blue-400/50">
                                             <AvatarImage
-                                                src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png`}
+                                                src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}
                                             />
                                             <AvatarFallback
                                                 className="text-white font-semibold text-xs flex items-center justify-center"
@@ -151,7 +137,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                                         <div className="flex-1">
                                             <div className="flex justify-between items-center mb-1">
                                                 <span className="text-xs font-semibold text-blue-300">
-                                                    @{comment.user.username}
+                                                    {comment.user?.username}
                                                 </span>
                                                 <span className="text-xs text-gray-400">
                                                     {formatRelativeTime(comment.created_at)}
@@ -168,21 +154,8 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                     </ScrollArea>
 
                     {/* Comment Input */}
-                    <div className="flex space-x-2">
-                        <Textarea
-                            placeholder="Write a comment..."
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            className="flex-grow text-white"
-                            maxLength={500}
-                        />
-                        <Button
-                            onClick={handleSubmitComment}
-                            disabled={newComment.trim() === ''}
-                        >
-                            Submit
-                        </Button>
-                    </div>
+                    <CommentTextArea newComment={newComment} setNewComment={setNewComment} handleSubmitComment={handleSubmitComment} />
+
                 </div>
             </Card>
         </DialogContent>
