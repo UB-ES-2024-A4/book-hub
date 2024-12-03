@@ -1,6 +1,6 @@
 from sqlalchemy.sql import text
 from app.models.comment import CommentOutHome
-from app.models.post import PostOutHome, PostOutHomeOnly
+from app.models.post import Post, PostOutHome, PostOutHomeOnly
 from app.models.user import UserOutHome
 from fastapi import HTTPException
 from app.models import User, Book, Filter
@@ -112,6 +112,14 @@ def check_filters(filter_ids: list, session):
             status_code=404, 
             detail="Filters duplicated or one or more filters not found"
         )
+    
+def user_exists_in_database(user_id: int, session: Session):
+    user = session.exec(select(User).where(User.id == user_id)).first()
+    if not user: raise ValueError("User not found.")
+    
+def post_exists_in_database(post_id: int, session: Session):
+    post = session.exec(select(Post).where(Post.id == post_id)).first()
+    if not post: raise ValueError("Post not found.")
     
 # Home utilities
 def get_home_comments(*, 
