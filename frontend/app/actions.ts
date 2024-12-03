@@ -123,23 +123,25 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
 import { PostStorage } from "@/app/types/PostStorage";
 import {Book} from "@/app/types/Book";
 // Function to load the posts in the home page
-export async function loadPosts(filters: string|undefined = undefined, skip: number = 0, limit: number = 10
+export async function loadPosts(filters: string|undefined = undefined, skip: number = 0, limit: number = 10, page: string = 'home'
                                 ): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
     try {
         const accessToken = await getAccessToken();
+        
+        const url = baseUrl + `/${page}` + (filters ? `?filters=${filters}&skip=${skip}&limit=${limit}` :
+            `/?skip=${skip}&limit=${limit}`);
 
-        const urlHome = baseUrl + "/home" + (filters ? `?filters=${filters}&skip=${skip}&limit=${limit}` :
-                                                                `/?skip=${skip}&limit=${limit}`);
-
-        // Se cargar los posts de la API con un límite de 10
-        const response = await fetch(urlHome, {
+        const headers: HeadersInit = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            ...(page === 'home' && { authorization: `Bearer ${accessToken}` }),
+        };
+        
+        const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                authorization: `Bearer ${accessToken}`,
-            }
+            headers,
         });
+        
 
         if (response.status != 200) {
             const errorData = await response.json();
