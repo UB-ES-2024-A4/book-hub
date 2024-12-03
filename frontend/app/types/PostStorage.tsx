@@ -7,6 +7,7 @@ interface UserBasic {
 }
 
 export interface CommentUnic {
+    id?: number
     created_at: Date
     comment: string
     user: UserBasic

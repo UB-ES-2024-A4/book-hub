@@ -403,8 +403,15 @@ export async function unfollowUser(followerId: number, followeeId: number) {
 
 //Fetch All Comments by posts ID
 export async function fetchCommentsByPostID(postId: number): Promise<{status: number, message: string, data: CommentUnic[] | null}> {
-    /*try {
-        const response = await fetch(`${baseUrl}/comments/${postId}`);
+    try {
+        const response = await fetch(`${baseUrl}/comments/${postId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
         if (!response.ok) {
             const errorData = await response.json();
             console.error("Failed to unfollow user:", errorData.detail);
@@ -414,8 +421,8 @@ export async function fetchCommentsByPostID(postId: number): Promise<{status: nu
     } catch (error: any) {
         console.error("Error fetching comments:", error);
         return {status: 400, message: error.message, data: null};
-    }*/
-    // I will return dummy data for now
+    }
+    /* I will return dummy data for now
     const data: CommentUnic[] = [
         {
             created_at: new Date(),
@@ -463,7 +470,7 @@ export async function fetchCommentsByPostID(postId: number): Promise<{status: nu
             user: { id: 3, username: "user3" }
         }
     ]
-    return {status: 200, message: "Comments fetched successfully", data: data};
+    return {status: 200, message: "Comments fetched successfully", data: data};*/
 }
 
 
