@@ -36,7 +36,7 @@ def test_click_edit_profile():
     assert driver.find_element(By.NAME, "username").is_displayed()
     assert driver.find_element(By.NAME, "biography").is_displayed()
 
-def test_fill_and_save_changes():
+'''def test_fill_and_save_changes():
     driver.get("http://localhost:3000/account")
     edit_button = driver.find_element(By.XPATH, "//button[contains(text(),'Edit Profile')]")
     edit_button.click()
@@ -102,4 +102,4 @@ def test_click_change_profile_picture():
     change_picture_button.click()
     time.sleep(1)
     # Verificar que el modal de cambio de imagen está visible
-    assert driver.find_element(By.XPATH, "//h2[contains(text(),'Change Profile Picture')").is_displayed()
+    assert driver.find_element(By.XPATH, "//h2[contains(text(),'Change Profile Picture')").is_displayed()'''

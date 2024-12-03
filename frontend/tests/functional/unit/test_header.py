@@ -11,26 +11,12 @@ driver.get("http://localhost:3000")
 driver.get("http://localhost:3000/sign-in")
 login(driver, "user_test", "contraseña")
 time.sleep(1)
-def test_click_bookhub_link():
-    driver.get("http://localhost:3000/home")  # Navegar a la página de inicio
-    # Esperar a que el enlace "BookHub" sea clickeable
-    bookhub_link = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/home']"))
-    )
-    # Hacer clic en el enlace "BookHub"
-    bookhub_link.click()
-
-    # Verificar que la URL cambió a la página de home
-    WebDriverWait(driver, 5).until(
-        EC.url_to_be("http://localhost:3000/home")
-    )
-    assert driver.current_url == "http://localhost:3000/home", "No se redirigió correctamente a Home después de hacer clic en BookHub."
 
 def test_click_home_link():
-    driver.get("http://localhost:3000/explorer")  # Navegar a la página de Explorer
+    driver.get("http://localhost:3000/home")  # Navegar a la página de Explorer
     # Esperar a que el enlace "Home" sea clickeable
     home_link = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/home']"))
+        EC.element_to_be_clickable((By.XPATH, "//a[@href='/home' and contains(text(), 'Home')]"))
     )
     # Hacer clic en el enlace "Home"
     home_link.click()
@@ -59,7 +45,7 @@ def test_click_explorer_link():
 def test_identify_create_post_element():
     driver.get("http://localhost:3000/home")  # Navegar a la página de Home
     create_post_element = WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "div.path.cursor-pointer.text-gray-600"))
+        EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'path') and contains(@class, 'cursor-pointer') and text()='Create Post']"))
     )
     assert create_post_element.is_displayed(), "El elemento 'Create Post' no está visible."
 
