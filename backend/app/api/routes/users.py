@@ -37,7 +37,7 @@ router = APIRouter()
 def get_first_user(session: Session = Depends(get_session)):
     result : User = crud.user.get_user(session=session, user_id=1)
     if result:
-        return {"user_id": result.id}
+        return result
     return {"error": "No users found"}
 
 @router.get("/me",
