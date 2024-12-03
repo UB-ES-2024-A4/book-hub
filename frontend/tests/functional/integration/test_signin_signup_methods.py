@@ -1,10 +1,8 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
 
-
+"""
 def go_to_sign_in_page(driver):
     # Esperamos a que cargue la página y hacemos click en el botón account
     account_link = WebDriverWait(driver, 5).until(
@@ -27,6 +25,8 @@ def go_to_sign_up_page(driver):
     WebDriverWait(driver, 5).until(
         EC.url_to_be("http://localhost:3000/sign-up")
     )
+
+"""
 
 def sign_up(driver, username, first_name, last_name, email, password):
     # Esperar a que el campo de nombre de usuario esté presente y visible
@@ -78,6 +78,7 @@ def sign_up(driver, username, first_name, last_name, email, password):
 
 def login(driver, username, password):
     # Esperar a que el campo de usuario esté presente y visible
+    username = "user_test@test.com"
     user_input = WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.ID, "user"))
     )

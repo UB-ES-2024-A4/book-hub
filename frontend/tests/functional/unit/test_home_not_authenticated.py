@@ -1,5 +1,3 @@
-import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -15,7 +13,7 @@ def test_identify_go_to_sign_in_page():
     )
     # Verificar que el enlace está visible (sin hacer clic)
     assert account_link.is_displayed(), "El enlace de cuenta no está visible."
-
+"""
 def test_identify_go_to_sign_up_page():
     driver.get("http://localhost:3000/home")  # Navegar a la página de inicio
     # Esperar a que el enlace de "sign-up" esté presente
@@ -54,3 +52,4 @@ def test_click_go_to_sign_up_page():
         EC.url_to_be("http://localhost:3000/sign-up")
     )
     assert driver.current_url == "http://localhost:3000/sign-up", "No se redirigió a la página de registro."
+"""

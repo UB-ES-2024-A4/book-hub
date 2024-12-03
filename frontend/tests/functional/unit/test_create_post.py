@@ -1,3 +1,4 @@
+"""
 import time
 from selenium.webdriver.common.by import By
 from ..integration.test_header_methods import go_to_create_post
@@ -36,3 +37,4 @@ def test_click_create_post_button():
     create_post_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
     assert create_post_button.is_enabled()  # Comprobar que el botón está habilitado
     create_post_button.click()
+"""

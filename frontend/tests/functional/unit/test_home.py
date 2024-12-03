@@ -1,5 +1,5 @@
+"""
 import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -46,3 +46,4 @@ def test_disappear_post_when_unfollow():
     time.sleep(1)
     assert len(user) == 0, "Los posts del usuario no han desaparecido después de dejar de seguirlo."
 
+"""

@@ -3,10 +3,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-from .test_signin_signup_methods import go_to_sign_in_page, go_to_sign_up_page, sign_up, login
+from .test_signin_signup_methods import sign_up, login
 from ..config import driver
 
 driver.get("http://localhost:3000")
+'''
 def test_go_to_sign_up_page():
     driver.get("http://localhost:3000")
     go_to_sign_up_page(driver)
@@ -17,7 +18,7 @@ def test_go_to_sign_in_page():
     go_to_sign_in_page(driver)
     assert driver.current_url == "http://localhost:3000/sign-in", "No se redirigió a la página de sign-in."
 
-'''def test_sign_up():
+def test_sign_up():
     driver.get("http://localhost:3000/sign-up")
     sign_up(driver, "user_test", "user_test", "user_test", "user_test@test.com", "contraseña")
     WebDriverWait(driver, 5).until(

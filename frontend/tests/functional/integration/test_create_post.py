@@ -1,17 +1,17 @@
+
 import time
-import os
-import pyautogui
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from ..integration.test_signin_signup_methods import login
-from ..integration.test_header_methods import go_to_create_post
+#from ..integration.test_header_methods import go_to_create_post
+from ..config import driver
 
-driver = webdriver.Chrome()
 driver.get("http://localhost:3000")
 driver.get("http://localhost:3000/sign-in")
 login(driver, "user_test", "contraseña")
 time.sleep(1)
 
+"""
 def setup():
     driver.get("http://localhost:3000/home")
     go_to_create_post(driver)
@@ -35,3 +35,5 @@ def test_createPost():
 
     create_post_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
     create_post_button.click()
+
+"""

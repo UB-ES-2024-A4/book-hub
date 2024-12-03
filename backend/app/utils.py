@@ -296,7 +296,7 @@ def get_home_posts_for_user(*,
             ),
             n_comments=row.num_comments if row.num_comments else 0,
             comments=[],
-            filters=[1],
+            filters=[int(fid) for fid in row.filters.split(",") if row.filters],
         ) for row in posts}
     
     # Now iterate the coments to add them to the corresponding post

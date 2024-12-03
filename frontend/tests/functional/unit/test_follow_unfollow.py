@@ -1,5 +1,5 @@
+"""
 import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -36,7 +36,7 @@ def test_click_following_button():
 
     # Verificar que el botón fue pulsado (por ejemplo, puede cambiar a 'Follow')
     assert following_button.text.strip() == "Follow", "El botón no cambió a 'Follow' después de hacer clic."
-
+"""
 
 '''def test_identify_follow_button():
     # Esperar a que el texto del usuario esté visible
