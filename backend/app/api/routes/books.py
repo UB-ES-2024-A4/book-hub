@@ -1,6 +1,4 @@
-import os
-from fastapi import (APIRouter, File, HTTPException, Depends, UploadFile, Path)
-from fastapi.responses import FileResponse
+from fastapi import (APIRouter, HTTPException, Depends, Path)
 from sqlmodel import Session
 
 from app.core.database import get_session

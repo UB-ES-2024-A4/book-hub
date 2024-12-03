@@ -1,9 +1,8 @@
-from fastapi.encoders import jsonable_encoder
-from sqlmodel import Session, select
+from sqlmodel import Session
 from datetime import datetime
 
 from app import crud
-from app.models import Post, Book, BookCreate, BookUpdate
+from app.models import BookCreate, BookUpdate
 
 title = 'Book_Test'
 author = 'Tester'
