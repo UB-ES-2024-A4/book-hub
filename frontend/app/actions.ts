@@ -399,13 +399,12 @@ export async function unfollowUser(followerId: number, followeeId: number) {
 
 export async function likePost(userId: number, postId: number) {
   try {
-    const accessToken = await getAccessToken();
     const response = await fetch(`${baseUrl}/likes/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        authorization: `Bearer ${accessToken}`,
-      },
+        authorization: `Bearer ${await getAccessToken()}`,
+    },
       body: JSON.stringify({
         user_id: userId,
         post_id: postId,
@@ -428,12 +427,11 @@ export async function likePost(userId: number, postId: number) {
 
 export async function unlikePost(userId: number, postId: number) {
     try {
-      const accessToken = await getAccessToken();
       const response = await fetch(`${baseUrl}/likes/${postId}&${userId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${await getAccessToken()}`,
         },
       });
   
@@ -448,5 +446,5 @@ export async function unlikePost(userId: number, postId: number) {
       console.error('Error while unliking post:', error);
       return { status: 400, message: error.message };
     }
-  }
+}
   

@@ -44,13 +44,13 @@ export function PostCard({
     try {
       if (liked) {
         // Unlike the post
-        const result = await unlikePost(user.id, post.id);
+        const result = await unlikePost(currentUserId, post.id);
         if (result.status !== 200) {
           throw new Error(result.message);
         }
       } else {
         // Like the post
-        const result = await likePost(user.id, post.id);
+        const result = await likePost(currentUserId, post.id);
         if (result.status !== 200) {
           throw new Error(result.message);
         }
