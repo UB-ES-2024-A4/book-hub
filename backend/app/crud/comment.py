@@ -1,4 +1,5 @@
 from app.models.comment import CommentOutHome
+from app.models.post import Post
 from sqlalchemy.sql import text
 from datetime import datetime
 from sqlmodel import Session, select
@@ -10,11 +11,11 @@ from app.models import (
 )
 import app.utils as utils
 
-def create_comment_post(session: Session, comment: CommentCreate, user: User) -> Comment:
+def create_comment(session: Session, comment: CommentCreate, user: User) -> Comment:
 
     # Check if user and post exists
     utils.post_exists_in_database(session=session, post_id=comment.post_id)
-    if comment.comment == "": raise ValueError("Comment cannot be empty.") 
+    if comment.comment == "": raise ValueError(400, "Comment cannot be empty.") 
 
     # If created_at is not provided, set it to current time
     if not comment.created_at: comment.created_at = datetime.now()
@@ -27,6 +28,8 @@ def create_comment_post(session: Session, comment: CommentCreate, user: User) ->
 
 def get_post_comments(session: Session, post_id: int, user: User | None = None) -> list[CommentOutHome]:
     
+    utils.post_exists_in_database(session=session, post_id=post_id)
+
     comments_query = text("""
                     SELECT 
                         c.id AS comment_id,
@@ -51,8 +54,7 @@ def get_post_comments(session: Session, post_id: int, user: User | None = None) 
                         c.post_id = :post_id
                     ORDER BY 
                         c.created_at DESC;
-                    """)
-    
+                    """)    
     comments_db = session.exec(
         comments_query,
         params={"post_id": post_id, "current_user_id": user.id}

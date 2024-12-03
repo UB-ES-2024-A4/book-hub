@@ -13,11 +13,13 @@ router = APIRouter()
            dependencies=[Depends(get_current_user),
                          Depends(get_session)],
            response_model=list[CommentOutHome])
-def get_posts_comments(post_id: int = 1, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
+def get_posts_comments(post_id: int, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     try:
         return crud_comment.get_post_comments(session, post_id, user)
-    except:
-        raise HTTPException(status_code=404, detail="An error occoured while fetching comments.")
+    except ValueError as e:
+        raise HTTPException(status_code=e.args[0], detail=e.args[1])
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="An error occoured while fetching comments.")
 
 
 @router.post("/",
@@ -25,8 +27,10 @@ def get_posts_comments(post_id: int = 1, session: Session = Depends(get_session)
                          Depends(get_session)])
 def create_comment(comment: CommentCreate, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     try:
-        return crud_comment.create_comment_post(session, comment, user)
-    except:
+        return crud_comment.create_comment(session, comment, user)
+    except ValueError as e:
+        raise HTTPException(status_code=e.args[0], detail=e.args[1])
+    except Exception as e:
         raise HTTPException(status_code=400, detail="An error occoured while creating comment.")
 
 @router.delete("/{comment_id}",

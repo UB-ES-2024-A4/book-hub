@@ -119,7 +119,7 @@ def user_exists_in_database(user_id: int, session: Session):
     
 def post_exists_in_database(post_id: int, session: Session):
     post = session.exec(select(Post).where(Post.id == post_id)).first()
-    if not post: raise ValueError("Post not found.")
+    if not post: raise ValueError(404, "Post not found.")
     
 # Home utilities
 def get_home_comments(*, 
