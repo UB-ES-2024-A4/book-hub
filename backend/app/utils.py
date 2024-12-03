@@ -425,11 +425,7 @@ def get_explorer_posts(*,
                        skip: int,
                        limit: int) -> list[PostOutHome]:
 
-    posts = get_explorer_posts_db(session=session,
-                                 user=user,
-                                 filters=filters,
-                                 skip=skip,
-                                 limit=limit)
+    posts = get_explorer_posts_db(session=session, user=user, filters=filters, skip=skip, limit=limit)
     
     # Process posts to build PostOutHome objects
     # Comprehension list to build this dictionary faster
