@@ -397,7 +397,7 @@ export async function unfollowUser(followerId: number, followeeId: number) {
 
 }
 
-export async function likePost(postId: number) {
+export async function likePost(userId: number, postId: number) {
   try {
     const accessToken = await getAccessToken();
     const response = await fetch(`${baseUrl}/likes/`, {
@@ -407,6 +407,7 @@ export async function likePost(postId: number) {
         authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
+        user_id: userId,
         post_id: postId,
       }),
     });
@@ -425,18 +426,15 @@ export async function likePost(postId: number) {
   }
 }
 
-export async function unlikePost(postId: number) {
+export async function unlikePost(userId: number, postId: number) {
     try {
       const accessToken = await getAccessToken();
-      const response = await fetch(`${baseUrl}/likes/`, {
+      const response = await fetch(`${baseUrl}/likes/${postId}&${userId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          post_id: postId,
-        }),
       });
   
       if (response.status !== 200) {
