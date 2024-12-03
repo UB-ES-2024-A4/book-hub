@@ -1,23 +1,14 @@
 "use client";
-// Importing necessary functions from Next.js and other libraries
-import React, {Suspense} from "react";
-import { useEffect, useState } from "react";
-import SearchHome from "@/app/home/components/SearchHome";
-import ScrollAreaHome from "@/app/home/components/ScrollAreaHome";
-import { loadPosts } from "@/app/actions";
-import { Post } from "@/app/types/Post";
-import FetchError from "@/components/FetchError";
-import {useFeed} from "@/contex/FeedContext";
-import {Filter} from "@/app/types/Filter";
-import {toast} from "nextjs-toast-notify";
+
+import React, { useEffect, useState } from "react";
 import { User } from "@/app/types/User";
+import {useFeed} from "@/contex/FeedContext";
+import { loadPosts } from "@/app/actions";
+import FetchError from "@/components/FetchError";
+import ScrollAreaExplorer from "@/app/explorer/components/ScrollAreaExplorer";
 import LoadingSpinner from "@/components/Loading";
 
-type Props = {
-    userData: User;
-}
-
-export default function MainContent ({ userData }: Props){
+export default function MainContent(){
 
     // Refresh feed Context to update the feed
     const { addAllPosts, posts:PostContexApp } = useFeed();
@@ -28,11 +19,8 @@ export default function MainContent ({ userData }: Props){
 
     useEffect(() => {
         async function fetchPosts() {
-
-            console.log("Fetching Posts");
-
             try {
-                const result = await loadPosts();
+                const result = await loadPosts(undefined, 0, 60, 'explorer');
 
                 if (result.status !== 200) {
                     setError(result.message || "An unknown error occurred");
@@ -69,12 +57,8 @@ export default function MainContent ({ userData }: Props){
                 <FetchError errorDetail={fetchError} />
             </div>
         ) : (
-            <div className="flex flex-1 flex-col md:flex-row overflow-hidden pt-10 md:pt-0">
-                {/* Sidebar (Search) */}
-                { /*<SearchHome/> */}
-                {/* Feed Section */}
-
-                <ScrollAreaHome userData={userData}/>
+            <div className="flex-1 flex-col md:flex-row overflow-x-auto pt-10">
+                <ScrollAreaExplorer/>
             </div>
         )
     )
