@@ -6,15 +6,15 @@ interface UserBasic {
     id: number;
 }
 
+export interface UserUnic extends UserBasic {
+    following: boolean; // `boolean | undefined` => `?`.
+}
+
 export interface CommentUnic {
     id?: number
     created_at: Date
     comment: string
-    user: UserBasic
-}
-
-interface UserUnic extends UserBasic {
-    following: boolean; // `boolean | undefined` => `?`.
+    user: UserUnic
 }
 
 export interface PostStorage{
