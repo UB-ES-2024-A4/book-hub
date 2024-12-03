@@ -25,7 +25,7 @@ def create_comment_post(session: Session, comment: CommentCreate, user: User) ->
     session.refresh(new_comment)
     return new_comment
 
-def get_post_comments(session: Session, post_id: int, user: User | None = None) -> Comment:
+def get_post_comments(session: Session, post_id: int, user: User | None = None) -> list[CommentOutHome]:
     
     comments_query = text("""
                     SELECT 
@@ -58,9 +58,7 @@ def get_post_comments(session: Session, post_id: int, user: User | None = None) 
         params={"post_id": post_id, "current_user_id": user.id}
     ).all()
 
-    print(f"Comments_db: {comments_db}")
-
-    comments = {comment_id: CommentOutHome(
+    comments = [CommentOutHome(
         id=comment_id,
         comment=comment,
         created_at=created_at,
@@ -69,6 +67,15 @@ def get_post_comments(session: Session, post_id: int, user: User | None = None) 
             username=username,
             following=following == 1
         )
-    ) for comment_id, comment, created_at, user_id, username, following in comments_db}
+    ) for comment_id, comment, created_at, user_id, username, following in comments_db]
 
     return comments
+
+
+def delete_comment(session: Session, comment_id: int, user: User) -> Comment:
+    comment = session.get(Comment, comment_id)
+    if not comment: raise ValueError(404, "Comment not found.")
+    if comment.user_id != user.id: raise ValueError(403, "You are not the owner of this comment.")
+    session.delete(comment)
+    session.commit()
+    return comment
