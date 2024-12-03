@@ -422,68 +422,18 @@ export async function fetchCommentsByPostID(postId: number): Promise<{status: nu
         console.error("Error fetching comments:", error);
         return {status: 400, message: error.message, data: null};
     }
-    /* I will return dummy data for now
-    const data: CommentUnic[] = [
-        {
-            created_at: new Date(),
-            comment: "This is a comment",
-            user: { id: 1, username: "user1" }
-        },
-        {
-            created_at: new Date(),
-            comment: "This is another comment",
-            user: { id: 2, username: "user2" }
-        },
-        {
-            created_at: new Date(),
-            comment: "This is a third comment",
-            user: { id: 3, username: "user3" }
-        },
-        {
-            created_at: new Date(),
-            comment: "This is another comment",
-            user: { id: 4, username: "user2" }
-        },
-        {
-            created_at: new Date(),
-            comment: "This is a third comment",
-            user: { id: 5, username: "user3" }
-        },
-        {
-            created_at: new Date(),
-            comment: "This is another comment",
-            user: { id: 2, username: "user2" }
-        },
-        {
-            created_at: new Date(),
-            comment: "This is a third comment",
-            user: { id: 4, username: "user3" }
-        },
-        {
-            created_at: new Date(),
-            comment: "This is another comment",
-            user: { id: 5, username: "user2" }
-        },
-        {
-            created_at: new Date(),
-            comment: "This is a third comment",
-            user: { id: 3, username: "user3" }
-        }
-    ]
-    return {status: 200, message: "Comments fetched successfully", data: data};*/
 }
 
-
 // Method that post a comment in a post
-export async function postComment(postId: number, comment: string) {
+export async function postComment(post_id: number, comment: string) {
     try {
-        const response = await fetch(`${baseUrl}/comments/${postId}`, {
+        const response = await fetch(`${baseUrl}/comments/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 authorization: `Bearer ${await getAccessToken()}`,
             },
-            body: JSON.stringify({ comment }),
+            body: JSON.stringify({ comment, post_id }),
         });
 
         if (response.status !== 200) {
