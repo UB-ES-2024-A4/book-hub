@@ -8,9 +8,10 @@ import FetchInformationError from "../account/components/Errors/FetchInformation
 export default async function Home() {
     const accessToken: string | null = await getAccessToken();
 
-    if(! accessToken )
+    if(! accessToken ) {
+        console.log("NO ACCESS")
         redirect("/explorer");
-
+    }
     const user : User | null = await getSession();
 
     // Handle error state
@@ -18,7 +19,7 @@ export default async function Home() {
         return (<FetchInformationError error={"Failed to load user information."}/>);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-950 to-gray-800 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br bg-[#051B32] flex flex-col pl-0 md:pl-44 lg:pl-52">
             <Header accessToken={accessToken} user_id={user.id}/>
             <MainContent userData={user}/>
         </div>

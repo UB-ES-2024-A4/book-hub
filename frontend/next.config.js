@@ -1,11 +1,11 @@
 // next.config.js
 module.exports = {
+  reactStrictMode: false,
   async redirects() {
-    console.log('Applying redirect from / to /explore');
     return [
       {
         source: '/',
-        destination: '/explorer',
+        destination: '/home',
         permanent: false,
       },
     ];
