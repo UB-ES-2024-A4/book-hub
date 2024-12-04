@@ -47,6 +47,11 @@ class UserOut(UserBase):
 class UsersOut(SQLModel):
     users: list[UserOut]
 
+class UserOutHome(SQLModel):
+    id: int
+    username: str
+    following: bool = False
+
 class Token(SQLModel):
     access_token: str
     token_type: str = "bearer"

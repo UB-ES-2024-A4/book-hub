@@ -18,6 +18,7 @@ def test_create_book(db: Session) -> None:
     assert created_book.author == author
     assert created_book.description == description
 
+
 def test_get_book_by_id(db: Session) -> None:
     book_in = BookCreate(title=title, author=author, description=description, created_at=created_at)
     created_book = crud.book.create_book(session=db, book_create=book_in)
@@ -89,7 +90,7 @@ def test_update_book_all_fields(db: Session) -> None:
     assert updated_book.author == new_author
     assert updated_book.description == new_description
 
-def test_delete_post(db: Session) -> None:
+def test_delete_book(db: Session) -> None:
     book_in = BookCreate(title=title, author=author, description=description, created_at=created_at)
     db_book = crud.book.create_book(session=db, book_create=book_in)
     
