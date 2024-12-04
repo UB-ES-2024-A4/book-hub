@@ -8,7 +8,11 @@ import FetchError from "@/components/FetchError";
 import ScrollAreaExplorer from "@/app/explorer/components/ScrollAreaExplorer";
 import LoadingSpinner from "@/components/Loading";
 
-export default function MainContent(){
+type Props = {
+    userData: User | null;
+}
+
+export default function MainContent({ userData }: Props){
 
     // Refresh feed Context to update the feed
     const { addAllPosts, posts:PostContexApp } = useFeed();
@@ -58,7 +62,7 @@ export default function MainContent(){
             </div>
         ) : (
             <div className="flex-1 flex-col md:flex-row overflow-x-auto pt-10">
-                <ScrollAreaExplorer/>
+                <ScrollAreaExplorer userData={userData}/>
             </div>
         )
     )
