@@ -1,9 +1,8 @@
 name: Tests
 
 on:
-  push:  # Ejecutar solo en ramas específicas
-    branches:
-      - PreProduction
+  workflow_dispatch:  # Triggers deployment on pushes to the main branch
+  
 
 env:
   APP_NAME: BookHub
@@ -16,6 +15,7 @@ env:
 jobs:
 
   test:
+    if: github.ref == 'refs/heads/PreProduction' && github.event_name == 'push'
     runs-on: ubuntu-latest
     services:
       mysql:
