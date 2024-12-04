@@ -1,13 +1,13 @@
 "use server";
 
 // Importing necessary functions from Next.js and other libraries
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {User} from "@/app/types/User";
-import { Post } from "@/app/types/Post";
 import { parseWithZod } from "@conform-to/zod";
 import {getAccessToken, getSession} from "./lib/authentication";
 import { userInformationSchema } from "./lib/zodSchemas";
+import {CommentUnic, PostStorage} from "@/app/types/PostStorage";
+import {Filter} from "@/app/types/Filter";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
@@ -120,25 +120,27 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
        }
    }
 
-import { PostStorage } from "@/app/types/PostStorage";
-import {Book} from "@/app/types/Book";
 // Function to load the posts in the home page
-export async function loadPosts(filters: string|undefined = undefined, skip: number = 0, limit: number = 10
+export async function loadPosts(filters: string|undefined = undefined, skip: number = 0, limit: number = 10, page: string = 'home'
                                 ): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
     try {
         const accessToken = await getAccessToken();
 
-        const urlHome = baseUrl + "/home" + (filters ? `?filters=${filters}&skip=${skip}&limit=${limit}` :
-                                                                `/?skip=${skip}&limit=${limit}`);
+        const url = baseUrl + `/${page}` + (filters ? `?filters=${filters}&skip=${skip}&limit=${limit}` :
+            `/?skip=${skip}&limit=${limit}`);
 
-        // Se cargar los posts de la API con un límite de 10
-        const response = await fetch(urlHome, {
+        const headers: HeadersInit = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        };
+
+        if ((page === 'home') || (page === 'explorer' && accessToken)) {
+            headers["Authorization"] = `Bearer ${accessToken}`;
+        }
+
+        const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                authorization: `Bearer ${accessToken}`,
-            }
+            headers,
         });
 
         if (response.status != 200) {
@@ -255,11 +257,14 @@ export async function CreatePost(prevState: unknown, formData: FormData) : Promi
         const post_filters = await postResponse.json();
         console.log("POST FILTERS FOR POST STORAGE", post_filters);
 
+        const filters = post_filters['filters'];
+        // Convertirlo en Array Number
+        const filtersArrayNumber: number[] = filters.map((filter: Filter) => filter.id);
         const postStorage: PostStorage = {
             user: { id: user.id, username: user.username, following: false},
             post: post_filters['post'],
             book: bookData.data,
-            filters: post_filters['filters'],
+            filters: filtersArrayNumber,
             like_set: false,
             n_comments: 0,
             comments: []
@@ -301,45 +306,6 @@ export async function loadFilters() {
     }
     catch (error: any) {
         return { status: 400, message: error.message, data: null };
-    }
-
-}
-
-
-export async function fetchUser(userId: number) {
-    try {
-        const response = await fetch(baseUrl+`/users/${userId}`);
-        if (response.status !== 200) {
-            console.error(`Failed to fetch user with ID ${userId}`);
-            return {status: response.status, message: "Failed to fetch user with ID", data: null};
-        }
-        return {status:200, message: "User fetched successfully", data: await response.json()};
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        return {status: 400, message: "Error fetching user", data: null};
-    }
-}
-
-export async function isUserFollowing(
-    currentUserId: number,
-    targetUserId: number
-): Promise<boolean | null> {
-    try {
-        const response = await fetch(
-            `${baseUrl}/followers/${currentUserId}/${targetUserId}`
-        );
-        if (!response.ok) {
-            console.error(
-                `Failed to check if user ${currentUserId} is following ${targetUserId}`
-            );
-            return null;
-        }
-        const data = await response.json();
-        console.log("FOLOWWWIN status:", data.success);
-        return data.success;
-    } catch (error) {
-        console.error("Error checking following status:", error);
-        return null;
     }
 }
 
@@ -395,4 +361,102 @@ export async function unfollowUser(followerId: number, followeeId: number) {
         return { status: error.status, message: error.message, data: null };
     }
 
+}
+
+//Fetch All Comments by posts ID
+export async function fetchCommentsByPostID(postId: number): Promise<{status: number, message: string, data: CommentUnic[] | null}> {
+    try {
+        const response = await fetch(`${baseUrl}/comments/${postId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to unfollow user:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        return {status: 200, message: "Comments fetched successfully", data: await response.json()};
+    } catch (error: any) {
+        console.error("Error fetching comments:", error);
+        return {status: 400, message: error.message, data: null};
+    }
+}
+
+// Method that post a comment in a post
+export async function postComment(post_id: number, comment: string) {
+    try {
+        const response = await fetch(`${baseUrl}/comments/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+            body: JSON.stringify({ comment, post_id }),
+        });
+
+        if (response.status !== 200) {
+            const errorData = await response.json();
+            console.error("Failed to post comment:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        return {status: 200, message: "Comment posted successfully", data: await response.json()};
+
+    } catch (error: any) {
+        console.error("Error while posting comment:", error);
+        return { status: 400, message: error.message, data: null };
+    }
+}
+
+// Method that deletes a comment in a post
+export async function deleteComment(commentId: number) {
+    try {
+        const response = await fetch(`${baseUrl}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (response.status !== 200) {
+            const errorData = await response.json();
+            console.error("Failed to delete comment:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        return {status: 200, message: "Comment deleted successfully", data: await response.json()};
+
+    } catch (error: any) {
+        console.error("Error while deleting comment:", error);
+        return { status: 400, message: error.message, data: null };
+    }
+}
+
+export async function logOut() {
+    try {
+        const response = await fetch(`${baseUrl}/users/logout`, {
+            method: 'POST',
+            headers: {
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to logout user:", errorData.detail);
+            return null;
+        }
+
+        (await cookies()).delete('user');
+        (await cookies()).delete('accessToken');
+
+        return await response.json();// // Return the response or confirmation
+    } catch (error) {
+        console.error("Error while logging user out:", error);
+        return null;
+    }
 }

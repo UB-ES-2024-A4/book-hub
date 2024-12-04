@@ -1,4 +1,4 @@
-import React, {Suspense, useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -11,15 +11,19 @@ import { Post } from "@/app/types/Post";
 import "../style.css";
 import NoPostError from "@/app/home/Errors/NoPostError";
 import {User} from "@/app/types/User";
-import {followUser, loadPosts, unfollowUser} from "@/app/actions";
+import {fetchCommentsByPostID, followUser, loadPosts, unfollowUser} from "@/app/actions";
 import {getAccessToken} from "@/app/lib/authentication";
 import {Book} from "@/app/types/Book";
 import {useFeed} from "@/contex/FeedContext";
 import {toast} from "nextjs-toast-notify";
-import {getColorFromInitials} from "@/app/lib/colorHash";
+import {formatRelativeTime, getColorFromInitials} from "@/app/lib/hashHelpers";
 import {PostStorage} from "@/app/types/PostStorage";
 import {Input} from "@/components/ui/input";
 import {X} from 'lucide-react'
+import CommentsPreview from "@/app/home/components/CommentPreview";
+import {AnimatePresence, motion} from "framer-motion";
+import {CommentScroll} from "@/app/home/components/CommentScroll";
+import {Dialog} from "@/components/ui/dialog";
 
 type Props = {
   userData: User;
@@ -28,8 +32,8 @@ type Props = {
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 // URL de la API de Azure Storage
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
-const NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS;
 
 export default function ScrollAreaHome({ userData }: Props) {
 
@@ -85,7 +89,8 @@ export default function ScrollAreaHome({ userData }: Props) {
   };
 
 
-const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showComments, setShowComments] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
 
   const handleFilterToggle = async (filterId: number) => {
@@ -196,13 +201,19 @@ const [searchTerm, setSearchTerm] = useState('');
                                                         </AvatarFallback>
                                                     </Avatar>
 
-                                                    <span
-                                                        className="font-semibold text-blue-300">@{user?.username || "Unknown User"}</span>
+                                                    <div className="flex flex-row space-x-10">
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold">{user.username}</span>
+                                                            <span className="text-xs text-gray-500">
+                                                                {formatRelativeTime(post_I.post.created_at)}
+                                                            </span>
+                                                        </div>
+
                                                     {currentUserId != user?.id && (
                                                         <Button
                                                             variant={user.following ? "default" : "outline"}
-                                                            className={`relative h-8 ${
-                                                                user.following ? "bg-gray-500" : "bg-blue-500"
+                                                            className={` h-8  ${
+                                                                user.following ? "bg-blue-500/10" : "bg-blue-500"
                                                             } text-white font-semibold py-2 px-4 rounded-l-md group`}
                                                             onClick={() =>
                                                                 handleFollowClick(user.id, user.following)
@@ -211,14 +222,17 @@ const [searchTerm, setSearchTerm] = useState('');
                                                             {user.following ? "Following" : `Follow`}
                                                         </Button>
                                                     )}
+                                                    </div>
+
                                                 </div>
                                             </CardHeader>
                                             <CardContent className="pt-4">
                                                 <div
-                                                    className="grid md:grid-cols-[150px_1fr] justify-items-center md:justify-items-start">
-                                                    <Image alt="Book cover"
-                                                           className="rounded-lg object-cover shadow-md mb-2 pr-4 hidden md:block"
-                                                           width={200} height={200}
+                                                    className="grid md:grid-cols-[150px_1fr] lg:grid-cols-[200px_2fr_minmax(100px,300px)] xl:grid-cols-[200px_2fr_minmax(100px,400px)]
+                                                    gap-4 items-start justify-items-center md:justify-items-start transition-all duration-500 ">
+                                                    <Image alt="Book cover Big Screen"
+                                                           className="rounded-lg object-cover shadow-md mb-2 hidden md:block"
+                                                           width={400} height={400}
                                                            src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
                                                     />
                                                     <div className="space-y-3">
@@ -226,9 +240,9 @@ const [searchTerm, setSearchTerm] = useState('');
                                                             <h2 className="text-xl font-bold text-blue-200">{book?.title}</h2>
                                                             <p className="text-blue-400">by {book?.author}</p>
                                                         </div>
-                                                        <Image alt="Book cover"
+                                                        <Image alt="Book cover Small Screen"
                                                                className="rounded-lg object-cover shadow-md mb-2 md:hidden"
-                                                               width={200} height={200}
+                                                               width={400} height={400}
                                                                src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
                                                         />
                                                         <p className="text-sm text-gray-300">{post_I.post.description}</p>
@@ -241,22 +255,55 @@ const [searchTerm, setSearchTerm] = useState('');
                                                             ))}
                                                         </div>
                                                     </div>
+                                                    {/* Columna 3: Comentarios */}
+                                                    <div className="max-w-[400px] lg:w-[300px] xl:w-[400px]">
+                                                        <CommentsPreview comments={post_I.comments} n_comments={post_I.n_comments}
+                                                                            postStorage={post_I}
+                                                        />
+                                                    </div>
                                                 </div>
+
+                                        {/* Mobile Comments Button */}
+                                        <div className="block md:hidden">
+                                            <button
+                                                onClick={() => setShowComments(true)}
+                                                className="flex items-center gap-2 text-blue-400 hover:text-blue-200 transition-colors"
+                                            >
+                                                <MessageCircle size={24} />
+                                                <span>Comments ({post_I.comments.length})</span>
+                                            </button>
+                                        </div>
+
+                                            <Dialog open={true}>
+                                                <div
+                                                    className={`pt-4 rounded-t-2xl w-full max-w-lg transition-all duration-500 transform ${
+                                                        showComments ? 'translate-y-0' : ' hidden translate-y-full pointer-events-none'
+                                                    }`}
+                                                >
+                                                    <div className="flex justify-between items-center mb-4">
+                                                        <button
+                                                            onClick={() => setShowComments(false)}
+                                                            className="text-blue-400 hover:text-blue-200"
+                                                        >
+                                                            Close
+                                                        </button>
+                                                    </div>
+                                                    <CommentScroll postsStorage={post_I} slice={false} smallWindow={true} />
+                                                </div>
+                                            </Dialog>
+
                                             </CardContent>
                                             {/*<CardFooter className="flex justify-between">
                                     <div className="flex gap-4">
-                                      <Button variant="ghost" size="sm">
-                                        <Heart className="w-4 h-4 mr-2" />
+                                      <Button variant="ghost">
+                                        <Heart className="w-10 h-10 mr-2" />
                                         Like
                                       </Button>
-                                      <Button variant="ghost" size="sm">
+                                        {/*<Button variant="ghost" size="sm">
                                         <Share2 className="w-4 h-4 mr-2" />
                                         Share
                                       </Button>
                                     </div>
-                                    <Button variant="outline" size="sm">
-                                      Comment Book
-                                    </Button>
                                   </CardFooter>*/}
                                         </Card>
                                     )

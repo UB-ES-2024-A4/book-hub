@@ -29,14 +29,6 @@ export default function MainContent ({ userData }: Props){
     useEffect(() => {
         async function fetchPosts() {
 
-            // Si en el contexto ya hay posts, no se vuelve a cargar
-            console.log("Fetching Posts if there are no posts in the context");
-            // Si ya existe posts en el contexto, no se vuelve a cargar
-            if( PostContexApp && Object.keys(PostContexApp).length > 0) {
-                // Stop the loading state
-                setLoading(false);
-                return;
-            }
             console.log("Fetching Posts");
 
             try {

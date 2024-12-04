@@ -11,11 +11,35 @@ import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {toast} from "nextjs-toast-notify";
 import {useFeed} from "@/contex/FeedContext";
 import Image from "next/image";
+import Dropdown from "./Dropdown";
+
 
 type HeaderProps = {
     accessToken: string | null;
     user_id: number | undefined;
 }
+
+export interface MenuItem {
+    title: string;
+    route?: string;
+    children?: MenuItem[];
+}
+
+const menuItems: MenuItem[] = [
+    {
+      title: "Account",
+      children: [
+        {
+          title: "My Profile",
+          route: "/account",
+        },
+        {
+          title: "Log Out",
+          route: '/sign-in'
+        },
+      ],
+    },
+  ];
 
 export default function Header({accessToken, user_id}: HeaderProps) {
     const { addAllFilters, filters } = useFeed();
@@ -96,11 +120,12 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                         {accessToken && (
                             <CreatePostButton openDialog={openDialog} />
                         )}
-                        <Link href="/account"
-                              className={`path transition-colors duration-300 ${pathname === '/account' ? 'text-blue-600' : 'text-gray-300'}`}
-                              onClick={() => setIsMenuOpen(false)}>
-                            Account
-                        </Link>
+                        {!accessToken ? null : ( <div className="flex gap-8 items-center text-white">
+                        {menuItems.map((item) => {
+                            <div key={item.title}></div>
+                        return <div key={item.title}> <Dropdown item={item} user_id={user_id} /></div>
+                        })}
+                    </div> )}
                     </div>
                 </nav>
 

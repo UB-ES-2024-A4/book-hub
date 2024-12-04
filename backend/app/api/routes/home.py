@@ -15,7 +15,7 @@ router = APIRouter()
               dependencies=[Depends(get_session)]
               )
 def get_home_posts(skip: int = 0,
-                    limit : int = 0,
+                    limit : int = 10,
                     filters: str = "",
                     user: User = Depends(get_current_user),
                     session: Session = Depends(get_session)):

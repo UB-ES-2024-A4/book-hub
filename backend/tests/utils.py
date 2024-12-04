@@ -1,5 +1,7 @@
 from fastapi.testclient import TestClient
 from app.main import app
+from sqlmodel import Session, select
+from app.models import Post
 
 def get_user_token_headers(client: TestClient) -> dict[str, str]:
     data = {'username': 'TEST_NAME', 'password': "TestPassword"}
@@ -13,4 +15,9 @@ def get_user_token_headers(client: TestClient) -> dict[str, str]:
     access_token = tokens["access_token"]
     headers = {"Authorization": f"Bearer {access_token}"}
     return headers
-    
+
+def check_quantity_likes(post_test: Post, db: Session) -> int:
+    post : Post = db.exec(
+        select(Post).where(Post.id == post_test.id)
+    ).first()
+    return post.likes

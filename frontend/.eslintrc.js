@@ -16,5 +16,6 @@ module.exports = {
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     'react-hooks/exhaustive-deps': 'off',
+    "react-hooks/rules-of-hooks": "off"
   },
 };

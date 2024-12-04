@@ -15,17 +15,14 @@ jobs:
       - name: Install dependencies
         run: | 
           npm install
-          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-            NEXT_PUBLIC_AZURE_SAS_STORAGE=${{ secrets.NEXT_PUBLIC_AZURE_SAS_STORAGE }}
-            NEXT_PUBLIC_STORAGE_PROFILE_PICTURES=${{ secrets.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES }}
-            NEXT_PUBLIC_STORAGE_BOOKS=${{ secrets.NEXT_PUBLIC_STORAGE_BOOKS}}
-            NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS=${{ secrets.NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}}" > .env
-
-           echo "Test: algo
-            Test2: algo2
-            Test3: algo3"
-  
         working-directory: frontend
+
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.FRONTEND_ENV }}" > .env
+          sed -i 's/|||/\n/g' .env
+
+        working-directory: frontend  
 
       - name: Build Next.js application
         run: npm run build
