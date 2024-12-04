@@ -4,7 +4,7 @@ from app.models import User, UserCreate, Book, Like, Post
 from sqlmodel import Session, select, text
 from app.core.config import settings
 from app import crud
-from ..utils import check_quantity_likes
+from tests.utils import check_quantity_likes
 
 def get_test_parameters(db: Session):
     user_test = db.exec(
