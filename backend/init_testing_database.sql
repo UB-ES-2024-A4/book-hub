@@ -23,12 +23,15 @@ insert into book values (2, "Cien años de soledad", "Gabriel García Márquez",
 insert into book values (3, "1984", "George Orwell", "Una distopía donde el Gran Hermano lo controla todo, y la libertad es solo un sueño.", CURRENT_TIMESTAMP);
 insert into book values (4, "El principito", "Antoine de Saint-Exupéry", "Un cuento encantador sobre la amistad y el descubrimiento.", CURRENT_TIMESTAMP);
 insert into book values (5, "El señor de los anillos", "J.R.R. Tolkien", "La épica aventura para destruir el Anillo Único y salvar la Tierra Media.", CURRENT_TIMESTAMP);
+insert into book values (8, "Orgullo y prejuicio", "Jane Austen", "La historia de amor entre Elizabeth Bennet y Fitzwilliam Darcy.", CURRENT_TIMESTAMP);
 
-# Insert posts -     ID, BOOKID, USERID, CONTENT, LIKES, CREATED_AT
-insert into post values (2, 1, 2, "Hércules Poirot es el mejor detective. ¡Qué historia! El final me dejó boquiabierta.", 7, CURRENT_TIMESTAMP);
-insert into post values (3, 2, 3, "La narrativa mágica de Macondo me hizo reflexionar sobre la vida y el tiempo.", 10, CURRENT_TIMESTAMP);
-insert into post values (4, 3, 4, "1984 es un libro impactante. Me hizo cuestionar todo sobre el poder y la libertad.", 8, CURRENT_TIMESTAMP);
-insert into post values (5, 5, 5, "Una aventura épica. Tolkien es el maestro de la fantasía.", 12, CURRENT_TIMESTAMP);
+# Insert posts -        ID, BOOKID, USERID, CONTENT, LIKES, CREATED_AT
+insert into post values (1,     4,      1, "El principito es un libro maravilloso. Me hizo reflexionar sobre la vida y la amistad.", 5, CURRENT_TIMESTAMP);
+insert into post values (2,     1,      2, "Hércules Poirot es el mejor detective. ¡Qué historia! El final me dejó boquiabierta.", 7, CURRENT_TIMESTAMP);
+insert into post values (3,     2,      3, "La narrativa mágica de Macondo me hizo reflexionar sobre la vida y el tiempo.", 10, CURRENT_TIMESTAMP);
+insert into post values (4,     3,      4, "1984 es un libro impactante. Me hizo cuestionar todo sobre el poder y la libertad.", 8, CURRENT_TIMESTAMP);
+insert into post values (5,     5,      5, "Una aventura épica. Tolkien es el maestro de la fantasía.", 12, CURRENT_TIMESTAMP);
+insert into post values (8,     8,      1, "Acabo de terminar Orgullo y prejuicio y estoy completamente enamorado/a de esta historia. 💕✨ Austen tiene una forma única de capturar las emociones humanas y las complejidades del amor.", 3, CURRENT_TIMESTAMP);
 
 # Insert filters -  ID, NAME
 insert into filter values (1, "Drama");
@@ -40,11 +43,15 @@ insert into filter values (6, "Distopía");
 insert into filter values (7, "Ciencia Ficción");
 insert into filter values (8, "Romance");
 insert into filter values (9, "Police");
+insert into filter values (10, "Misterio");
 
-# Insert postFilters linking posts to filters
-insert into postfilter values (2, 3); -- Asesinato en el Orient Express: misterio, drama
-insert into postfilter values (2, 1);
+# Insert postFilters - POSTID, FILTERID
+insert into postfilter values (1, 4); -- El principito: drama, fantasía
+insert into postfilter values (1, 5);
+
+insert into postfilter values (2, 1); -- Asesinato en el Orient Express: drama, misterio, policíaco
 insert into postfilter values (2, 9);
+insert into postfilter values (2, 10);
 
 insert into postfilter values (3, 1); -- Cien años de soledad: drama mágico
 insert into postfilter values (3, 4);
@@ -53,26 +60,37 @@ insert into postfilter values (4, 6); -- 1984: distopía, drama
 insert into postfilter values (4, 1);
 
 insert into postfilter values (5, 4); -- El señor de los anillos: fantasía, aventura
-insert into postfilter values (5, 5);
+insert into postfilter values (5, 1);
 
-# Insert Likes            ID    USRID POSTID
-insert into `like` values ( 1, 1);
-insert into `like` values ( 2, 1);
-insert into `like` values ( 3, 1);
-insert into `like` values ( 4, 1);
-insert into `like` values ( 2, 2);
-insert into `like` values ( 1, 2);
-insert into `like` values ( 1, 3);
+insert into postfilter values (8, 8); -- Orgullo y prejuicio: romance, drama, comedia
+insert into postfilter values (8, 1);
+insert into postfilter values (8, 2);
 
-# Insert Comments (with relevant comments)
+# Insert Likes            USRID POSTID
+insert into `like` values (   1,    1);
+insert into `like` values (   1,    2);
+insert into `like` values (   1,    3);
+insert into `like` values (   1,    8);
+insert into `like` values (   2,    1);
+insert into `like` values (   2,    2);
+insert into `like` values (   2,    8);
+insert into `like` values (   3,    1);
+insert into `like` values (   3,    8);
+insert into `like` values (   4,    1);
+
+# Insert Comments         ID, USERID, POSTID, CONTENT, CREATED_AT
 insert into comment values (NULL, 1, 1, "¡Me encantó el final! Agatha Christie es increíble.", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 2, 1, "Poirot es un genio, este caso fue alucinante.", CURRENT_TIMESTAMP);
+insert into comment values (NULL, 4, 1, "Cuando acabes el libro, con Poirot hablando a todos, ¡qué genial! No me esperaba ese final, increíble!", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 3, 3, "La historia de los Buendía es tan compleja como hermosa.", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 4, 4, "1984 me dejó pensando mucho en la privacidad hoy en día.", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 5, 5, "La Tierra Media es un mundo espectacular. Recomendado.", CURRENT_TIMESTAMP);
+insert into comment values (NULL, 2, 8, "¡Orgullo y prejuicio es mi libro favorito! Darcy es tan... 😍", CURRENT_TIMESTAMP);
+insert into comment values (NULL, 3, 8, "¡Me encantó Orgullo y prejuicio! Austen es una genia.", CURRENT_TIMESTAMP);
+insert into comment values (NULL, 4, 8, "Los protagonistas de ese libro son tan entrañables.", CURRENT_TIMESTAMP);
 
 
-# Make users follow each other
+# Insert followers   FOLLOWERID, FOLLOWEDID
 insert into followers values (1, 2);
 insert into followers values (1, 3);
 insert into followers values (1, 4);

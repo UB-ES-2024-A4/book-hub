@@ -1,6 +1,7 @@
+from app.models.comment import CommentOutHome
 from .deps import *
 from .filter import Filter
-from .user import User
+from .user import User, UserOutHome
 from .book import Book
 from .postFilter import PostFilter
 
@@ -29,8 +30,29 @@ class PostUpdate(SQLModel):
 class PostFiltersOut(SQLModel):
     post: Post
     filters: list[Filter] = []
+    like_set: bool = False
     message: str | None = None
 
 class PostFiltersOutList(SQLModel):
     posts: list[PostFiltersOut] = []
     message: str | None = None
+
+class PostOutHomeOnly(SQLModel):
+    id: int
+    likes: int = 0
+    description: str
+    created_at: datetime
+
+class PostOutHome(SQLModel):
+    user: UserOutHome
+    post: PostOutHomeOnly
+    like_set: bool = False # If the user has liked the post
+    book: Book
+    n_comments: int = 0
+    comments: list[CommentOutHome] = []
+    filters: list[int] = []
+
+class testtest(SQLModel):
+    id: int
+    likes : int = 0
+    created_at : datetime

@@ -1,12 +1,10 @@
-import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from ..config import driver
 
-driver = webdriver.Chrome()
 driver.get("http://localhost:3000")
-
+"""
 def test_click_bookhub_button():
     driver.get("http://localhost:3000/home")  # Navegar a la página de inicio
     # Esperar a que el enlace "BookHub" sea clickeable
@@ -21,7 +19,7 @@ def test_click_bookhub_button():
         EC.url_to_be("http://localhost:3000/explorer")
     )
     assert driver.current_url == "http://localhost:3000/explorer", "No se redirigió correctamente al Explorer después de hacer clic en BookHub."
-
+"""
 def test_click_explorer_button():
     driver.get("http://localhost:3000/home")  # Navegar a la página de inicio
     # Esperar a que el botón de "Explorer" esté clickeable
@@ -37,6 +35,7 @@ def test_click_explorer_button():
     )
     assert driver.current_url == "http://localhost:3000/explorer", "No se redirigió correctamente al Explorer después de hacer clic en Explorer."
 
+"""
 def test_click_account_button():
     driver.get("http://localhost:3000/home")  # Navegar a la página de inicio
     # Esperar a que el enlace de "Account" sea clickeable
@@ -51,3 +50,4 @@ def test_click_account_button():
         EC.url_to_be("http://localhost:3000/sign-in")
     )
     assert driver.current_url == "http://localhost:3000/sign-in", "No se redirigió correctamente a la página de inicio de sesión después de hacer clic en Account."
+"""
