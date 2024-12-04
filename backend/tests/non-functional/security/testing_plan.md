@@ -1,5 +1,7 @@
 # Backend Security Testing Plan
 
+![alt text](image.png)
+
 ## **Objective**
 Ensure the backend of the application is secure, free from vulnerabilities, and compliant with best practices for protecting sensitive data and resources.
 
