@@ -1,11 +1,12 @@
 // next.config.js
 module.exports = {
+  reactStrictMode: false,
   async redirects() {
     return [
       {
         source: '/',
-        destination: '/explorer',
-        permanent: true,
+        destination: '/home',
+        permanent: false,
       },
     ];
   },
@@ -18,6 +19,12 @@ module.exports = {
         pathname: '/users/pfp/**',
       },
       {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
+        pathname: '/posts/images/**',
+      },
+      {
         protocol: 'https',
         hostname: 'bookhubimages.blob.core.windows.net',
         pathname: '/profilepictures/**',
@@ -26,7 +33,17 @@ module.exports = {
         protocol: 'https',
         hostname: 'bookhubimages.blob.core.windows.net',
         pathname: '/bookcovers/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'bookhubimages.blob.core.windows.net',
+        pathname: '/preprodbookcovers/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bookhubimages.blob.core.windows.net',
+        pathname: '/preprodprofilepictures/**',
+      },
     ],
   },
 };

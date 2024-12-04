@@ -2,20 +2,20 @@ import Header from "@/components/Header";
 import {getAccessToken, getSession} from "@/app/lib/authentication";
 import {User} from "@/app/types/User";
 import FetchInformationError from "@/app/account/components/Errors/FetchInformationError";
+import UserNoLogged from "@/components/auth/UserNoLogged";
+import React from "react";
+import MainContent from "@/app/explorer/components/MainContent";
 
 export default async function Explorer() {
 
     const accessToken: string | null = await getAccessToken();
     const user : User | null = await getSession();
 
-    if (!user || !accessToken)
-        return (<FetchInformationError error={"Failed to load user information."}/>);
-
     return (
-        <div className="min-h-screen flex items-center justify-center
-    bg-gradient-to-br from-blue-950 to-blue-200">
-            <Header accessToken={accessToken} user_id={user.id}/>
-            <h1 className="text-4xl font-bold">Explorer</h1>
+        <div className="min-h-screen bg-gradient-to-br bg-[#051B32] flex flex-col pl-0 md:pl-44 lg:pl-52">
+            <Header accessToken={accessToken} user_id={user?.id} />
+            {! accessToken && ( <UserNoLogged /> )}
+            <MainContent userData={user} />
         </div>
     );
 }

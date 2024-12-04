@@ -6,6 +6,7 @@ import {putProfilePictureBackend} from "@/app/actions";
 import UserProfilePicture from "@/app/account/components/User/UserProfilePicture";
 import UserProfileData from "@/app/account/components/User/UserProfileData";
 
+import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 export default function ProfileHeader({ userData, setUser }: PropsUser) {
   const [isHovering, setIsHovering] = useState(false);
 

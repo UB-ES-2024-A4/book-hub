@@ -14,13 +14,13 @@ const LinksButtons = async () => {
             {!accessToken ? (
                 <>
                     <Link
-                        href="/auth/sign-in"
+                        href="/sign-in"
                         className="text-white bg-[#4066cf] px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-[#3050a6]"
                     >
                         Sign In
                     </Link>
                     <Link
-                        href="/auth/sign-up"
+                        href="/sign-up"
                         className="text-white bg-green-500 px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-green-600"
                     >
                         Sign Up

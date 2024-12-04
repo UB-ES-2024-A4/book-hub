@@ -24,9 +24,11 @@ class User(UserBase, table=True):
 class UserCreate(UserBase):
     password: str
 
-# Contents of JWT token
-class TokenPayload(SQLModel):
-    sub: int | None = None
+# Logout user form
+class UserLogout(SQLModel):
+    token: str
+    expired: bool
+    msj : str = ""
 
 class UserLogin(SQLModel):
     username: str | None = None
@@ -46,6 +48,11 @@ class UserOut(UserBase):
 
 class UsersOut(SQLModel):
     users: list[UserOut]
+
+class UserOutHome(SQLModel):
+    id: int
+    username: str
+    following: bool = False
 
 class Token(SQLModel):
     access_token: str
