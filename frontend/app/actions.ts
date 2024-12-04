@@ -120,8 +120,9 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
        }
    }
 
-import { PostStorage } from "@/app/types/PostStorage";
+import {CommentUnic, PostStorage} from "@/app/types/PostStorage";
 import {Book} from "@/app/types/Book";
+import {Filter} from "@/app/types/Filter";
 // Function to load the posts in the home page
 export async function loadPosts(filters: string|undefined = undefined, skip: number = 0, limit: number = 10
                                 ): Promise<{ status: number, message: string, data: PostStorage[] | null}> {
@@ -255,11 +256,14 @@ export async function CreatePost(prevState: unknown, formData: FormData) : Promi
         const post_filters = await postResponse.json();
         console.log("POST FILTERS FOR POST STORAGE", post_filters);
 
+        const filters = post_filters['filters'];
+        // Convertirlo en Array Number
+        const filtersArrayNumber: number[] = filters.map((filter: Filter) => filter.id);
         const postStorage: PostStorage = {
             user: { id: user.id, username: user.username, following: false},
             post: post_filters['post'],
             book: bookData.data,
-            filters: post_filters['filters'],
+            filters: filtersArrayNumber,
             like_set: false,
             n_comments: 0,
             comments: []
@@ -395,4 +399,77 @@ export async function unfollowUser(followerId: number, followeeId: number) {
         return { status: error.status, message: error.message, data: null };
     }
 
+}
+
+//Fetch All Comments by posts ID
+export async function fetchCommentsByPostID(postId: number): Promise<{status: number, message: string, data: CommentUnic[] | null}> {
+    try {
+        const response = await fetch(`${baseUrl}/comments/${postId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to unfollow user:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        return {status: 200, message: "Comments fetched successfully", data: await response.json()};
+    } catch (error: any) {
+        console.error("Error fetching comments:", error);
+        return {status: 400, message: error.message, data: null};
+    }
+}
+
+// Method that post a comment in a post
+export async function postComment(post_id: number, comment: string) {
+    try {
+        const response = await fetch(`${baseUrl}/comments/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+            body: JSON.stringify({ comment, post_id }),
+        });
+
+        if (response.status !== 200) {
+            const errorData = await response.json();
+            console.error("Failed to post comment:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        return {status: 200, message: "Comment posted successfully", data: await response.json()};
+
+    } catch (error: any) {
+        console.error("Error while posting comment:", error);
+        return { status: 400, message: error.message, data: null };
+    }
+}
+
+// Method that deletes a comment in a post
+export async function deleteComment(commentId: number) {
+    try {
+        const response = await fetch(`${baseUrl}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (response.status !== 200) {
+            const errorData = await response.json();
+            console.error("Failed to delete comment:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        return {status: 200, message: "Comment deleted successfully", data: await response.json()};
+
+    } catch (error: any) {
+        console.error("Error while deleting comment:", error);
+        return { status: 400, message: error.message, data: null };
+    }
 }

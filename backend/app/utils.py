@@ -3,7 +3,7 @@ from app.models.comment import CommentOutHome
 from app.models.post import Post, PostOutHome, PostOutHomeOnly
 from app.models.user import UserOutHome
 from fastapi import HTTPException
-from app.models import User, Book, Filter
+from app.models import User, Book, Filter, Like, Post
 from sqlmodel import Session, select
 
 def check_email_name_length(username: str, first_name: str, last_name: str):
@@ -120,7 +120,33 @@ def user_exists_in_database(user_id: int, session: Session):
 def post_exists_in_database(post_id: int, session: Session):
     post = session.exec(select(Post).where(Post.id == post_id)).first()
     if not post: raise ValueError(404, "Post not found.")
-    
+
+
+def check_post_liked(post_id: int, user_id: int, session, like: bool):
+    statement = select(Like).where(Like.user_id == user_id and Like.post_id == post_id)
+    user_like = session.exec(statement).first()
+
+    if like and user_like != None:
+        raise HTTPException(
+            status_code=400,
+            detail="Post was already liked.",
+        )
+
+    if not like and user_like == None:
+        raise HTTPException(
+            status_code=400,
+            detail="This post doesn't have your like",
+        )
+
+def check_existence_post(post_id: int, session):
+    post: Post = session.get(Post, post_id)
+
+    if not post:
+        raise HTTPException(
+            status_code=404,
+            detail="Post not found.",
+        )
+
 # Home utilities
 def get_home_comments(*, 
                       session: Session,
