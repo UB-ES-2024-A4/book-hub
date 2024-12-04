@@ -32,7 +32,7 @@ export default function Dropdown({item, user_id}: DropdownProps) {
     return (
         <>
             <div className="relative cursor-pointer">
-                <Avatar className="w-14 h-14 border-2 border-blue-400" onClick={toggle}>
+                <Avatar className="w-14 h-14 border-2 border-blue-400 bg-white" onClick={toggle}>
                     <AvatarImage src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user_id}.png`}/>
                     <Image src={'/logo.png'} alt='' width={40} height={40} />
                 </Avatar>
