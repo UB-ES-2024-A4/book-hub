@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { followUser, unfollowUser } from "@/app/actions";
 import { toast } from "nextjs-toast-notify";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
 
 type Props = {
@@ -110,7 +110,7 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                   const [following, setFollowing] = useState(user.following);
 
                   return (
-                    <div>
+                    <div key={post.id} >
                       {userData?.id !== user.id ? (
                         <Card
                         key={post.id}
@@ -120,7 +120,7 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                             <div className="flex items-center space-x-2">
                               <Avatar className="w-10 h-10 border-2 border-blue-400">
                                 <AvatarImage
-                                  src={user ? `${baseUrl}/users/pfp/${user.id}` : "/logo.png"}
+                                  src={`${baseUrl}/${user.id}.png`}
                                 />
                                 <AvatarFallback
                                   style={{

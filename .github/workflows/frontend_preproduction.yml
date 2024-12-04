@@ -3,7 +3,7 @@ name: Deploy to Azure Web App
 on:
   push:
     branches:
-      - "main"  # Triggers deployment on pushes to the main branch
+      - "PreProduction"  # Triggers deployment on pushes to the main branch
 
 jobs:
   build:
@@ -19,10 +19,9 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "${{ secrets.FRONTEND_ENV }}" > .env
+          echo "${{ secrets.FRONTEND_ENV_PREPRODUCTION }}" > .env
           sed -i 's/|||/\n/g' .env
-
-        working-directory: frontend  
+        working-directory: frontend    
 
       - name: Build Next.js application
         run: npm run build
@@ -52,7 +51,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: BookHub
+          app-name: bookhbdev
           slot-name: production
-          publish-profile: ${{ secrets.FRONTEND_AZURE_PUBLISH }}
+          publish-profile: ${{ secrets.FRONTEND_AZURE_PUBLISH_PREPRODUCTION }}
           package: frontend.zip

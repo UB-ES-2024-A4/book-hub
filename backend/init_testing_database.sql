@@ -31,7 +31,7 @@ insert into post values (2,     1,      2, "Hércules Poirot es el mejor detecti
 insert into post values (3,     2,      3, "La narrativa mágica de Macondo me hizo reflexionar sobre la vida y el tiempo.", 10, CURRENT_TIMESTAMP);
 insert into post values (4,     3,      4, "1984 es un libro impactante. Me hizo cuestionar todo sobre el poder y la libertad.", 8, CURRENT_TIMESTAMP);
 insert into post values (5,     5,      5, "Una aventura épica. Tolkien es el maestro de la fantasía.", 12, CURRENT_TIMESTAMP);
-insert into post values (8,     8,      1, "Acabo de terminar Orgullo y prejuicio y estoy completamente enamorado/a de esta historia. 💕✨ Austen tiene una forma única de capturar las emociones humanas y las complejidades del amor.", 3, CURRENT_TIMESTAMP);
+insert into post values (8,     8,      1, "Acabo de terminar Orgullo y prejuicio y estoy completamente enamorado/a de esta historia. 💕✨ Austen es maravilloso.", 3, CURRENT_TIMESTAMP);
 
 # Insert filters -  ID, NAME
 insert into filter values (1, "Drama");
