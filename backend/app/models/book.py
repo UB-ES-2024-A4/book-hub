@@ -9,7 +9,7 @@ class BookBase(SQLModel):
 class Book(BookBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
-    posts: list["Post"] = Relationship(back_populates="book", cascade_delete=True) # type: ignore
+    posts: list["Post"] = Relationship(back_populates="book", cascade_delete=True)
 
 class BookCreate(BookBase):
     pass

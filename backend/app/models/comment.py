@@ -17,3 +17,8 @@ class CommentOutHome(SQLModel):
     user: UserOutHome
     comment: str
     created_at: datetime
+
+class CommentCreate(SQLModel):
+    post_id: int
+    comment: str
+    created_at: datetime | None = None

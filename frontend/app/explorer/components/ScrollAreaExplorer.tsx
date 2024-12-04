@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/app/types/User";
-import { getColorFromInitials } from "@/app/lib/colorHash";
+import { getColorFromInitials } from "@/app/lib/hashHelpers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {useFeed} from "@/contex/FeedContext";
 import Image from 'next/image';

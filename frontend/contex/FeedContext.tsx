@@ -2,6 +2,7 @@
 "use client";
 import React, { createContext, useContext, useState } from 'react';
 import {PostStorage} from "@/app/types/PostStorage";
+import {CommentUnic} from "@/app/types/PostStorage";
 
 type FeedContextType = {
     refreshFeed: () => void;
@@ -10,6 +11,7 @@ type FeedContextType = {
     posts: { [key: number]: PostStorage };
     filters: { [key: number]: string };
     addAllFilters: (filters: { [key: number]: string }) => void;
+    addCommentByUser: (comment: CommentUnic, postId: number) => void;
 };
 
 const FeedContext = createContext<FeedContextType | undefined>(undefined);
@@ -54,8 +56,22 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setFilters(filters);
     }
 
+    const addCommentByUser = (comment: CommentUnic, postId: number) => {
+        console.log("SE ESTÁ AÑADIENDO UN COMENTARIO By USER", comment);
+        setPosts(prevPosts => {
+            const post = prevPosts[postId];
+            if (post) {
+                post.comments.push(comment);
+                post.n_comments += 1;
+                return { ...prevPosts, [postId]: post };
+            } else {
+                return prevPosts;
+            }
+        });
+    }
+
     return (
-        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters }}>
+        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters, addCommentByUser }}>
             {children}
         </FeedContext.Provider>
     );

@@ -23,15 +23,21 @@ insert into book values (2, "Cien años de soledad", "Gabriel García Márquez",
 insert into book values (3, "1984", "George Orwell", "Una distopía donde el Gran Hermano lo controla todo, y la libertad es solo un sueño.", CURRENT_TIMESTAMP);
 insert into book values (4, "El principito", "Antoine de Saint-Exupéry", "Un cuento encantador sobre la amistad y el descubrimiento.", CURRENT_TIMESTAMP);
 insert into book values (5, "El señor de los anillos", "J.R.R. Tolkien", "La épica aventura para destruir el Anillo Único y salvar la Tierra Media.", CURRENT_TIMESTAMP);
+INSERT INTO book VALUES (6, "Cuchillo", "Jo Nesbø", "El detective Harry Hole enfrenta su caso más personal, lleno de traición, redención y violencia.", "2021-11-06 12:00:00");
+INSERT INTO book VALUES (7, "Frankenstein", "Mary Shelley", "Un científico ambicioso crea vida, pero enfrenta las consecuencias de su creación.", CURRENT_TIMESTAMP);
 insert into book values (8, "Orgullo y prejuicio", "Jane Austen", "La historia de amor entre Elizabeth Bennet y Fitzwilliam Darcy.", CURRENT_TIMESTAMP);
+INSERT INTO book VALUES (9, "Don Quijote de la Mancha", "Miguel de Cervantes", "Las aventuras cómicas y filosóficas de un caballero idealista y su fiel escudero Sancho Panza.", CURRENT_TIMESTAMP);
 
 # Insert posts -        ID, BOOKID, USERID, CONTENT, LIKES, CREATED_AT
 insert into post values (1,     4,      1, "El principito es un libro maravilloso. Me hizo reflexionar sobre la vida y la amistad.", 5, CURRENT_TIMESTAMP);
-insert into post values (2,     1,      2, "Hércules Poirot es el mejor detective. ¡Qué historia! El final me dejó boquiabierta.", 7, CURRENT_TIMESTAMP);
-insert into post values (3,     2,      3, "La narrativa mágica de Macondo me hizo reflexionar sobre la vida y el tiempo.", 10, CURRENT_TIMESTAMP);
+insert into post values (2,     1,      2, "Hércules Poirot es el mejor detective. ¡Qué historia! El final me dejó boquiabierta.", 7, "2024-10-05 12:00:00");
+insert into post values (3,     2,      3, "La narrativa mágica de Macondo me hizo reflexionar sobre la vida y el tiempo.", 10, "2024-07-11 08:05:20");
 insert into post values (4,     3,      4, "1984 es un libro impactante. Me hizo cuestionar todo sobre el poder y la libertad.", 8, CURRENT_TIMESTAMP);
-insert into post values (5,     5,      5, "Una aventura épica. Tolkien es el maestro de la fantasía.", 12, CURRENT_TIMESTAMP);
-insert into post values (8,     8,      1, "Acabo de terminar Orgullo y prejuicio y estoy completamente enamorado/a de esta historia. 💕✨ Austen es maravilloso.", 3, CURRENT_TIMESTAMP);
+insert into post values (5,     5,      5, "Una aventura épica. Tolkien es el maestro de la fantasía.", 12, "2024-05-09 19:11:00");
+INSERT INTO post VALUES (6,     7,      6, "Frankenstein me hizo reflexionar sobre la ética y la responsabilidad en la ciencia. ¡Un libro imprescindible!", 9, "2024-10-08 20:00:00");
+INSERT INTO post VALUES (7,     6,      3, "Jo Nesbø nunca decepciona. 'Cuchillo' es un thriller que te mantiene al borde del asiento.", 6, "2024-11-06 12:00:00");
+INSERT INTO post VALUES (8,     8,      1, "Orgullo y prejuicio es una obra maestra del romance. Austen es una genia.", 7, CURRENT_TIMESTAMP);
+INSERT INTO post VALUES (9,     9,      6, "Don Quijote es una obra maestra que mezcla humor y filosofía. Sancho Panza es mi personaje favorito.", 4, CURRENT_TIMESTAMP);
 
 # Insert filters -  ID, NAME
 insert into filter values (1, "Drama");
@@ -62,26 +68,36 @@ insert into postfilter values (4, 1);
 insert into postfilter values (5, 4); -- El señor de los anillos: fantasía, aventura
 insert into postfilter values (5, 1);
 
+INSERT INTO postfilter VALUES (7, 9); -- Cuchillo: pertenece a Police, Misterio
+INSERT INTO postfilter VALUES (7, 10);
+
+INSERT INTO postfilter VALUES (6, 3); -- Frankenstein: Terror, Ciencia Ficción
+INSERT INTO postfilter VALUES (6, 7);
+
 insert into postfilter values (8, 8); -- Orgullo y prejuicio: romance, drama, comedia
 insert into postfilter values (8, 1);
 insert into postfilter values (8, 2);
 
-# Insert Likes            USRID POSTID
-insert into `like` values (   1,    1);
-insert into `like` values (   1,    2);
-insert into `like` values (   1,    3);
-insert into `like` values (   1,    8);
-insert into `like` values (   2,    1);
-insert into `like` values (   2,    2);
-insert into `like` values (   2,    8);
-insert into `like` values (   3,    1);
-insert into `like` values (   3,    8);
-insert into `like` values (   4,    1);
+INSERT INTO postfilter VALUES (9, 2); -- Don Quijote de la Mancha: Comedia, Aventura
+INSERT INTO postfilter VALUES (9, 5);
 
-# Insert Comments         ID, USERID, POSTID, CONTENT, CREATED_AT
-insert into comment values (NULL, 1, 1, "¡Me encantó el final! Agatha Christie es increíble.", CURRENT_TIMESTAMP);
-insert into comment values (NULL, 2, 1, "Poirot es un genio, este caso fue alucinante.", CURRENT_TIMESTAMP);
-insert into comment values (NULL, 4, 1, "Cuando acabes el libro, con Poirot hablando a todos, ¡qué genial! No me esperaba ese final, increíble!", CURRENT_TIMESTAMP);
+# Insert Likes            USRID POSTID
+insert into `like` values (   1,    1);insert into `like` values (   1,    2);insert into `like` values (   1,    3);
+insert into `like` values (   1,    8);insert into `like` values (   2,    1);insert into `like` values (   2,    2);
+insert into `like` values (   2,    8);insert into `like` values (   3,    1);insert into `like` values (   3,    8);
+insert into `like` values (   4,    1);insert into `like` values (   4,    2);insert into `like` values (   4,    3);
+insert into `like` values (   4,    4);insert into `like` values (   4,    5);insert into `like` values (   4,    6);
+insert into `like` values (   5,    1);insert into `like` values (   5,    2);insert into `like` values (   5,    3);
+insert into `like` values (   5,    4);insert into `like` values (   5,    5);insert into `like` values (   6,    9);
+insert into `like` values (   6,    7);insert into `like` values (   6,    6);insert into `like` values (   6,    5);
+insert into `like` values (   5,    7);insert into `like` values (   2,    6);insert into `like` values (   1,    9);
+insert into `like` values (   5,    8);insert into `like` values (   3,    9);insert into `like` values (   4,    7);
+insert into `like` values (   5,    9);insert into `like` values (   6,    8);insert into `like` values (   2,    7);
+
+# Insert Comments          ID,USERID,POSTID, CONTENT, CREATED_AT
+insert into comment values (NULL, 1, 2, "¡Me encantó el final! Agatha Christie es increíble.", CURRENT_TIMESTAMP);
+insert into comment values (NULL, 2, 2, "Poirot es un genio, este caso fue alucinante.", "2021-06-01 12:00:00");
+insert into comment values (NULL, 4, 2, "Cuando acabes el libro, con Poirot hablando a todos, ¡qué genial! No me esperaba ese final, increíble!", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 3, 3, "La historia de los Buendía es tan compleja como hermosa.", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 4, 4, "1984 me dejó pensando mucho en la privacidad hoy en día.", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 5, 5, "La Tierra Media es un mundo espectacular. Recomendado.", CURRENT_TIMESTAMP);
@@ -89,6 +105,21 @@ insert into comment values (NULL, 2, 8, "¡Orgullo y prejuicio es mi libro favor
 insert into comment values (NULL, 3, 8, "¡Me encantó Orgullo y prejuicio! Austen es una genia.", CURRENT_TIMESTAMP);
 insert into comment values (NULL, 4, 8, "Los protagonistas de ese libro son tan entrañables.", CURRENT_TIMESTAMP);
 
+INSERT INTO comment VALUES (NULL, 6, 7, "Jo Nesbø sabe cómo mantenerte al borde del asiento. ¡Gran libro!", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 5, 7, "Harry Hole es un personaje tan complejo. Cada página me atrapó.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 3, 7, "Me sorprendió el giro final. No lo vi venir.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 2, 7, "Un thriller intenso, lo terminé en una sola noche.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 1, 7, "La narrativa es oscura y adictiva. ¡Jo Nesbø es un maestro!", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 1, 7, "Harry Hole es mi detective favorito. Este caso es brutal.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 2, 7, "Cada capítulo es un golpe emocional. Me encantó.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 3, 7, "¡Qué manera de escribir suspense! Jo Nesbø no decepciona.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 4, 7, "El personaje de Hole muestra una evolución increíble aquí. Cuando leí el final, me quedé sin palabras, espero que a otras personas también le parezca así de increíble. Ahora, procederé a leerme otro libro suyo jashjaja.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 5, 7, "Un libro que te atrapa desde la primera página. ¡Recomendadísimo!", CURRENT_TIMESTAMP);
+
+INSERT INTO comment VALUES (NULL, 5, 1, "Es un libro tan profundo y lleno de enseñanzas. Lo amo.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 6, 1, "Cada vez que lo leo, encuentro un nuevo mensaje. ¡Maravilloso!", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 3, 1, "El mensaje sobre la amistad es inolvidable. Me hizo llorar.", CURRENT_TIMESTAMP);
+INSERT INTO comment VALUES (NULL, 1, 1, "Un cuento para todas las edades. Nunca pasa de moda.", CURRENT_TIMESTAMP);
 
 # Insert followers   FOLLOWERID, FOLLOWEDID
 insert into followers values (1, 2);
