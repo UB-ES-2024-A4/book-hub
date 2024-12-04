@@ -1,24 +1,37 @@
 from app.models.post import Post
 from fastapi.testclient import TestClient
-from fastapi import HTTPException
 
-from app.models import User, Comment, CommentCreate
-from sqlmodel import Session, select, text
+from datetime import datetime
+from app.models import User, Comment, BookCreate, PostCreate
+from sqlmodel import Session, select
+
+from app.crud.book import create_book
+from app.crud.post import create_post
+
 
 comment_text = "TEST_COMMENT"
 
 def get_test_parameters(db: Session):
+
     user_test = db.exec(
         select(User).where(User.username == 'TEST_NAME')
     ).first()
 
     post_test = db.exec(select(Post)).first()
-
-    return user_test, post_test.id
+    try:    
+        return user_test, post_test.id
+    except:
+        return user_test, None
 
 def test_delete_wrong_comment_id(
     client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
+    
+    book = create_book(session=db, book_create=BookCreate(title="TEST_BOOK1111", author="TEST_AUTHOR1111", description="test", created_at=datetime.now()))
+    
+    user_test, _ = get_test_parameters(db)
+    post_test = create_post(session=db, post_create=PostCreate(book_id=book.id, user_id=user_test.id, description="TEST_DESCRIPTION"))
+    
     r = client.delete(
         "/comments/-1",
         headers=logged_user_token_headers
@@ -63,9 +76,11 @@ def test_create_comment_empty(
     client: TestClient, db: Session, logged_user_token_headers: dict[str, str]
 ) -> None:
 
+    _, post = get_test_parameters(db)
+
     data = {
         "comment": "",
-        "post_id": 1
+        "post_id": post
     }
 
     r = client.post(
