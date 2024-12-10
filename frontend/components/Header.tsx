@@ -48,6 +48,9 @@ export default function Header({accessToken, user_id}: HeaderProps) {
 
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [searchValue, setSearchValue] = useState("");
+    const handleInputChange = (e:any) => {
+        setSearchValue(e.target.value);
+    };
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -200,6 +203,8 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                             w-full
                                           "
                                         autoFocus
+                                        value={searchValue}
+                                        onChange={handleInputChange}
                                     />
                                 </div>
                                 </div>
