@@ -1,3 +1,4 @@
+from app.api.deps import get_current_user
 from fastapi import APIRouter, Query, HTTPException, Depends
 from app.core.database import get_session
 from sqlalchemy.orm import Session
@@ -8,7 +9,8 @@ router = APIRouter()
 
 
 @router.get(
-        "/", 
+        "/",
+        dependencies=[Depends(get_current_user)],
         response_model=UsersOut
         )
 def search_users(
