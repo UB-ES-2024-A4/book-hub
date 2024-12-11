@@ -1,12 +1,11 @@
 name: Deploy to Azure Web App
 
 on:
-  push:
-    branches:
-      - "PreProduction"  # Triggers deployment on pushes to the main branch
+  workflow_dispatch:  # Triggers deployment on pushes to the main branch
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/PreProduction' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -39,6 +38,7 @@ jobs:
           path: frontend.zip
 
   deploy:
+    if: github.ref == 'refs/heads/PreProduction' && github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build
     steps:
