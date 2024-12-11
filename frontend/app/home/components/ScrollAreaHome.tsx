@@ -137,7 +137,7 @@ export default function ScrollAreaHome({ userData }: Props) {
     return (
         <div className="container mx-auto">
             {/* Sección de Filtros */}
-            <div className="p-4 border-b rounded-t-lg pt-16 md:pt-4">
+            <div className=" p-4 border-b rounded-t-lg pt-16 md:pt-4">
                 <div className="mb-4">
                     <Input
                         placeholder="Search a Filter..."
@@ -146,16 +146,15 @@ export default function ScrollAreaHome({ userData }: Props) {
                         className="w-full text-white"
                     />
                 </div>
-           {/* Scroll Horizontal de Filtros */}
-    <div className="overflow-x-auto">
-      <ScrollArea className="w-1/2">
-        <div className="flex space-x-2 pb-2 whitespace-nowrap">
+                {/* Scroll Horizontal de Filtros */}
+                <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="flex space-x-2 pb-2">
                         {filteredFilters.map(([id, filterName]) => (
                             <Badge
                                 key={id}
                                 onClick={() => handleFilterToggle(Number(id))}
                                 className={`cursor-pointer hover:bg-blue-400 transition-colors text-gray-100 bg-gray-600
-          ${selectedFilters.includes(Number(id)) ?
+                                ${selectedFilters.includes(Number(id)) ?
                                     'bg-gradient-to-br from-blue-100 via-gray-300 to-blue-400 text-black' :
                                     ''}`}
                             >
@@ -168,8 +167,7 @@ export default function ScrollAreaHome({ userData }: Props) {
                     </div>
                     <ScrollBar orientation="horizontal"/>
                 </ScrollArea>
-
-            </div></div>
+            </div>
 
             <div className="flex-1 overflow-hidden pt-5">
                 <ScrollArea className="h-full w-full">
