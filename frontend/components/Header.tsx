@@ -96,9 +96,9 @@ export default function Header({accessToken, user_id}: HeaderProps) {
 
     return (
         <>
-            <header className="flex flex-col md:flex-row h-full ">
+            <header className="flex flex-col md:flex-row h-full">
 
-                <div className={`bg-[#051B32] shadow-md shadow-blue-400 z-[9999] top-0 left-0 flex flex-col h-screen
+                <div className={`bg-[#051B32] shadow-md shadow-blue-400 z-[9999] top-0 left-0 flex flex-col md:h-screen
                     transition-all duration-300 ease-in-out ${isSearchActive ? 'w-20' : 'w-full md:w-52'}`}
                 >
 
@@ -123,6 +123,13 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                     <nav
                         className={`${isMenuOpen ? 'flex' : 'hidden'} h-full md:flex flex-col space-y-4 p-4 flex-grow`}>
                         <div className="flex flex-col space-y-4">
+                            {!accessToken ? null : (
+                                <div className="flex gap-8 items-center text-white">
+                                    {menuItems.map((item) => (
+                                        <div key={item.title}><Dropdown item={item} user_id={user_id}/></div>
+                                    ))}
+                                </div>
+                            )}
                             {accessToken && (
                                 <Link href="/home"
                                       className={`path transition-colors duration-300 flex items-center space-x-2 ${pathname === '/home' ? 'text-blue-600' : 'text-gray-300'}`}
@@ -157,13 +164,6 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                         className={`${isSearchActive ? 'hidden' : 'block'} transition-all duration-400 ease-in-out text-gray-300`}>
                                                 <CreatePostButton openDialog={openDialog}/>
                                             </span>
-                                </div>
-                            )}
-                            {!accessToken ? null : (
-                                <div className="flex gap-8 items-center text-white">
-                                    {menuItems.map((item) => (
-                                        <div key={item.title}><Dropdown item={item} user_id={user_id}/></div>
-                                    ))}
                                 </div>
                             )}
                         </div>
