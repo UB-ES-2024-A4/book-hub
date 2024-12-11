@@ -12,6 +12,8 @@ import { toast } from "nextjs-toast-notify";
 import { useFeed } from "@/contex/FeedContext";
 import Dropdown from "./Dropdown";
 import { Compass, Home, CirclePlus, Search, X } from 'lucide-react';
+import Image from "next/image";
+import {User} from "@/app/types/User";
 
 type HeaderProps = {
     accessToken: string | null;
@@ -48,9 +50,7 @@ export default function Header({accessToken, user_id}: HeaderProps) {
 
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [searchValue, setSearchValue] = useState("");
-    const handleInputChange = (e:any) => {
-        setSearchValue(e.target.value);
-    };
+    const [searchResults, setSearchResults] = useState([]);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -65,6 +65,18 @@ export default function Header({accessToken, user_id}: HeaderProps) {
         setSearchValue("");
     }
 
+    const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    // Implement your search logic here
+    // setSearchResults(filteredUsers);
+    };
+
+    const handleUserSelect = (user: User) => {
+        // Handle user selection logic
+        toggleSearch(); // Close search after selection
+    };
+
     useEffect(() => {
         async function fetchFilters() {
             if(filters && Object.keys(filters).length > 0) return;
@@ -77,7 +89,9 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                     progress: true,
                     position: "top-left",
                     transition: "swingInverted",
-                    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" ' +
+                        'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
+                        'class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
                     sonido: true,
                 });
                 return;
@@ -98,7 +112,7 @@ export default function Header({accessToken, user_id}: HeaderProps) {
         <>
             <header className="flex flex-col md:flex-row h-full">
 
-                <div className={`bg-[#051B32] shadow-md shadow-blue-400 z-[9999] top-0 left-0 flex flex-col md:h-screen
+                <div className={`bg-[#051B32] shadow-md shadow-blue-400 top-0 left-0 flex flex-col md:h-screen fixed
                     transition-all duration-300 ease-in-out ${isSearchActive ? 'w-20' : 'w-full md:w-52'}`}
                 >
 
@@ -180,74 +194,118 @@ export default function Header({accessToken, user_id}: HeaderProps) {
 
                 {/* Contenedor Principal */}
                 {isSearchActive && (
-                <div className={`flex-grow transition-all duration-300 ease-in-out px-4 
-                            ${isSearchActive ? 'w-full md:w-20' : ''}`}>
-                    {/* Encabezado de búsqueda */}
-                    <div className="bg-[#051B32] flex flex-col h-screen relative">
-                        <div className={`
-                            ${isSearchActive ? 'h-screen' : 'h-auto'} 
-                            fixed w-1/4 flex flex-col bg-[#051B32] z-[9999]
-                          `}>
-                            <div className="p-4 relative">
-                                <div className="relative">
-                                    <h1 className="text-xl font-bold text-gray-200 pb-2">Buscar</h1>
-                                    <input
-                                        type="text"
-                                        placeholder="Search username o full name"
-                                        className="
-                                            pl-2 pr-10 py-2
-                                            bg-gray-800 text-white
-                                            rounded-lg
-                                            focus:outline-none
-                                            focus:ring-2 focus:ring-blue-500
-                                            w-full
-                                          "
-                                        autoFocus
-                                        value={searchValue}
-                                        onChange={handleInputChange}
-                                    />
-                                </div>
-                                </div>
+                <div className={`
+                    fixed 
+                    top-0 
+                    left-0 
+                    right-0 
+                    z-[9999] 
+                    transition-all 
+                    duration-300 
+                    ease-in-out 
+                    ${isSearchActive ? 'w-full h-full' : 'w-0 h-0 overflow-hidden'}
+                `}>
+                    {/* Search Background Overlay */}
+                    <div
+                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        onClick={toggleSearch}
+                    />
 
-
-                            {/* Resultados de búsqueda */}
-                            <div className="flex-grow overflow-y-auto px-4 mt-4">
-                                {searchValue ? (
-                                    <div>
-                                        <h3 className="text-gray-400 mb-4">Resultados de búsqueda</h3>
-                                        {/* Aquí irían los resultados reales */}
-                                        <div className="space-y-3">
-                                            {[1, 2, 3, 4, 5].map((item) => (
-                                                <div
-                                                    key={item}
-                                                    className="bg-gray-800 rounded-lg
-                                                      p-3
-                                                      flex
-                                                      items-center
-                                                      hover:bg-gray-700
-                                                      transition-colors
-                                                    "
-                                                >
-                                                    <div className="w-10 h-10 bg-gray-600 rounded-full mr-3"></div>
-                                                    <div>
-                                                        <p className="text-white font-semibold">Nombre de
-                                                            Usuario {item}</p>
-                                                        <p className="text-gray-400 text-sm">Última actividad</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="text-center text-gray-500 pt-20">
-                                        <Search size={48} className="mx-auto mb-4 opacity-50"/>
-                                        <p>Search Users</p>
-                                    </div>
-                                )}
+                {/* Search Content Container */}
+                <div className={`
+                    absolute 
+                    top-0 
+                    left-0 
+                    right-0 
+                    bg-[#051B32] 
+                    shadow-lg 
+                    shadow-blue-900/50 
+                    transition-all 
+                    duration-300 
+                    ease-in-out
+                    w-full 
+                    max-w-md 
+                    mx-auto 
+                    mt-4 
+                    rounded-xl 
+                    overflow-hidden
+                    ${isSearchActive ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
+                `}>
+                    {/* Search Input Section */}
+                    <div className="p-4 bg-[#051B32]">
+                        <div className="relative">
+                            <h1 className="text-xl font-bold text-gray-200 pb-2">Search</h1>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search username or full name"
+                                    className="
+                                        pl-10
+                                        pr-4
+                                        py-2
+                                        bg-gray-800
+                                        text-white
+                                        rounded-lg
+                                        focus:outline-none
+                                        focus:ring-2
+                                        focus:ring-blue-500
+                                        w-full"
+                                    value={searchValue}
+                                    onChange={handleInputChange}
+                                    autoFocus
+                                />
+                                <Search
+                                    size={20}
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                />
                             </div>
                         </div>
                     </div>
+
+                {/* Search Results Section */}
+                <div className="max-h-[70vh] overflow-y-auto px-4 py-2 bg-[#051B32]">
+                    {searchValue ? (
+                        <div>
+                            <h3 className="text-gray-400 mb-4 font-semibold">Search Results</h3>
+                            <div className="space-y-3">
+                                {searchResults.map((user: User, index) => (
+                                    <div
+                                        key={index}
+                                        className="
+                                            bg-gray-800
+                                            rounded-lg
+                                            p-3
+                                            flex
+                                            items-center
+                                            hover:bg-gray-700
+                                            transition-colors
+                                            cursor-pointer
+                                        "
+                                        onClick={() => handleUserSelect(user)}
+                                    >
+                                        <Image
+                                            src={'/logo.png'}
+                                            alt="NAME" width={40} height={40}
+                                            className="w-10 h-10 rounded-full mr-3 object-cover"
+                                        />
+                                        <div>
+                                            <p className="text-white font-semibold">Username</p>
+                                            <p className="text-gray-400 text-sm"> Full Name</p>
+                                        </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center text-gray-500 py-20">
+                                    <Search size={48} className="mx-auto mb-4 opacity-50"/>
+                                    <p>Search Users</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
+
                 )}
             </header>
 

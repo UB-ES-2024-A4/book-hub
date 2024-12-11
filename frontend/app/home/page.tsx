@@ -23,7 +23,7 @@ export default async function Home() {
             <div className={`fixed left-0 top-0 z-[9998]`}>
                 <Header accessToken={accessToken} user_id={user.id}/>
             </div>
-            <div className="z-0">
+            <div className="">
                 <MainContent userData={user}/>
             </div>
         </div>

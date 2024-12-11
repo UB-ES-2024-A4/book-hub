@@ -137,7 +137,7 @@ export default function ScrollAreaHome({ userData }: Props) {
     return (
         <div className="container mx-auto">
             {/* Sección de Filtros */}
-            <div className=" p-4 border-b rounded-t-lg pt-16 md:pt-4">
+            <div className="p-4 border-b rounded-t-lg pt-16 md:pt-4">
                 <div className="mb-4">
                     <Input
                         placeholder="Search a Filter..."
@@ -146,16 +146,17 @@ export default function ScrollAreaHome({ userData }: Props) {
                         className="w-full text-white"
                     />
                 </div>
-                {/* Scroll Horizontal de Filtros */}
-                <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex space-x-2 pb-2">
+           {/* Scroll Horizontal de Filtros */}
+    <div className="overflow-x-auto">
+      <ScrollArea className="w-1/2">
+        <div className="flex space-x-2 pb-2 whitespace-nowrap">
                         {filteredFilters.map(([id, filterName]) => (
                             <Badge
                                 key={id}
                                 onClick={() => handleFilterToggle(Number(id))}
                                 className={`cursor-pointer hover:bg-blue-400 transition-colors text-gray-100 bg-gray-600
-                                ${selectedFilters.includes(Number(id)) ? 
-                                    'bg-gradient-to-br from-blue-100 via-gray-300 to-blue-400 text-black' : 
+          ${selectedFilters.includes(Number(id)) ?
+                                    'bg-gradient-to-br from-blue-100 via-gray-300 to-blue-400 text-black' :
                                     ''}`}
                             >
                                 {filterName}
@@ -167,7 +168,8 @@ export default function ScrollAreaHome({ userData }: Props) {
                     </div>
                     <ScrollBar orientation="horizontal"/>
                 </ScrollArea>
-            </div>
+
+            </div></div>
 
             <div className="flex-1 overflow-hidden pt-5">
                 <ScrollArea className="h-full w-full">
@@ -209,26 +211,26 @@ export default function ScrollAreaHome({ userData }: Props) {
                                                             </span>
                                                         </div>
 
-                                                    {currentUserId != user?.id && (
-                                                        <Button
-                                                            variant={user.following ? "default" : "outline"}
-                                                            className={` h-8  ${
-                                                                user.following ? "bg-blue-500/10" : "bg-blue-500"
-                                                            } text-white font-semibold py-2 px-4 rounded-l-md group`}
-                                                            onClick={() =>
-                                                                handleFollowClick(user.id, user.following)
-                                                            }
-                                                        >
-                                                            {user.following ? "Following" : `Follow`}
-                                                        </Button>
-                                                    )}
+                                                        {currentUserId != user?.id && (
+                                                            <Button
+                                                                variant={user.following ? "default" : "outline"}
+                                                                className={` h-8  ${
+                                                                    user.following ? "bg-blue-500/10" : "bg-blue-500"
+                                                                } text-white font-semibold py-2 px-4 rounded-l-md group`}
+                                                                onClick={() =>
+                                                                    handleFollowClick(user.id, user.following)
+                                                                }
+                                                            >
+                                                                {user.following ? "Following" : `Follow`}
+                                                            </Button>
+                                                        )}
                                                     </div>
 
                                                 </div>
                                             </CardHeader>
                                             <CardContent className="pt-4">
                                                 <div
-                                                    className="grid md:grid-cols-[150px_1fr] lg:grid-cols-[200px_2fr_minmax(100px,300px)] xl:grid-cols-[200px_2fr_minmax(100px,400px)]
+                                                    className="grid   md:grid-cols-[150px_1fr] lg:grid-cols-[200px_2fr_minmax(100px,300px)] xl:grid-cols-[200px_2fr_minmax(100px,400px)]
                                                     gap-4 items-start justify-items-center md:justify-items-start transition-all duration-500 ">
                                                     <Image alt="Book cover Big Screen"
                                                            className="rounded-lg object-cover shadow-md mb-2 hidden md:block"
@@ -257,40 +259,42 @@ export default function ScrollAreaHome({ userData }: Props) {
                                                     </div>
                                                     {/* Columna 3: Comentarios */}
                                                     <div className="max-w-[400px] lg:w-[300px] xl:w-[400px]">
-                                                        <CommentsPreview comments={post_I.comments} n_comments={post_I.n_comments}
-                                                                            postStorage={post_I}
+                                                        <CommentsPreview comments={post_I.comments}
+                                                                         n_comments={post_I.n_comments}
+                                                                         postStorage={post_I}
                                                         />
                                                     </div>
                                                 </div>
 
-                                        {/* Mobile Comments Button */}
-                                        <div className="block md:hidden">
-                                            <button
-                                                onClick={() => setShowComments(true)}
-                                                className="flex items-center gap-2 text-blue-400 hover:text-blue-200 transition-colors"
-                                            >
-                                                <MessageCircle size={24} />
-                                                <span>Comments ({post_I.comments.length})</span>
-                                            </button>
-                                        </div>
-
-                                            <Dialog open={true}>
-                                                <div
-                                                    className={`pt-4 rounded-t-2xl w-full max-w-lg transition-all duration-500 transform ${
-                                                        showComments ? 'translate-y-0' : ' hidden translate-y-full pointer-events-none'
-                                                    }`}
-                                                >
-                                                    <div className="flex justify-between items-center mb-4">
-                                                        <button
-                                                            onClick={() => setShowComments(false)}
-                                                            className="text-blue-400 hover:text-blue-200"
-                                                        >
-                                                            Close
-                                                        </button>
-                                                    </div>
-                                                    <CommentScroll postsStorage={post_I} slice={false} smallWindow={true} />
+                                                {/* Mobile Comments Button */}
+                                                <div className="block md:hidden">
+                                                    <button
+                                                        onClick={() => setShowComments(true)}
+                                                        className="flex items-center gap-2 text-blue-400 hover:text-blue-200 transition-colors"
+                                                    >
+                                                        <MessageCircle size={24}/>
+                                                        <span>Comments ({post_I.comments.length})</span>
+                                                    </button>
                                                 </div>
-                                            </Dialog>
+
+                                                <Dialog open={true}>
+                                                    <div
+                                                        className={`pt-4 rounded-t-2xl w-full max-w-lg transition-all duration-500 transform ${
+                                                            showComments ? 'translate-y-0' : ' hidden translate-y-full pointer-events-none'
+                                                        }`}
+                                                    >
+                                                        <div className="flex justify-between items-center mb-4">
+                                                            <button
+                                                                onClick={() => setShowComments(false)}
+                                                                className="text-blue-400 hover:text-blue-200"
+                                                            >
+                                                                Close
+                                                            </button>
+                                                        </div>
+                                                        <CommentScroll postsStorage={post_I} slice={false}
+                                                                       smallWindow={true}/>
+                                                    </div>
+                                                </Dialog>
 
                                             </CardContent>
                                             {/*<CardFooter className="flex justify-between">
@@ -314,5 +318,5 @@ export default function ScrollAreaHome({ userData }: Props) {
                 </ScrollArea>
             </div>
         </div>
-            );
-            }
+    );
+}
