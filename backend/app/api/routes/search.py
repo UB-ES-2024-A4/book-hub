@@ -25,7 +25,7 @@ def search_users(
         users = search.search_users_in_db(query, session)
 
         if not users:
-            return {"message": "No users found matching your search."}
+            return UsersOut(users=[])
         
 
         # Return a list of user details using UsersOut model
