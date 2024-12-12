@@ -12,6 +12,8 @@ type FeedContextType = {
     filters: { [key: number]: string };
     addAllFilters: (filters: { [key: number]: string }) => void;
     addCommentByUser: (comment: CommentUnic, postId: number) => void;
+    followingState: { [key: number]: boolean };
+    toggleFollowing: (userId: number) => void;
 };
 
 const FeedContext = createContext<FeedContextType | undefined>(undefined);
@@ -20,6 +22,7 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [refreshKey, setRefreshKey] = useState(0);
     const [posts, setPosts] = useState<{ [key: number]: PostStorage }>({});
     const [filters, setFilters] = useState<{ [key: number]: string }>({});
+    const [followingState, setFollowingState] = useState<{ [key: number]: boolean }>({});
 
     const refreshFeed = () => {
         setRefreshKey(prevKey => prevKey + 1);
@@ -70,8 +73,15 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
     }
 
+    const toggleFollowing = (userId: number) => {
+        setFollowingState((prevState) => ({
+          ...prevState,
+          [userId]: !prevState[userId],
+        }));
+    };
+
     return (
-        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters, addCommentByUser }}>
+        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters, addCommentByUser, followingState, toggleFollowing }}>
             {children}
         </FeedContext.Provider>
     );

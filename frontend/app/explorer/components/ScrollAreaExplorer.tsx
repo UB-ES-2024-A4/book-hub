@@ -18,7 +18,7 @@ type Props = {
 };
 
 export default function ScrollAreaExplorer({ userData }: Props) {
-  const { posts: postsContext, filters } = useFeed();
+  const { posts: postsContext, filters, followingState, toggleFollowing } = useFeed();
 
   // Group posts by filters
   function groupPostsByFilters(
@@ -50,7 +50,6 @@ export default function ScrollAreaExplorer({ userData }: Props) {
     postUserId: number,
     isCurrentlyFollowing: boolean,
     currentUserId: number,
-    updateFollowingState: (following: boolean) => void
   ) => {
     try {
       if (isCurrentlyFollowing) {
@@ -61,7 +60,7 @@ export default function ScrollAreaExplorer({ userData }: Props) {
         if (result.status !== 200) throw new Error(result.message);
       }
       // Update the local state to reflect the change
-      updateFollowingState(!isCurrentlyFollowing);
+      toggleFollowing(postUserId);
       // Update the following status in the post of PostContext
       postsContext[postUserId].user.following = !isCurrentlyFollowing;
         toast.success("Everything went well", {
@@ -107,8 +106,6 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                   const book = post_user.book;
                   const post = post_user.post;
 
-                  const [following, setFollowing] = useState(user.following);
-
                   return (
                     <div key={post.id} >
                       {userData?.id !== user.id ? (
@@ -138,15 +135,15 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                               </span>
                               {userData ? (
                                 <Button
-                                  variant={following ? "default" : "outline"}
+                                  variant={user.following ? "default" : "outline"}
                                   className={`relative h-8 ${
-                                    following ? "bg-gray-500" : "bg-blue-500"
+                                    user.following ? "bg-gray-500" : "bg-blue-500"
                                   } text-white font-semibold py-2 px-4 rounded-l-md group`}
                                   onClick={() =>
-                                    handleFollowClick(user.id, following, userData.id, setFollowing)
+                                    handleFollowClick(user.id, user.following, userData.id)
                                   }
                                 >
-                                  {following ? "Following" : "Follow"}
+                                  {user.following ? "Following" : "Follow"}
                                 </Button>
                               ) : (
                                 <div></div>
