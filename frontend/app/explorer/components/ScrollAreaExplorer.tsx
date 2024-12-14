@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { followUser, unfollowUser } from "@/app/actions";
 import { toast } from "nextjs-toast-notify";
+import Link from "next/link";
 
 const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
@@ -118,24 +119,28 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                         >
                           <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
                             <div className="flex items-center space-x-2">
-                              <Avatar className="w-10 h-10 border-2 border-blue-400">
-                                <AvatarImage
-                                  src={`${baseUrl}/${user.id}.png`}
-                                />
-                                <AvatarFallback
-                                  style={{
-                                    backgroundColor: user?.username
-                                      ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
-                                      : "hsl(215, 100%, 50%)",
-                                  }}
-                                  className="text-white font-semibold text-sm flex items-center justify-center"
-                                >
-                                  {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="font-semibold text-blue-300">
-                                @{user?.username || "Unknown User"}
-                              </span>
+                              <Link href={`/profile?userId=${user?.id}`}>
+                                <Avatar className="w-10 h-10 border-2 border-blue-400">
+                                  <AvatarImage
+                                    src={`${baseUrl}/${user.id}.png`}
+                                  />
+                                  <AvatarFallback
+                                    style={{
+                                      backgroundColor: user?.username
+                                        ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
+                                        : "hsl(215, 100%, 50%)",
+                                    }}
+                                    className="text-white font-semibold text-sm flex items-center justify-center"
+                                  >
+                                    {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </Link>
+                              <Link href={`/profile?userId=${user?.id}`}>
+                                <span className="font-semibold text-blue-300">
+                                  @{user?.username || "Unknown User"}
+                                </span>
+                              </Link>
                               {userData ? (
                                 <Button
                                   variant={following ? "default" : "outline"}

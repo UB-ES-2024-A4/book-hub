@@ -7,15 +7,16 @@ import {User} from "@/app/types/User";
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
 type Props = {
-    userDataMock: User;
+    userDataMock: User | null;
 }
 
 export default function UserProfilePicture ({userDataMock}: Props) {
     // TODO accept other formats
+    console.log(userDataMock?.id)
 
-    const [imageReload, setImageUrl] = useState(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png`);
+    const [profileReload, setImageUrl] = useState(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock?.id}.png`);
 
-    console.log("Image URL", imageReload);
+    console.log("Image URL", profileReload);
 
     function setImageSrc(s: string) {
         setImageUrl(s);
@@ -35,9 +36,9 @@ export default function UserProfilePicture ({userDataMock}: Props) {
                     className="relative"
                 >
                     <Image
-                        key={imageReload}
-                        src={ imageReload }
-                        alt={`${userDataMock.first_name}'s picture`}
+                        key={profileReload}
+                        src={ profileReload }
+                        alt={`${userDataMock?.first_name}'s picture`}
                         width={100}
                         height={100}
                         className="w-24 h-24 rounded-full border-4 border-white bg-white"
