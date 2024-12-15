@@ -463,12 +463,10 @@ export async function logOut() {
 
 export async function fetchUserData(id: number) {
     try {
-        const accessToken = await getAccessToken();
         const response = await fetch(`${baseUrl}/users/${id}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
-                authorization: `Bearer ${accessToken}`,
             },
         });
 
