@@ -11,7 +11,7 @@ export default function Tabs({ userData, setUser }: PropsUser) {
   const [activeTab, setActiveTab] = useState('posts');
 
   return (
-    <div className="container px-8">
+    <div className="container px-8 bg-[#051B32]">
       <div className="py-2">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
