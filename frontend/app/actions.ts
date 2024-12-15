@@ -460,3 +460,28 @@ export async function logOut() {
         return null;
     }
 }
+
+export async function searchUsersHandler(search: string) {
+    try {
+        const response = await fetch(`${baseUrl}/search/?query=${search}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to search users:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        const users = await response.json();
+
+        return {status: 200, message: "Users fetched successfully", data: users.users};
+
+    } catch (error: any) {
+        console.error("Error while searching users:", error);
+        return { status: 400, message: error.message, data: null };
+    }
+}

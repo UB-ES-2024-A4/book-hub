@@ -43,7 +43,7 @@ export const formatRelativeTime = (date: Date | string) => {
   }
 };
 
-const errorMessage=(message:string)=>{
+export const errorMessage=(message:string)=>{
     toast.error(message, {
         duration: 4000,
         progress: true,

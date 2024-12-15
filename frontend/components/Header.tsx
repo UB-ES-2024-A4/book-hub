@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
 import { CreatePostDialog } from "@/components/dialog/CreatePostDialog";
 import { Filter } from "@/app/types/Filter";
-import { loadFilters } from "@/app/actions";
+import {loadFilters, searchUsersHandler} from "@/app/actions";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import { toast } from "nextjs-toast-notify";
 import { useFeed } from "@/contex/FeedContext";
@@ -14,6 +14,8 @@ import Dropdown from "./Dropdown";
 import { Compass, Home, CirclePlus, Search, X } from 'lucide-react';
 import Image from "next/image";
 import {User} from "@/app/types/User";
+import {errorMessage, getColorFromInitials} from "@/app/lib/hashHelpers";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
 type HeaderProps = {
     accessToken: string | null;
@@ -41,6 +43,7 @@ const menuItems: MenuItem[] = [
       ],
     },
 ];
+const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
 export default function Header({accessToken, user_id}: HeaderProps) {
     const { addAllFilters, filters } = useFeed();
@@ -50,7 +53,8 @@ export default function Header({accessToken, user_id}: HeaderProps) {
 
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [searchValue, setSearchValue] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
+    const [searchStatus, setStatus] = useState(false);
+    const [searchResults, setSearchResults] = useState<User[]>([]);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -65,17 +69,33 @@ export default function Header({accessToken, user_id}: HeaderProps) {
         setSearchValue("");
     }
 
-    const handleInputChange = (e) => {
-    const value = e.target.value;
-    setSearchValue(value);
-    // Implement your search logic here
-    // setSearchResults(filteredUsers);
+    const handleInputChange =
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+
+        const value = e.target.value;
+        setSearchValue(value);
     };
 
     const handleUserSelect = (user: User) => {
-        // Handle user selection logic
         toggleSearch(); // Close search after selection
     };
+
+    const searchButtonHandler = async () => {
+        if(searchValue.length < 3){
+            toast.info("Please enter at least 3 characters", {
+                duration: 4000, progress: true, position: "top-left", transition: "swingInverted",
+                sonido: true,
+            });
+            return
+        }
+        setStatus(true); // Se ha buscado un valor
+        const response = await searchUsersHandler(searchValue)
+        if (response.status === 200) {
+            setSearchResults(response.data);
+        } else {
+            errorMessage("There was an error searching for users");
+        }
+    }
 
     useEffect(() => {
         async function fetchFilters() {
@@ -206,23 +226,9 @@ export default function Header({accessToken, user_id}: HeaderProps) {
 
                 {/* Search Content Container */}
                 <div className={`
-                    absolute 
-                    top-0 
-                    left-0 
-                    right-0 
-                    bg-[#051B32] 
-                    shadow-lg 
-                    shadow-blue-900/50 
-                    transition-all 
-                    duration-300 
-                    ease-in-out
-                    w-full 
-                    max-w-md 
-                    mx-auto 
-                    mt-4 
-                    rounded-xl 
-                    overflow-hidden
-                    ${isSearchActive ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
+                    absolute top-0  left-0 right-0 bg-[#051B32] shadow-lg shadow-blue-900/50 
+                    transition-all duration-300 ease-in-out w-full max-w-md mx-auto mt-4 rounded-xl 
+                    overflow-hidden ${isSearchActive ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
                 `}>
                     {/* Search Input Section */}
                     <div className="p-4 bg-[#051B32]">
@@ -232,71 +238,80 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                 <input
                                     type="text"
                                     placeholder="Search username or full name"
-                                    className="
-                                        pl-10
-                                        pr-4
-                                        py-2
-                                        bg-gray-800
-                                        text-white
-                                        rounded-lg
-                                        focus:outline-none
-                                        focus:ring-2
-                                        focus:ring-blue-500
-                                        w-full"
+                                    className="pl-10 pr-4 py-2 bg-gray-800 text-white rounded-lg focus:outline-none
+                                        focus:ring-2 focus:ring-blue-500 w-full"
                                     value={searchValue}
                                     onChange={handleInputChange}
+                                    maxLength={28}
                                     autoFocus
                                 />
                                 <Search
                                     size={20}
                                     className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                                 />
+                                <button
+                                    className="absolute top-2 right-2 text-gray-400 bg-white/20
+                                        hover:bg-blue-700/20 rounded-lg px-4 py-1 text-sm"
+                                    onClick={() => {
+                                        searchButtonHandler();
+                                    }}
+                                >Search
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                {/* Search Results Section */}
-                <div className="max-h-[70vh] overflow-y-auto px-4 py-2 bg-[#051B32]">
-                    {searchValue ? (
-                        <div>
-                            <h3 className="text-gray-400 mb-4 font-semibold">Search Results</h3>
-                            <div className="space-y-3">
-                                {searchResults.map((user: User, index) => (
-                                    <div
-                                        key={index}
-                                        className="
-                                            bg-gray-800
-                                            rounded-lg
-                                            p-3
-                                            flex
-                                            items-center
-                                            hover:bg-gray-700
-                                            transition-colors
-                                            cursor-pointer
-                                        "
-                                        onClick={() => handleUserSelect(user)}
-                                    >
-                                        <Image
-                                            src={'/logo.png'}
-                                            alt="NAME" width={40} height={40}
-                                            className="w-10 h-10 rounded-full mr-3 object-cover"
-                                        />
-                                        <div>
-                                            <p className="text-white font-semibold">Username</p>
-                                            <p className="text-gray-400 text-sm"> Full Name</p>
-                                        </div>
+                    {/* Search Results Section */}
+                    <div className="h-screen overflow-y-auto px-4 py-2 bg-[#051B32]">
+                        {searchStatus ? (
+                            <div>
+                                <h3 className="text-gray-400 mb-4 font-semibold">Search Results</h3>
+                                <div className="space-y-3">
+                                    {searchResults.length > 0 ? (
+                                        searchResults.map((user: User, index) => (
+
+                                            user.id !== user_id && (
+                                            <div
+                                                key={index}
+                                                className="bg-gray-800 rounded-lg p-3 flex items-center hover:bg-gray-700
+                                                transition-colors cursor-pointer space-x-3"
+                                                onClick={() => handleUserSelect(user)}
+                                            >
+                                                <Avatar className="w-10 h-10 border-2 border-blue-400">
+                                                    <AvatarImage
+                                                      src={`${baseUrl}/${user.id}.png`}
+                                                    />
+                                                    <AvatarFallback
+                                                      style={{
+                                                        backgroundColor: user?.username
+                                                          ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
+                                                          : "hsl(215, 100%, 50%)",
+                                                      }}
+                                                      className="text-white font-semibold text-sm flex items-center justify-center"
+                                                    >
+                                                      {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
+                                                    </AvatarFallback>
+                                                  </Avatar>
+                                                <div>
+                                                    <p className="text-white font-semibold">{user.username}</p>
+                                                    <p className="text-gray-400 text-sm"> {user.first_name} {user.last_name}</p>
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                                )
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-400 text-center">No users found.</p>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="text-center text-gray-500 py-20">
-                                    <Search size={48} className="mx-auto mb-4 opacity-50"/>
-                                    <p>Search Users</p>
-                                </div>
-                            )}
-                        </div>
+                            </div>
+                        ) : (
+                            <div className="text-center text-gray-500 py-20">
+                                <Search size={48} className="mx-auto mb-4 opacity-50"/>
+                                <p>Search Users</p>
+                            </div>
+                        )}
                     </div>
+                </div>
                 </div>
 
                 )}
