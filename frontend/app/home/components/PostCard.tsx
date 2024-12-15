@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Heart, Share2 } from 'lucide-react';
-import { PostStorage } from '@/app/types/PostStorage';
-import { getColorFromInitials } from '@/app/lib/colorHash';
-import { likePost, unlikePost } from '@/app/actions';
-import { toast } from 'nextjs-toast-notify';
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { MessageCircle, Heart, Share2 } from "lucide-react";
+import { toast } from "nextjs-toast-notify";
+import { likePost, unlikePost } from "@/app/actions";
+import { PostStorage } from "@/app/types/PostStorage";
+import { Book } from "@/app/types/Book";
+import { getColorFromInitials, formatRelativeTime } from "@/app/lib/hashHelpers";
+import CommentsPreview from "@/app/home/components/CommentPreview";
+import { CommentScroll } from "@/app/home/components/CommentScroll";
+import { Dialog } from "@/components/ui/dialog";
 
-type Props = {
+type PostCardProps = {
   postStorage: PostStorage;
   currentUserId: number;
   handleFollowClick: (postUserId: number, isCurrentlyFollowing: boolean) => void;
@@ -26,21 +30,20 @@ export function PostCard({
   filters,
   NEXT_PUBLIC_STORAGE_PROFILE_PICTURES,
   NEXT_PUBLIC_STORAGE_BOOKS,
-}: Props) {
-  const { user, post, book, filters: postFilters } = postStorage;
-
+}: PostCardProps) {
+  const { user, post, book } = postStorage;
+  const [showComments, setShowComments] = useState(false);
   const [liked, setLiked] = useState(postStorage.like_set);
   const [likesCount, setLikesCount] = useState(post.likes);
 
   const handleLikeClick = async () => {
-    // Optimistically update the UI
     const prevLiked = liked;
     const prevLikesCount = likesCount;
 
+    // Optimistic UI update
     setLiked(!liked);
     setLikesCount(liked ? likesCount - 1 : likesCount + 1);
 
-    // Call the backend API to like/unlike the post
     try {
       if (liked) {
         // Unlike the post
@@ -56,10 +59,10 @@ export function PostCard({
         }
       }
     } catch (error: any) {
-      // Revert the UI changes if there's an error
+      console.error("Failed to update like status", error);
+      // Revert UI changes
       setLiked(prevLiked);
       setLikesCount(prevLikesCount);
-      console.error('Failed to update like status', error);
 
       // Show a toast notification
       toast.error(error.message, {
@@ -92,27 +95,36 @@ export function PostCard({
             </AvatarFallback>
           </Avatar>
 
-          <span className="font-semibold text-blue-300">@{user?.username || 'Unknown User'}</span>
-          {currentUserId != user?.id && (
-            <Button
-              variant={user.following ? 'default' : 'outline'}
-              className={`relative h-8 ${
-                user.following ? 'bg-gray-500' : 'bg-blue-500'
-              } text-white font-semibold py-2 px-4 rounded-l-md group`}
-              onClick={() => handleFollowClick(user.id, user.following)}
-            >
-              {user.following ? 'Following' : `Follow`}
-            </Button>
-          )}
+          <div className="flex flex-row space-x-10">
+            <div className="flex flex-col">
+              <span className="font-semibold">{user.username}</span>
+              <span className="text-xs text-gray-500">
+                {formatRelativeTime(post.created_at)}
+              </span>
+            </div>
+
+            {currentUserId !== user.id && (
+              <Button
+                variant={user.following ? "default" : "outline"}
+                className={`h-8 ${user.following ? "bg-blue-500/10" : "bg-blue-500"} text-white font-semibold py-2 px-4 rounded-l-md group`}
+                onClick={() => handleFollowClick(user.id, user.following)}
+              >
+                {user.following ? "Following" : "Follow"}
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-4">
-        <div className="grid md:grid-cols-[150px_1fr] justify-items-center md:justify-items-start">
+        <div
+          className="grid md:grid-cols-[150px_1fr] lg:grid-cols-[200px_2fr_minmax(100px,300px)] xl:grid-cols-[200px_2fr_minmax(100px,400px)]
+          gap-4 items-start justify-items-center md:justify-items-start transition-all duration-500"
+        >
           <Image
-            alt="Book cover"
-            className="rounded-lg object-cover shadow-md mb-2 pr-4 hidden md:block"
-            width={200}
-            height={200}
+            alt="Book cover Big Screen"
+            className="rounded-lg object-cover shadow-md mb-2 hidden md:block"
+            width={400}
+            height={400}
             src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
           />
           <div className="space-y-3">
@@ -121,28 +133,65 @@ export function PostCard({
               <p className="text-blue-400">by {book?.author}</p>
             </div>
             <Image
-              alt="Book cover"
+              alt="Book cover Small Screen"
               className="rounded-lg object-cover shadow-md mb-2 md:hidden"
-              width={200}
-              height={200}
+              width={400}
+              height={400}
               src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png`}
             />
             <p className="text-sm text-gray-300">{post.description}</p>
             <div className="flex flex-wrap gap-2">
-              {postFilters &&
-                Object.values(postFilters).map((id: number, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200"
-                  >
-                    {filters[id]}
-                  </Badge>
-                ))}
+              {postStorage.filters && Object.values(postStorage.filters).map((id: number, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="bg-gradient-to-br from-blue-100 via-gray-200 to-blue-400 p-1 hover:bg-gradient-to-br hover:from-gray-700 hover:via-blue-500 hover:to-gray-200"
+                >
+                  {filters[id]}
+                </Badge>
+              ))}
             </div>
           </div>
+          {/* Comments Preview */}
+          <div className="max-w-[400px] lg:w-[300px] xl:w-[400px]">
+            <CommentsPreview
+              comments={postStorage.comments}
+              n_comments={postStorage.n_comments}
+              postStorage={postStorage}
+            />
+          </div>
         </div>
+
+        {/* Mobile Comments Button */}
+        <div className="block md:hidden">
+          <button
+            onClick={() => setShowComments(true)}
+            className="flex items-center gap-2 text-blue-400 hover:text-blue-200 transition-colors"
+          >
+            <MessageCircle size={24} />
+            <span>Comments ({postStorage.comments.length})</span>
+          </button>
+        </div>
+
+        <Dialog open={true}>
+          <div
+            className={`pt-4 rounded-t-2xl w-full max-w-lg transition-all duration-500 transform ${
+              showComments ? 'translate-y-0' : 'hidden translate-y-full pointer-events-none'
+            }`}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <button
+                onClick={() => setShowComments(false)}
+                className="text-blue-400 hover:text-blue-200"
+              >
+                Close
+              </button>
+            </div>
+            <CommentScroll postsStorage={postStorage} slice={false} smallWindow={true} />
+          </div>
+        </Dialog>
       </CardContent>
+
       <CardFooter className="flex justify-between">
         <div className="flex gap-4">
           <Button variant="ghost" size="sm" onClick={handleLikeClick}>

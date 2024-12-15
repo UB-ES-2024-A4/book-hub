@@ -1,0 +1,130 @@
+name: Tests
+
+on:
+  push:  # Ejecutar solo en ramas específicas
+    branches:
+      - PreProduction
+
+env:
+  APP_NAME: BookHub
+  DB_HOST: localhost
+  DB_PORT: 3306
+  DB_USER: root
+  DB_PASSWORD: psswd
+  DB_NAME: bookhubdb
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql
+        env:
+          MYSQL_DATABASE: bookhubdb
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: psswd
+          MYSQL_ROOT_PASSWORD: psswd
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11.2'
+    - uses: Gr1N/setup-poetry@v8
+    - run: poetry --version
+    - name: Install dependencies
+      run: |
+        cd backend          
+        poetry lock
+        poetry install --all-extras
+        poetry add anybadge
+        poetry add pylint
+
+    - name: Run pylint and generate badge
+      run: |
+        # Run pylint and get the score
+        cd backend
+        poetry run pylint --exit-zero --output-format=text --max-line-length=120 app | tee /tmp/pylint.txt
+        sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' /tmp/pylint.txt > /tmp/pylint.score
+        SCORE=$(cat /tmp/pylint.score)
+        
+        echo "Pylint score: ${SCORE}"
+        echo -e "\e[31mRunning pylint...\e[0m"
+        # Generate the pylint badge
+        poetry run python -c "
+        import anybadge
+        score = float('${SCORE}')
+        badge = anybadge.Badge('Pylint', score, thresholds={4: 'red', 6: 'yellow', 7: 'green'})
+        badge.write_badge('pylint-badge.svg')
+        "
+        mv pylint-badge.svg ../.github/badges/
+        echo "Generated pylint badge."
+      continue-on-error: true
+
+    - name: Run tests and generate test badge
+      run: |
+        
+        # Run tests and calculate coverage
+        cd backend
+        poetry run alembic upgrade head
+
+        COVERAGE=$(poetry run pytest --cov=app --cov-report=term | grep "TOTAL" | awk '{print $4}' | tr -d '%')
+
+        if [ $? -eq 0 ]; then
+          TEST_STATUS='passing'
+        else
+          TEST_STATUS='failing'
+        fi
+
+        # Generate the test badge
+        poetry run python -c "
+        import anybadge
+        thresholds = {'failing': 'red', 'passing': 'green'}
+        badge = anybadge.Badge('Tests', '${TEST_STATUS}', thresholds=thresholds)
+        badge.write_badge('tests-badge.svg')
+        thresholds = {50: 'red', 80: 'yellow', 90: 'green'}
+
+        # Crear el badge con el símbolo %
+        badge = anybadge.Badge(
+            'Coverage', 
+            int(${COVERAGE}),  # Incluye el símbolo %
+            thresholds=thresholds,
+            value_suffix='%'
+        )
+        badge.write_badge('coverage-badge.svg')
+
+        print('Coverage badge generated: coverage-badge.svg')
+        "
+        mv tests-badge.svg ../.github/badges/
+        mv coverage-badge.svg ../.github/badges/
+
+      continue-on-error: true
+
+    - name: Push badges to branch
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add .github/badges/
+        git commit -m "Update badges [ci skip]"
+        git push origin HEAD

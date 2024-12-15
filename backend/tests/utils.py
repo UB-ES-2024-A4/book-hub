@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from app.main import app
-from app.models import Post
 from sqlmodel import Session, select
+from app.models import Post
 
 def get_user_token_headers(client: TestClient) -> dict[str, str]:
     data = {'username': 'TEST_NAME', 'password': "TestPassword"}

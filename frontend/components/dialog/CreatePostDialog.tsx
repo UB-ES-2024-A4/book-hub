@@ -25,7 +25,7 @@ import {PostStorage} from "@/app/types/PostStorage";
 
 // URL de la API de Azure Storage
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
-const NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS;
+const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 
 type CreatePostDialogProps = {
     open: boolean;
@@ -64,15 +64,15 @@ export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostD
                     if (result.data === null) {
                         return
                     }
-                    const newPostStorage: PostStorage = result.data;
+                    const newPostStorage = result.data;
                     const resultPost: Post = newPostStorage.post;
 
                     const imageFile = fileInputRef.current.files[0];
 
-                    console.log("SASS", NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS);
-                    console.log("URL", NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`);
+                    console.log("SASS", NEXT_PUBLIC_AZURE_SAS_STORAGE);
+                    console.log("URL", NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE}`);
 
-                    const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE_BOOKS}`, {
+                    const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE}`, {
                         method: 'PUT',
                         body: imageFile,
                         headers: {
@@ -97,6 +97,8 @@ export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostD
 
                     if (newPostStorage) addPost(newPostStorage);
                     setIsDialogOpen(false);
+                    setServerError(null);
+                    setImagePreview(null);
                 }
             } else {
                 setServerError({status: 400, message: 'Please select an image to upload'});

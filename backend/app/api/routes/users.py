@@ -11,10 +11,10 @@ from app.models.user import (
     Token,
     User,
     UserCreate,
+    UserLogout,
     UserUpdate,
     UserOut,
-    UsersOut,
-    UserLogin
+    UsersOut
 )
 from app.api.deps import get_current_user
 from app import crud, utils
@@ -24,6 +24,9 @@ from fastapi import UploadFile, File
 from fastapi.responses import FileResponse
 from pathlib import Path
 import os
+
+
+from app.api.deps import logout
 
 # Directorio para guardar las imágenes
 UPLOAD_DIR = Path("profile_pictures")
@@ -37,7 +40,7 @@ router = APIRouter()
 def get_first_user(session: Session = Depends(get_session)):
     result : User = crud.user.get_user(session=session, user_id=1)
     if result:
-        return {"user_id": result.id}
+        return result
     return {"error": "No users found"}
 
 @router.get("/me",
@@ -176,6 +179,11 @@ def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sessi
             ),
         user=user
         )
+
+@router.post("/logout")
+def logout_user(user_logout : UserLogout = Depends(logout)):
+    return user_logout
+
 
 # These are the endpoints of profile picture, that now are stored in the backend api server.
 # When we perform deployment these methods will be erased and the requests go directly to the storage server (Azure)

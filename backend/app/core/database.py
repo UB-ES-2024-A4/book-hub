@@ -65,7 +65,8 @@ def init_db(session: Session) -> None:
     if not filter:
         session.add(Filter(name=name))
         session.commit()
-    
+
+
     book_id = session.exec(
                 select(Book).where(Book.title == title)
             ).first().id

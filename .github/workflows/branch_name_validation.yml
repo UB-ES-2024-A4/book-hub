@@ -1,10 +1,18 @@
 name: Branch Name Validation
 
 on:
+  push:
+    branches:
+      - "*"  # Run on pushes to all branches
+      - "!main"
+      - "!dev"
+      - "!PreProduction"
+
   pull_request:
     types:
       - opened
       - synchronize
+  
 
 jobs:
   validate-branch-name:
@@ -39,7 +47,7 @@ jobs:
 
           # Define regex patterns for Type 1 and Type 2 branch names
           TYPE1_PATTERN="^(TD|US)[0-9]+(\.[0-9]+)?-[a-zA-Z0-9-]+$"
-          TYPE2_PATTERN="^(TD|US)[0-9]+(\.[0-9]+)?/(backend|frontend|devops)/(feat|fix|test)/[a-z0-9-]+$"
+          TYPE2_PATTERN="^(TD|US)[0-9]+(\.[0-9]+)?/(backend|frontend|devops|QA)/(feat|fix|test)/[a-z0-9-]+$"
 
           # Check if branch name matches either pattern
           if [[ ! "$BRANCH_NAME" =~ $TYPE1_PATTERN && ! "$BRANCH_NAME" =~ $TYPE2_PATTERN ]]; then
