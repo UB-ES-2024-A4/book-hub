@@ -6,3 +6,4 @@ from .book import *
 from .comment import *
 from .like import *
 from .followers import *
+from .account_info import *

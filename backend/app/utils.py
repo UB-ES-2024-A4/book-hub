@@ -1,3 +1,4 @@
+from app.models.account_info import CommentOut, PostRepository
 from app.models.followers import Followers
 from sqlalchemy.sql import text
 from app.models.comment import CommentOutHome
@@ -490,3 +491,15 @@ def get_explorer_posts(*,
             filters=[int(fid) for fid in row.filters.split(",") if row.filters],
         ) for row in posts}
     return list(posts.values()) # Return a list of PostOutHome objects
+
+
+
+
+def get_account_posts(*, 
+                   session: Session,
+                   user_id: int,
+                   user_id_acc: int
+                ) -> list[PostOutHome]:
+
+        p = PostRepository(session)
+        return p.get_user_posts_with_comments(user_id, user_id_acc)
