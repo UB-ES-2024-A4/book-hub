@@ -3,8 +3,11 @@
 import React, { createContext, useContext, useState } from 'react';
 import {PostStorage} from "@/app/types/PostStorage";
 import {CommentUnic} from "@/app/types/PostStorage";
+import {User} from "@/app/types/User";
 
 type FeedContextType = {
+    userLogin: User | null;
+    addUserData: (user: User) => void;
     refreshFeed: () => void;
     addPost: (post: PostStorage) => void;
     addAllPosts: (posts: PostStorage[]) => void;
@@ -20,10 +23,15 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [refreshKey, setRefreshKey] = useState(0);
     const [posts, setPosts] = useState<{ [key: number]: PostStorage }>({});
     const [filters, setFilters] = useState<{ [key: number]: string }>({});
+    const [userLogin, setUserLogin] = useState<User | null>(null);
 
     const refreshFeed = () => {
         setRefreshKey(prevKey => prevKey + 1);
     };
+
+    const addUserData = (user: User) => {
+        setUserLogin(user);
+    }
 
     const addPost = (post: PostStorage) => {
         console.log("SE ESTÁ AÑADIENDO UN POST", post);
@@ -71,7 +79,8 @@ export const FeedProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     return (
-        <FeedContext.Provider value={{ refreshFeed, addPost, addAllPosts, posts, filters, addAllFilters, addCommentByUser }}>
+        <FeedContext.Provider value={{ refreshFeed, userLogin, addUserData,
+            addPost, addAllPosts, posts, filters, addAllFilters, addCommentByUser }}>
             {children}
         </FeedContext.Provider>
     );
