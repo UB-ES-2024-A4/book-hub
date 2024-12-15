@@ -461,7 +461,7 @@ export async function logOut() {
     }
 }
 
-export async function searchUsers(search: string) {
+export async function searchUsersHandler(search: string) {
     try {
         const response = await fetch(`${baseUrl}/search/?query=${search}`, {
             method: 'GET',
@@ -476,8 +476,9 @@ export async function searchUsers(search: string) {
             console.error("Failed to search users:", errorData.detail);
             throw new Error(errorData.detail);
         }
+        const users = await response.json();
 
-        return {status: 200, message: "Users fetched successfully", data: await response.json()};
+        return {status: 200, message: "Users fetched successfully", data: users.users};
 
     } catch (error: any) {
         console.error("Error while searching users:", error);
