@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { followUser, unfollowUser } from "@/app/actions";
 import { toast } from "nextjs-toast-notify";
+import PostsPreview from "@/app/home/components/PostsPreviewHome";
 
 const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
@@ -94,6 +95,12 @@ export default function ScrollAreaExplorer({ userData }: Props) {
 
   const groupedPosts = groupPostsByFilters(postsContext, filters);
 
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const openDialog = () => {
+        setIsDialogOpen(true);
+    };
+
   return (
     <div className="p-10">
       {Object.entries(groupedPosts).map(([filterName, posts_users]) => (
@@ -153,7 +160,14 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                               )}
                             </div>
                           </CardHeader>
-                          <CardContent className="pt-4">
+                          <CardContent className="pt-4"
+                          onClick={() => {
+                            openDialog();
+                          }}
+                          >
+
+                        <PostsPreview open={isDialogOpen} setIsDialogOpen={setIsDialogOpen}
+                                postsStorage={postsContext[post.id]} />
                             <div className="grid md:grid-cols-[150px_1fr] gap-4">
                               <Image
                                 alt="Book cover"
@@ -198,6 +212,7 @@ export default function ScrollAreaExplorer({ userData }: Props) {
           )}
         </div>
       ))}
+
     </div>
   );
 }

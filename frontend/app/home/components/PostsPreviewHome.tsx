@@ -1,20 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Card } from '@/components/ui/card';
 import {ScrollArea, ScrollBar} from '@/components/ui/scroll-area';
-import {BookImage, Bookmark, Heart, MessageCircle, Share2} from 'lucide-react';
-import {toast} from "nextjs-toast-notify";
-import {fetchCommentsByPostID, postComment} from "@/app/actions";
 import {useFeed} from "@/contex/FeedContext";
 import {CommentUnic, PostStorage, UserUnic} from "@/app/types/PostStorage";
-import CommentsPreview from "@/app/home/components/CommentPreview";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {formatRelativeTime, getColorFromInitials, handleSubmitCommentInPost} from "@/app/lib/hashHelpers";
 import Image from "next/image";
 import {getSession} from "@/app/lib/authentication";
 import {CommentTextArea} from "@/app/home/components/CommentTextArea";
+import {handleFollowClick} from "@/app/lib/hashHelpers";
 
 type PostsPreviewProps = {
     open: boolean;
@@ -30,6 +25,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
     const [ comments, setComments ] = useState<CommentUnic[]>([]);
     const [ newComment, setNewComment ] = useState('');
     const [ user, setUser] = useState<UserUnic| null>(null);
+    const { posts: postsContext } = useFeed();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -74,14 +70,34 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                             </AvatarFallback>
                         </Avatar>
 
-                        <div className="flex flex-row space-x-10">
+                        <div className="flex flex-row space-x-6">
                             <div className="flex flex-col">
                                 <span className="font-semibold">{postsStorage.user.username}</span>
                                 <span className="text-xs text-gray-500">
                                     {postsStorage.book.title}
                                 </span>
                             </div>
+                            <div>
+                                {postsStorage.user.following ? (
+                                    <button className="px-2 py-1 text-white bg-gray-500 rounded" disabled>
+                                        Following
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="px-2 py-1  text-white bg-blue-500 rounded hover:bg-blue-600"
+                                        onClick={() => {
+                                            const [following, setFollowing] = useState(postsStorage.user.following);
+                                            handleFollowClick(postsStorage.user.id,
+                                                following,
+                                                user?.id || -1, setFollowing,postsContext );
+                                        }}
+                                    >
+                                        Follow
+                                    </button>
+                                )}
+                            </div>
                         </div>
+
                     </div>
                     {/* Book Image */}
                     <Image
