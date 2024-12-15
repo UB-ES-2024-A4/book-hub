@@ -95,12 +95,6 @@ export default function ScrollAreaExplorer({ userData }: Props) {
 
   const groupedPosts = groupPostsByFilters(postsContext, filters);
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-    const openDialog = () => {
-        setIsDialogOpen(true);
-    };
-
   return (
     <div className="p-10">
       {Object.entries(groupedPosts).map(([filterName, posts_users]) => (
