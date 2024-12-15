@@ -85,7 +85,7 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
     if (response.ok) {
       return `${url}?${new Date().getTime()}`;
     } else {
-      return "/book.jpg"; // Default image
+      return "/logo.png"; // Default image
     }
   }
 

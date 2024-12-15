@@ -70,10 +70,6 @@ export default function MainContent ({ userData }: Props){
             </div>
         ) : (
             <div className="flex flex-1 flex-col md:flex-row overflow-hidden pt-10 md:pt-0">
-                {/* Sidebar (Search) */}
-                { /*<SearchHome/> */}
-                {/* Feed Section */}
-
                 <ScrollAreaHome userData={userData}/>
             </div>
         )

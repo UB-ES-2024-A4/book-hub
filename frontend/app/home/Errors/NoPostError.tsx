@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function NoPostError() {
     return(
         // Tarjeta de "No Posts"
-        <Card className="mx-5 md:mx-20 bg-white/80 backdrop-blur-sm">
+        <Card className="mx-5 md:mx-24 bg-white/80 backdrop-blur-sm">
             <CardHeader className="flex-row items-center">
                 <div className="flex items-center space-x-2">
                     <Avatar className="avatar rounded-full">
