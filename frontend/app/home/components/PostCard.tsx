@@ -13,6 +13,7 @@ import { getColorFromInitials, formatRelativeTime } from "@/app/lib/hashHelpers"
 import CommentsPreview from "@/app/home/components/CommentPreview";
 import { CommentScroll } from "@/app/home/components/CommentScroll";
 import { Dialog } from "@/components/ui/dialog";
+import {useFeed} from "@/contex/FeedContext";
 
 type PostCardProps = {
   postStorage: PostStorage;
@@ -35,15 +36,11 @@ export function PostCard({
   const [showComments, setShowComments] = useState(false);
   const [liked, setLiked] = useState(postStorage.like_set);
   const [likesCount, setLikesCount] = useState(post.likes);
+  const {posts: postContext} = useFeed();
 
   const handleLikeClick = async () => {
-    const prevLiked = liked;
-    const prevLikesCount = likesCount;
-
-    // Optimistic UI update
-    setLiked(!liked);
-    setLikesCount(liked ? likesCount - 1 : likesCount + 1);
-
+    console.log("LIKE CLICKED", liked);
+    console.log("LIKE IN CONTEXT", postContext[post.id].like_set);
     try {
       if (liked) {
         // Unlike the post
@@ -60,10 +57,6 @@ export function PostCard({
       }
     } catch (error: any) {
       console.error("Failed to update like status", error);
-      // Revert UI changes
-      setLiked(prevLiked);
-      setLikesCount(prevLikesCount);
-
       // Show a toast notification
       toast.error(error.message, {
         duration: 4000,
@@ -71,6 +64,12 @@ export function PostCard({
         position: 'top-center',
         transition: 'swingInverted',
       });
+    } finally {
+      // Optimistic UI update
+      setLiked(!liked);
+      setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+      postContext[post.id].like_set = !liked;
+      postContext[post.id].post.likes = liked ? likesCount - 1 : likesCount + 1;
     }
   };
 
@@ -194,21 +193,14 @@ export function PostCard({
 
       <CardFooter className="flex justify-between">
         <div className="flex gap-4">
-          <Button variant="ghost" size="sm" onClick={handleLikeClick}>
-            <Heart
-              className={`w-4 h-4 mr-2 ${liked ? 'fill-current text-red-500' : 'text-white'}`}
-              fill={liked ? 'currentColor' : 'none'}
-            />
+          <Button variant="ghost" size="sm"  onClick={handleLikeClick}>
+              <Heart
+                className={`w-10 h-10 mr-2 ${liked ? 'fill-current text-red-500' : 'text-white'}`}
+                fill={liked ? 'currentColor' : 'none'}
+              />
             {likesCount}
           </Button>
-          <Button variant="ghost" size="sm">
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
-          </Button>
         </div>
-        <Button variant="outline" size="sm">
-          Comment Book
-        </Button>
       </CardFooter>
     </Card>
   );

@@ -35,9 +35,14 @@ def delete_like(post_id: int, user_id: int, session: Session = Depends(get_sessi
     utils.check_existence_post(post_id=post_id, session=session)
 
     utils.check_post_liked(post_id=post_id, user_id=user_id, session=session, like=False)
+    # Buscar el registro de Like
+    db_like = session.execute(
+        select(Like).where((Like.user_id == user_id) & (Like.post_id == post_id))
+    ).scalar_one_or_none()
 
-    db_like: Like = session.exec(select(Like).where(Like.user_id == user_id and Like.post_id == post_id)).first()
+    if not db_like:
+        raise HTTPException(status_code=404, detail="Like not found")
 
-    like = crud.like.delete_like(session=session, db_like=db_like)
-
-    return {"message": "Post unliked successfully", "data": like}
+    # Eliminar el registro
+    session.delete(db_like)
+    session.commit()
