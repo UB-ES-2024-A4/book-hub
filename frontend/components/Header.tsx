@@ -195,14 +195,7 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                 {/* Contenedor Principal */}
                 {isSearchActive && (
                 <div className={`
-                    fixed 
-                    top-0 
-                    left-0 
-                    right-0 
-                    z-[9999] 
-                    transition-all 
-                    duration-300 
-                    ease-in-out 
+                    fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ease-in-out 
                     ${isSearchActive ? 'w-full h-full' : 'w-0 h-0 overflow-hidden'}
                 `}>
                     {/* Search Background Overlay */}
