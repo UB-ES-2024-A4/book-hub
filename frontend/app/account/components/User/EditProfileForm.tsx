@@ -11,6 +11,7 @@ import React, {useEffect, useState} from "react";
 import {PropsUser} from "@/app/types/PropsUser";
 import {toast} from "nextjs-toast-notify";
 import {User} from "@/app/types/User";
+import {useFeed} from "@/contex/FeedContext";
 
 type Props =  PropsUser & {
     setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
@@ -19,6 +20,8 @@ type Props =  PropsUser & {
 export default function EditProfileForm ({ setIsEditing, userData, setUser}: Props) {
     const [newUserData, setNewUserData] = useState<User | null>(null);
     const [serverError, setServerError] = useState<{status: number, message: string} | null>(null);
+
+    const { addUserData } = useFeed();
 
      const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
         const result = await UpdateUser(prevState, formData);
@@ -90,6 +93,7 @@ export default function EditProfileForm ({ setIsEditing, userData, setUser}: Pro
                 email: newUserData?.email || "",
             };
             setUser(newUser);
+            addUserData(newUser);
             setIsEditing(false);
         }
     }

@@ -3,6 +3,7 @@ import ProfileHeader from "@/app/account/components/ProfileHeader";
 import FetchInformationError from "@/app/account/components/Errors/FetchInformationError";
 import {useState} from "react";
 import {User} from "@/app/types/User";
+import Tabs from "@/app/account/components/Tabs";
 
 type Props = {
     userData: User;
@@ -17,9 +18,9 @@ export default  function MainContent({userData}: Props) {
             <div className="mx-2">
                 {user && <ProfileHeader userData={user} setUser={setUser}/>}
             </div>
-            {/* <div className="pt-4">
-                        {user && <Tabs userData={user}  setUser={setUser}/>}
-                    </div> */}
+             <div className="pt-4">
+                 {user && <Tabs userData={user}  setUser={setUser}/>}
+             </div>
         </div>
     )
 }

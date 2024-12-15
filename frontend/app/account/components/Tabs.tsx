@@ -20,24 +20,24 @@ export default function Tabs({ userData, setUser }: PropsUser) {
         </div>
       </div>
         <nav className="flex space-x-8 mb-8">
-          <button
+          {/*<button
               onClick={() => setActiveTab('posts')}
               className={`path text-gray-600 transition-colors duration-300 
               ${activeTab === 'posts' ? 'active' : ''}`}
           >
             Posts
-          </button>
+          </button>*/}
           <button
-              onClick={() => setActiveTab('booklist')}
+              onClick={() => setActiveTab('postsLiked')}
               className={`path text-gray-600 transition-colors duration-300 
-              ${activeTab === 'booklist' ? 'active' : ''}`}
+              ${activeTab === 'postsLiked' ? 'active' : ''}`}
           >
-            Book List
+            Liked
           </button>
         </nav>
 
-      {activeTab === 'posts' && <PostsGrid userData={userData} setUser={setUser} />}
-      {activeTab === 'booklist' && <SavedPostsList/>}
+      {activeTab === 'posts' && <PostsGrid  />}
+      {activeTab === 'postsLiked' && <PostsGrid  />}
 
     </div>
   );

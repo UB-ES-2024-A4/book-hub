@@ -12,8 +12,10 @@ import Image from "next/image";
 import {toast} from "nextjs-toast-notify";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {redirect} from "next/navigation";
+import {useFeed} from "@/contex/FeedContext";
 
 export default function SignInForm() {
+    const { addUserData } = useFeed();
     // Using useFormState hook to manage form state and validation
      const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
         const result = await SignInValidation(prevState, formData);
@@ -29,6 +31,8 @@ export default function SignInForm() {
         }
         else{
             console.log("SUCCESS, REDIRECTING TO HOME");
+            console.log(result.data);
+            addUserData(result.data);
             redirect('/home');
         }
 
