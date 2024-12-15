@@ -460,3 +460,45 @@ export async function logOut() {
         return null;
     }
 }
+
+export async function loadUserPostsAndLiked() {
+    try {
+        const response = await fetch(`${baseUrl}/users/posts-liked`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to fetch user posts and liked:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        const responsUserPosts = await fetch(`${baseUrl}/users/posts`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+        if(!responsUserPosts.ok) {
+            const errorData = await responsUserPosts.json();
+            console.error("Failed to fetch user posts and liked:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        const data = {
+            postUser: await responsUserPosts.json(),
+            postLiked: await response.json()
+        }
+
+        return {status: 200, message: "User posts and liked fetched successfully", data: data};
+
+    } catch (error: any) {
+        console.error("Error while fetching user posts and liked:", error);
+        return { status: 400, message: error.message, data: null };
+    }
+}

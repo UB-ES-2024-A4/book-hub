@@ -3,11 +3,14 @@
 
 import { useState } from 'react';
 import PostsGrid from './Tabs/PostsGrid';
-import SavedPostsList from './Tabs/SavedPostsList';
 import {PropsUser} from "@/app/types/PropsUser";
+import {PostStorage} from "@/app/types/PostStorage";
 
-
-export default function Tabs({ userData, setUser }: PropsUser) {
+type Props = {
+  postsUser: PostStorage[],
+  postsLiked: PostStorage[]
+}
+export default function Tabs({ postsUser, postsLiked }: Props) {
   const [activeTab, setActiveTab] = useState('posts');
 
   return (
@@ -35,9 +38,8 @@ export default function Tabs({ userData, setUser }: PropsUser) {
             Liked
           </button>
         </nav>
-
-      {activeTab === 'posts' && <PostsGrid  />}
-      {activeTab === 'postsLiked' && <PostsGrid  />}
+      {/*{activeTab === 'posts' && <PostsGrid   />}*/}
+      {activeTab === 'postsLiked' && <PostsGrid   />}
 
     </div>
   );

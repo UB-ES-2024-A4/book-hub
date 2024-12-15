@@ -102,10 +102,11 @@ const postStorageDummy = {
 
 
 type PostsGridProps = {
-  posts: PostStorage[];
+  //posts: PostStorage[];
+  postsUser: boolean;
 }
 
-export default function PostsGrid( ) {
+export default function PostsGrid(  ) {
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
   const {userLogin} = useFeed();
   const [hoveredPost, setHoveredPost] = useState<number | null>(null);
