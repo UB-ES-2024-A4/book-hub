@@ -195,14 +195,7 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                 {/* Contenedor Principal */}
                 {isSearchActive && (
                 <div className={`
-                    fixed 
-                    top-0 
-                    left-0 
-                    right-0 
-                    z-[9999] 
-                    transition-all 
-                    duration-300 
-                    ease-in-out 
+                    fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ease-in-out 
                     ${isSearchActive ? 'w-full h-full' : 'w-0 h-0 overflow-hidden'}
                 `}>
                     {/* Search Background Overlay */}
@@ -213,23 +206,9 @@ export default function Header({accessToken, user_id}: HeaderProps) {
 
                 {/* Search Content Container */}
                 <div className={`
-                    absolute 
-                    top-0 
-                    left-0 
-                    right-0 
-                    bg-[#051B32] 
-                    shadow-lg 
-                    shadow-blue-900/50 
-                    transition-all 
-                    duration-300 
-                    ease-in-out
-                    w-full 
-                    max-w-md 
-                    mx-auto 
-                    mt-4 
-                    rounded-xl 
-                    overflow-hidden
-                    ${isSearchActive ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
+                    absolute top-0  left-0 right-0 bg-[#051B32] shadow-lg shadow-blue-900/50 
+                    transition-all duration-300 ease-in-out w-full max-w-md mx-auto mt-4 rounded-xl 
+                    overflow-hidden ${isSearchActive ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
                 `}>
                     {/* Search Input Section */}
                     <div className="p-4 bg-[#051B32]">
