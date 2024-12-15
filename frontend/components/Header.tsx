@@ -14,7 +14,8 @@ import Dropdown from "./Dropdown";
 import { Compass, Home, CirclePlus, Search, X } from 'lucide-react';
 import Image from "next/image";
 import {User} from "@/app/types/User";
-import {errorMessage} from "@/app/lib/hashHelpers";
+import {errorMessage, getColorFromInitials} from "@/app/lib/hashHelpers";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
 type HeaderProps = {
     accessToken: string | null;
@@ -42,6 +43,7 @@ const menuItems: MenuItem[] = [
       ],
     },
 ];
+const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
 export default function Header({accessToken, user_id}: HeaderProps) {
     const { addAllFilters, filters } = useFeed();
@@ -267,24 +269,35 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                 <div className="space-y-3">
                                     {searchResults.length > 0 ? (
                                         searchResults.map((user: User, index) => (
+
+                                            user.id !== user_id && (
                                             <div
                                                 key={index}
                                                 className="bg-gray-800 rounded-lg p-3 flex items-center hover:bg-gray-700
-                                                transition-colors cursor-pointer"
+                                                transition-colors cursor-pointer space-x-3"
                                                 onClick={() => handleUserSelect(user)}
                                             >
-                                                <Image
-                                                    src={'/logo.png'}
-                                                    alt="NAME"
-                                                    width={40}
-                                                    height={40}
-                                                    className="w-10 h-10 rounded-full mr-3 object-cover"
-                                                />
+                                                <Avatar className="w-10 h-10 border-2 border-blue-400">
+                                                    <AvatarImage
+                                                      src={`${baseUrl}/${user.id}.png`}
+                                                    />
+                                                    <AvatarFallback
+                                                      style={{
+                                                        backgroundColor: user?.username
+                                                          ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
+                                                          : "hsl(215, 100%, 50%)",
+                                                      }}
+                                                      className="text-white font-semibold text-sm flex items-center justify-center"
+                                                    >
+                                                      {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
+                                                    </AvatarFallback>
+                                                  </Avatar>
                                                 <div>
                                                     <p className="text-white font-semibold">{user.username}</p>
                                                     <p className="text-gray-400 text-sm"> {user.first_name} {user.last_name}</p>
                                                 </div>
                                             </div>
+                                                )
                                         ))
                                     ) : (
                                         <p className="text-gray-400 text-center">No users found.</p>
