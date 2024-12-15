@@ -46,3 +46,5 @@ def delete_like(post_id: int, user_id: int, session: Session = Depends(get_sessi
     # Eliminar el registro
     session.delete(db_like)
     session.commit()
+
+    return {"message": "Post unliked successfully", "data": db_like}
