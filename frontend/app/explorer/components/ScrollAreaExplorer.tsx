@@ -160,14 +160,8 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                               )}
                             </div>
                           </CardHeader>
-                          <CardContent className="pt-4"
-                          onClick={() => {
-                            openDialog();
-                          }}
-                          >
+                          <CardContent className="pt-4 cursor-pointer">
 
-                        <PostsPreview open={isDialogOpen} setIsDialogOpen={setIsDialogOpen}
-                                postsStorage={postsContext[post.id]} />
                             <div className="grid md:grid-cols-[150px_1fr] gap-4">
                               <Image
                                 alt="Book cover"

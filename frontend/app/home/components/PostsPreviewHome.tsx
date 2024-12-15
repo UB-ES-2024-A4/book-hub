@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import {Dialog, DialogContent } from '@/components/ui/dialog';
 import { Card } from '@/components/ui/card';
-import {ScrollArea, ScrollBar} from '@/components/ui/scroll-area';
+import {ScrollArea } from '@/components/ui/scroll-area';
 import {useFeed} from "@/contex/FeedContext";
 import {CommentUnic, PostStorage, UserUnic} from "@/app/types/PostStorage";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
@@ -89,7 +89,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                                             const [following, setFollowing] = useState(postsStorage.user.following);
                                             handleFollowClick(postsStorage.user.id,
                                                 following,
-                                                user?.id || -1, setFollowing,postsContext );
+                                                user?.id || -1, setFollowing, postsContext);
                                         }}
                                     >
                                         Follow
@@ -99,20 +99,23 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                         </div>
 
                     </div>
-                    {/* Book Image */}
-                    <Image
-                        src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${postsStorage.book.id}.png`}
-                        alt={postsStorage.book.title}
-                        width={600}
-                        height={600}
-                        className="w-2/3 md:w-2/3 lg:w-1/2 h-[400px] object-cover rounded-lg mb-4"
-                    />
+                    <div className="flex justify-center">
+                        {/* Book Image */}
+                        <Image
+                            src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${postsStorage.book.id}.png`}
+                            alt={postsStorage.book.title}
+                            width={600}
+                            height={600}
+                            className="w-[60%] h-auto object-cover rounded-lg mb-4 mx-auto"
+                        />
+                    </div>
+
                     <div className="text-sm text-white/70 mb-2">
                         <span className="font-semibold">Book Description: </span>
                         {postsStorage.book.description}
                     </div>
                     {/* Separator */}
-                    <div className="border-b border-white/20 my-2" />
+                    <div className="border-b border-white/20 my-2"/>
                     {/* Caption */}
                     <div>
                         <div className="text-sm mb-2">
@@ -127,7 +130,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                 <div className="w-full md:w-1/2 flex flex-col justify-between p-4 bg-[#1e4e83]/40 md:pt-8 lg:pt-8">
                     {/* Comments Scroll Area */}
                     <ScrollArea className="h-[500px] rounded-md border bg-gray-800/10 mb-4">
-                        <div className="p-4 space-y-2 ">
+                    <div className="p-4 space-y-2 ">
                             {comments.map((comment) => (
                                 <div
                                     key={comment.id}
