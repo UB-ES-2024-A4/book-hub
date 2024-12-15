@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PropsUser } from "@/app/types/PropsUser";
 import UserProfilePicture from "@/app/profile/components/User/UserProfilePicture";
 import UserProfileData from "@/app/profile/components/User/UserProfileData";
 

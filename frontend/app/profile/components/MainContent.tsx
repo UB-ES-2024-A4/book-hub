@@ -1,9 +1,8 @@
 "use client";
 import ProfileHeader from "@/app/profile/components/ProfileHeader";
-import FetchInformationError from "@/app/account/components/Errors/FetchInformationError";
 import {useState} from "react";
 import {User} from "@/app/types/User";
-import {redirect, useSearchParams} from "next/navigation";
+import {useSearchParams} from "next/navigation";
 import { useEffect } from "react";
 import { fetchUserData } from "@/app/actions";
 import FetchError from "@/components/FetchError";
@@ -14,7 +13,6 @@ type Props = {
 
 export default  function MainContent({userData}: Props) {
     // Fetch user data
-    //const [user, setUser] = useState(userData);
     const [fetchError, setError] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(userData);
     const searchParams = useSearchParams();
@@ -48,7 +46,7 @@ export default  function MainContent({userData}: Props) {
         ) : (
             <div className="bg-white shadow-lg rounded-lg overflow-hidden">
                 <div className="mx-2">
-                    {userData && <ProfileHeader userData={userData} userProfile={user}/>}
+                    <ProfileHeader userData={userData} userProfile={user}/>
                 </div>
                 {/* <div className="pt-4">
                             {user && <Tabs userData={user}  setUser={setUser}/>}
