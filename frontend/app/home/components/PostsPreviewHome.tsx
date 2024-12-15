@@ -15,6 +15,7 @@ import {formatRelativeTime, getColorFromInitials, handleSubmitCommentInPost} fro
 import Image from "next/image";
 import {getSession} from "@/app/lib/authentication";
 import {CommentTextArea} from "@/app/home/components/CommentTextArea";
+import Link from 'next/link';
 
 type PostsPreviewProps = {
     open: boolean;
@@ -57,26 +58,30 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                 <div className="w-full md:w-1/2 bg-gray-900/70 text-white flex flex-col px-6 md:px-10 lg:px-16 py-4">
                     {/* Header */}
                     <div className="flex items-center space-x-3 mb-4">
-                        <Avatar className="w-10 h-10 border-2 border-blue-400">
-                            <AvatarImage
-                                src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${postsStorage.post.id}.png`}/>
-                            <AvatarFallback
-                                style={{
-                                    backgroundColor: postsStorage.user.username
-                                        ? getColorFromInitials(postsStorage.user.username.substring(0, 2).toUpperCase())
-                                        : 'hsl(215, 100%, 50%)',
-                                }}
-                                className="text-white font-semibold text-sm flex items-center justify-center"
-                            >
-                                {postsStorage.user.username
-                                    ? postsStorage.user.username.substring(0, 2).toUpperCase()
-                                    : '?'}
-                            </AvatarFallback>
-                        </Avatar>
+                        <Link href={`/profile?userId=${postsStorage.user?.id}`}>
+                            <Avatar className="w-10 h-10 border-2 border-blue-400">
+                                <AvatarImage
+                                    src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${postsStorage.post.id}.png`}/>
+                                <AvatarFallback
+                                    style={{
+                                        backgroundColor: postsStorage.user.username
+                                            ? getColorFromInitials(postsStorage.user.username.substring(0, 2).toUpperCase())
+                                            : 'hsl(215, 100%, 50%)',
+                                    }}
+                                    className="text-white font-semibold text-sm flex items-center justify-center"
+                                >
+                                    {postsStorage.user.username
+                                        ? postsStorage.user.username.substring(0, 2).toUpperCase()
+                                        : '?'}
+                                </AvatarFallback>
+                            </Avatar>
+                        </Link>
 
                         <div className="flex flex-row space-x-10">
                             <div className="flex flex-col">
-                                <span className="font-semibold">{postsStorage.user.username}</span>
+                                <Link href={`/profile?userId=${postsStorage.user?.id}`}>
+                                    <span className="font-semibold">{postsStorage.user.username}</span>
+                                </Link>
                                 <span className="text-xs text-gray-500">
                                     {postsStorage.book.title}
                                 </span>
@@ -118,27 +123,31 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                                     className="bg-gray-800/40 hover:bg-gray-800/90 transition-all duration-300 rounded-xl p-3"
                                 >
                                     <div className="flex items-start space-x-3">
-                                        <Avatar className="w-7 h-7 border-2 border-blue-400/50">
-                                            <AvatarImage
-                                                src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}
-                                            />
-                                            <AvatarFallback
-                                                className="text-white font-semibold text-xs flex items-center justify-center"
-                                                style={{
-                                                    backgroundColor: getColorFromInitials(
-                                                        comment.user.username.substring(0, 2).toUpperCase()
-                                                    ),
-                                                }}
-                                            >
-                                                {comment.user.username.substring(0, 2).toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
+                                        <Link href={`/profile?userId=${comment.user?.id}`}>
+                                            <Avatar className="w-7 h-7 border-2 border-blue-400/50">
+                                                <AvatarImage
+                                                    src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}
+                                                />
+                                                <AvatarFallback
+                                                    className="text-white font-semibold text-xs flex items-center justify-center"
+                                                    style={{
+                                                        backgroundColor: getColorFromInitials(
+                                                            comment.user.username.substring(0, 2).toUpperCase()
+                                                        ),
+                                                    }}
+                                                >
+                                                    {comment.user.username.substring(0, 2).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </Link>
 
                                         <div className="flex-1">
                                             <div className="flex justify-between items-center mb-1">
-                                                <span className="text-xs font-semibold text-blue-300">
-                                                    {comment.user?.username}
-                                                </span>
+                                                <Link href={`/profile?userId=${comment.user?.id}`}>
+                                                    <span className="text-xs font-semibold text-blue-300">
+                                                        {comment.user?.username}
+                                                    </span>
+                                                </Link>
                                                 <span className="text-xs text-gray-400">
                                                     {formatRelativeTime(comment.created_at)}
                                                 </span>

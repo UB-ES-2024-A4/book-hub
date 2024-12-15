@@ -7,6 +7,7 @@ import {fetchCommentsByPostID} from "@/app/actions";
 import {getSession} from "@/app/lib/authentication";
 import {useFeed} from "@/contex/FeedContext";
 import {CommentTextArea} from "@/app/home/components/CommentTextArea";
+import Link from "next/link";
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
 type CommentProps = {
@@ -64,20 +65,22 @@ export const CommentScroll = ({ postsStorage, slice, smallWindow }: CommentProps
               border border-transparent hover:border-blue-800/50"
             >
               <div className="flex items-start space-x-3">
-                <Avatar className="w-7 h-7 border-2 border-blue-400/50">
-                    <AvatarImage
-                        src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}/>
-                  <AvatarFallback
-                    style={{
-                      backgroundColor: getColorFromInitials(
-                        comment.user.username.substring(0, 2).toUpperCase()
-                      ),
-                    }}
-                    className="text-white font-semibold text-xs flex items-center justify-center"
-                  >
-                    {comment.user.username.substring(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <Link href={`/profile?userId=${comment.user?.id}`}>
+                  <Avatar className="w-7 h-7 border-2 border-blue-400/50">
+                      <AvatarImage
+                          src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}/>
+                    <AvatarFallback
+                      style={{
+                        backgroundColor: getColorFromInitials(
+                          comment.user.username.substring(0, 2).toUpperCase()
+                        ),
+                      }}
+                      className="text-white font-semibold text-xs flex items-center justify-center"
+                    >
+                      {comment.user.username.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
 
                 <div className="flex-1">
                   <div className="flex justify-between items-center mb-1">
