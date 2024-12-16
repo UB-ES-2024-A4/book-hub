@@ -109,16 +109,12 @@ def test_get_all_books(
         assert 'author' in item
         assert 'description' in item
 
-def test_get_books_empty(
-    client: TestClient, db: Session
-) -> None:
+def test_get_books_empty(client: TestClient, db: Session) -> None:
     try:
+        db.exec(text('DELETE FROM post'))
         db.exec(text('DELETE FROM book'))
 
-        r = client.get(
-            "/books/all"
-        )
-
+        r = client.get("/books/all")
         all_books = r.json()
 
         assert r.status_code == 200
