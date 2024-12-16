@@ -19,7 +19,7 @@ export default function ProfileHeader({ userData, userProfile}: Props) {
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
         <UserProfilePicture userDataMock={userProfile}/>
 
-        <UserProfileData userProfile={userProfile}/>
+        <UserProfileData userProfile={userProfile} currentUserId={userData?.id}/>
       </div>
 
     </div>

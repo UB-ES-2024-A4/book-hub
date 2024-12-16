@@ -26,9 +26,9 @@ export default  function MainContent({userData}: Props) {
 
     const fetchAndSetUser = async (id: number) => {
         try {
-            const result = await fetchUserData(id); // Call the imported function
+            const result = await fetchUserData(id, userData?.id);
             if (result?.status === 200) {
-                setUser(result.data); // Update the state with user data
+                setUser(result.data);
             } else {
                 setError(result?.message || "Failed to fetch user data.");
             }
