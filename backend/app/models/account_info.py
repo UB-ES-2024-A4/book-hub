@@ -1,18 +1,11 @@
-from sqlmodel import SQLModel, Field, Session
+import json
+from sqlmodel import Session
 from sqlalchemy import text
-from typing import Optional, List
-from datetime import datetime
+from typing import List
 from app.models.comment import CommentOutHome
 from app.models.book import Book
 from app.models.post import PostOutHomeOnly, PostOutHome
 from app.models.user import UserOutHome
-
-class CommentOut(SQLModel):
-    id: int
-    user: UserOutHome
-    comment: str
-    created_at: datetime
-
 
 class PostRepository:
     def __init__(self, session: Session):
@@ -21,24 +14,49 @@ class PostRepository:
     def get_user_posts_with_comments(
         self, user_id: int, user_id_acc: int
     ) -> List[PostOutHome]:
-        query = text("""
-            WITH comments_with_post AS (
+        
+        comments_query = text("""
+                WITH follower_info AS (
+                    SELECT 
+                        CASE 
+                            WHEN :user_id IS NULL THEN FALSE  -- Si user_id es NULL, is_following = FALSE
+                            WHEN f.follower_id = :user_id THEN TRUE 
+                            ELSE FALSE 
+                        END AS is_following
+                    FROM 
+                        followers f
+                    WHERE 
+                        f.followee_id = :user_id_acc
+                )
                 SELECT 
                     c.post_id,
                     c.id AS comment_id,
                     c.user_id AS commenter_id,
                     u.username AS commenter_username,
                     c.comment,
-                    c.created_at
+                    c.created_at,
+                    fi.is_following
                 FROM 
                     comment c
                 JOIN 
+                    post p ON c.post_id = p.id
+                JOIN 
                     user u ON c.user_id = u.id
-            ),
-            likes_info AS (
+                LEFT JOIN 
+                    follower_info fi ON TRUE -- Always devuelve el estado de isFollower
+                WHERE 
+                    p.user_id = :user_id_acc
+                ORDER BY 
+                    c.created_at ASC;
+
+        """)
+
+        posts_query = text("""
+                        WITH likes_info AS (
                 SELECT 
                     p.id AS post_id,
                     CASE 
+                        WHEN :user_id IS NULL THEN FALSE  -- Si user_id es NULL, user_liked = FALSE
                         WHEN l.user_id = :user_id THEN TRUE 
                         ELSE FALSE 
                     END AS user_liked
@@ -46,10 +64,20 @@ class PostRepository:
                     post p
                 LEFT JOIN 
                     `like` l ON p.id = l.post_id AND l.user_id = :user_id
+            ), 
+            post_filters AS (
+                SELECT 
+                    pf.post_id,
+                    GROUP_CONCAT(DISTINCT pf.filter_id) AS filters
+                FROM 
+                    postfilter pf
+                GROUP BY 
+                    pf.post_id
             ),
             follower_info AS (
                 SELECT 
                     CASE 
+                        WHEN :user_id IS NULL THEN FALSE  -- Si user_id es NULL, is_following = FALSE
                         WHEN f.follower_id = :user_id THEN TRUE 
                         ELSE FALSE 
                     END AS is_following
@@ -67,16 +95,12 @@ class PostRepository:
                 p.description AS post_description,
                 li.user_liked,
                 fi.is_following,
-                cw.comment_id,
-                cw.commenter_id,
-                cw.commenter_username,
-                cw.comment,
-                cw.created_at AS comment_created_at,
                 b.id AS book_id,
                 b.title AS book_title,
                 b.author AS book_author,
                 b.description AS book_description,
-                b.created_at AS book_created_at
+                b.created_at AS book_created_at,
+                pf.filters
             FROM 
                 post p
             JOIN 
@@ -84,20 +108,20 @@ class PostRepository:
             LEFT JOIN 
                 likes_info li ON p.id = li.post_id
             LEFT JOIN 
-                follower_info fi ON TRUE -- Always return the following info
-            LEFT JOIN 
-                comments_with_post cw ON p.id = cw.post_id
+                follower_info fi ON TRUE -- Always devuelve el estado de isFollower
             LEFT JOIN 
                 book b ON p.book_id = b.id
+            LEFT JOIN 
+                post_filters pf
+                ON p.id = pf.post_id
             WHERE 
                 p.user_id = :user_id_acc
             ORDER BY 
-                p.created_at DESC, 
-                cw.created_at ASC;
+                p.created_at DESC;
         """)
 
-        result = self.session.execute(
-            query, {"user_id": user_id, "user_id_acc": user_id_acc}
+        result = self.session.exec(
+            posts_query, params={"user_id": user_id, "user_id_acc": user_id_acc}
         ).fetchall()
 
         posts = {}
@@ -105,7 +129,7 @@ class PostRepository:
             post_id = row.post_id
             if post_id not in posts:
                 posts[post_id] = PostOutHome(
-                    user=UserOutHome(id=row.author_id, username=row.author_username, following=row.is_following),
+                    user=UserOutHome(id=row.author_id, username=row.author_username, following=row.is_following if row.is_following else False),
                     post=PostOutHomeOnly(
                         id=row.post_id,
                         likes=row.post_likes,
@@ -122,20 +146,29 @@ class PostRepository:
                     ),
                     n_comments=0,
                     comments=[],
-                    filters=[],  # Asume que los filtros no están en esta consulta
+                    filters=[int(fid) for fid in row.filters.split(",")] if row.filters else [],
                 )
 
-            if row.comment_id is not None:
-                comment = CommentOutHome(
-                    id=row.comment_id,
-                    user=UserOutHome(
-                        id=row.commenter_id, 
-                        username=row.commenter_username
-                    ),
-                    comment=row.comment,
-                    created_at=row.comment_created_at,
+
+        comments_ = self.session.exec(
+            comments_query, params={"user_id": user_id, "user_id_acc": user_id_acc}
+        ).fetchall()
+
+        commentsids = set()
+
+        for comment in comments_:
+            if comment.comment_id in commentsids:
+                continue
+            posts[comment.post_id].comments.append(
+                CommentOutHome(
+                    id=comment.comment_id,
+                    user=UserOutHome(id=comment.commenter_id, username=comment.commenter_username),
+                    comment=comment.comment,
+                    created_at=comment.created_at,
                 )
-                posts[post_id].comments.append(comment)
-                posts[post_id].n_comments += 1
+            )
+            commentsids.add(comment.comment_id)
+            posts[comment.post_id].n_comments += 1
+
 
         return list(posts.values())

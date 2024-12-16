@@ -1,15 +1,20 @@
 from fastapi import (APIRouter, HTTPException, Depends)
 from sqlmodel import Session
-
+from app.models.account_info import PostRepository
 from app.core.database import get_session
 from app.models.user import User
-from app.utils import get_account_posts
-from app.api.deps import (get_current_user)
+from app.api.deps import (get_optional_user)
 
 router = APIRouter()
 
 @router.get("/{user_id}",
-            dependencies=[Depends(get_current_user), Depends(get_session)])
-def get_account(user_id : int, session: Session = Depends(get_session), user : User = Depends(get_current_user)):
-    
-    return get_account_posts(session=session, user_id=user.id, user_id_acc=user_id)
+            dependencies=[Depends(get_optional_user), Depends(get_session)])
+def get_account(user_id : int, session: Session = Depends(get_session), user : User = Depends(get_optional_user)):
+
+    if session.get(User, user_id) is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    try:
+        return PostRepository(session).get_user_posts_with_comments(user.id if user else None, user_id)
+    except Exception:
+        raise HTTPException(status_code=500, detail="An error occurred while retrieving posts")

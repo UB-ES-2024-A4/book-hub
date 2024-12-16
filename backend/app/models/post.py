@@ -6,7 +6,7 @@ from .book import Book
 from .postFilter import PostFilter
 
 class PostBase(SQLModel):
-    book_id: int = Field(foreign_key="book.id")
+    book_id: int = Field(foreign_key="book.id", ondelete="CASCADE")
     user_id: Optional[int] = Field(foreign_key="user.id", ondelete="CASCADE")
     description: str
     likes: int = Field(default=0)
