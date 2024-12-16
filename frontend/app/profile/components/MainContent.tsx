@@ -14,7 +14,7 @@ type Props = {
 export default  function MainContent({userData}: Props) {
     // Fetch user data
     const [fetchError, setError] = useState<string | null>(null);
-    const [user, setUser] = useState<User | null>(userData);
+    const [user, setUser] = useState<User | null>(null);
     const searchParams = useSearchParams();
     const userId = Number(searchParams.get("userId"));
 
