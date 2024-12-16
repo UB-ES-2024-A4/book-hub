@@ -1,5 +1,6 @@
 """ Tests configuration module """
 from collections.abc import Generator
+from datetime import datetime
 
 import pytest
 from fastapi.testclient import TestClient
@@ -8,7 +9,7 @@ from sqlmodel import Session, select, delete
 from .utils import get_user_token_headers
 from app.core.database import engine, init_db, get_session
 from app.main import app
-from app.models import User, Post, Book, Filter
+from app.models import User, Post, Book, Filter, Comment, Followers
 
 # Cuando los tests necesiten una session llamarán a esta fixture
 @pytest.fixture(scope="session", autouse=True)
