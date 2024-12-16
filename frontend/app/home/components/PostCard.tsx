@@ -43,33 +43,32 @@ export function PostCard({
     console.log("LIKE IN CONTEXT", postContext[post.id].like_set);
     try {
       if (liked) {
-        // Unlike the post
-        const result = await unlikePost(currentUserId, post.id);
-        if (result.status !== 200) {
-          throw new Error(result.message);
-        }
-      } else {
-        // Like the post
-        const result = await likePost(currentUserId, post.id);
-        if (result.status !== 200) {
-          throw new Error(result.message);
-        }
+      // Unlike the post
+      const result = await unlikePost(currentUserId, post.id);
+      if (result.status !== 200) {
+        throw new Error(result.message);
       }
-    } catch (error: any) {
-      console.error("Failed to update like status", error);
-      // Show a toast notification
-      toast.error(error.message, {
-        duration: 4000,
-        progress: true,
-        position: 'top-center',
-        transition: 'swingInverted',
-      });
-    } finally {
+      } else {
+      // Like the post
+      const result = await likePost(currentUserId, post.id);
+      if (result.status !== 200) {
+        throw new Error(result.message);
+      }
+      }
       // Optimistic UI update
       setLiked(!liked);
       setLikesCount(liked ? likesCount - 1 : likesCount + 1);
       postContext[post.id].like_set = !liked;
       postContext[post.id].post.likes = liked ? likesCount - 1 : likesCount + 1;
+    } catch (error: any) {
+      console.error("Failed to update like status", error);
+      // Show a toast notification
+      toast.error(error.message, {
+      duration: 4000,
+      progress: true,
+      position: 'top-center',
+      transition: 'swingInverted',
+      });
     }
   };
 

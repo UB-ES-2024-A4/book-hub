@@ -15,6 +15,7 @@ import {formatRelativeTime, getColorFromInitials, handleSubmitCommentInPost} fro
 import Image from "next/image";
 import {getSession} from "@/app/lib/authentication";
 import {CommentTextArea} from "@/app/home/components/CommentTextArea";
+import AvatarWithFallback from './AvatarComment';
 
 type PostsPreviewProps = {
     open: boolean;
@@ -118,7 +119,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                                     className="bg-gray-800/40 hover:bg-gray-800/90 transition-all duration-300 rounded-xl p-3"
                                 >
                                     <div className="flex items-start space-x-3">
-                                        <Avatar className="w-7 h-7 border-2 border-blue-400/50">
+                                       {/* <Avatar className="w-7 h-7 border-2 border-blue-400/50">
                                             <AvatarImage
                                                 src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}
                                             />
@@ -132,7 +133,9 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                                             >
                                                 {comment.user.username.substring(0, 2).toUpperCase()}
                                             </AvatarFallback>
-                                        </Avatar>
+                                        </Avatar>*/}
+                                        <AvatarWithFallback comment={comment} />
+
 
                                         <div className="flex-1">
                                             <div className="flex justify-between items-center mb-1">

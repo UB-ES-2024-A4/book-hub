@@ -64,7 +64,6 @@ export const handleSubmitCommentInPost = async (newComment: string,
                                    postsStorage: PostStorage, addCommentByUser: (comment: CommentUnic, postID: number) => void,
                                    user: UserUnic | null
                                    ) => {
-    console.log("Comments in POST PREVIEW", comments);
     if (newComment.trim() === '') {
         errorMessage("You should enter a comment to submit")
         return;
@@ -83,7 +82,6 @@ export const handleSubmitCommentInPost = async (newComment: string,
                 user: user
             }
 
-            console.log("Comment to ADD", commentToAdd);
             setComments([commentToAdd, ...comments]);
             setNewComment('');
             addCommentByUser(commentToAdd, postsStorage.post.id);

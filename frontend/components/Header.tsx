@@ -40,9 +40,10 @@ const menuItems: MenuItem[] = [
       ],
     },
   ];
+const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
 export default function Header({accessToken, user_id}: HeaderProps) {
-    const { addAllFilters, filters } = useFeed();
+    const { addAllFilters, filters, changeUrlImage } = useFeed();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const pathname = usePathname();
@@ -82,6 +83,8 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                 });
                 addAllFilters(filtersObject);
             }
+
+            changeUrlImage(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${user_id}.png?timestamp=${new Date().getTime()}`);
         }
 
         fetchFilters();
