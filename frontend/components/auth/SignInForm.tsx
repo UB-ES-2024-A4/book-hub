@@ -12,10 +12,12 @@ import Image from "next/image";
 import {toast} from "nextjs-toast-notify";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {redirect} from "next/navigation";
-import {useFeed} from "@/contex/FeedContext";
+
+import { useFeed } from "@/contex/FeedContext";
+const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
 export default function SignInForm() {
-    const { addUserData } = useFeed();
+    const { addUserData, changeUrlImage } = useFeed();
     // Using useFormState hook to manage form state and validation
      const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
         const result = await SignInValidation(prevState, formData);
@@ -30,9 +32,8 @@ export default function SignInForm() {
             });
         }
         else{
-            console.log("SUCCESS, REDIRECTING TO HOME");
-            console.log(result.data);
             addUserData(result.data);
+            changeUrlImage(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${result.data.id}.png?timestamp=${new Date().getTime()}`);
             redirect('/home');
         }
 
@@ -58,7 +59,9 @@ export default function SignInForm() {
         <div className="w-full h-full  flex flex-col justify-center md:py12 py-4">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
-                    <Image src="/logo.png" alt="Book Image" width={50} height={50} />
+                    <Link href="/explorer">
+                        <Image src="/logo.png" alt="Book Image" width={50} height={50} />
+                    </Link>
                 </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-blue-500">
                     Sign In

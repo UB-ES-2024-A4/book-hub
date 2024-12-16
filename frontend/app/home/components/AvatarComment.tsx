@@ -20,6 +20,7 @@ const AvatarImageComponent = React.memo(({ userId, timestamp }: AvatarCommentPro
       src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${userId}.png?timestamp=${timestamp}`}
     />
   ));
+AvatarImageComponent.displayName = "AvatarImageComponent";
   
   const AvatarFallbackComponent = React.memo(({ username }: AvatarFallbackProps) => {
     const backgroundColor = getColorFromInitials(
@@ -35,6 +36,7 @@ const AvatarImageComponent = React.memo(({ userId, timestamp }: AvatarCommentPro
       </AvatarFallback>
     );
   });
+AvatarFallbackComponent.displayName = "AvatarFallbackComponent";
   
 type AvatarWithFallbackProps = {
     comment: CommentUnic;
