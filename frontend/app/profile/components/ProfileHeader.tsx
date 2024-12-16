@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import UserProfilePicture from "@/app/profile/components/User/UserProfilePicture";
 import UserProfileData from "@/app/profile/components/User/UserProfileData";
 
@@ -9,7 +9,7 @@ import { User } from '@/app/types/User';
 
 type Props = {
     userData: User | null;
-    userProfile: User | null;
+    userProfile: User;
 }
 
 export default function ProfileHeader({ userData, userProfile}: Props) {

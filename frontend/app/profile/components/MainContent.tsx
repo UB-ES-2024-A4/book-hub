@@ -46,7 +46,7 @@ export default  function MainContent({userData}: Props) {
         ) : (
             <div className="bg-white shadow-lg rounded-lg overflow-hidden">
                 <div className="mx-2">
-                    <ProfileHeader userData={userData} userProfile={user}/>
+                    {user && <ProfileHeader userData={userData} userProfile={user}/>}
                 </div>
                 {/* <div className="pt-4">
                             {user && <Tabs userData={user}  setUser={setUser}/>}
