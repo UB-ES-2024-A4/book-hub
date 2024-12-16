@@ -511,3 +511,25 @@ export async function logOut() {
         return null;
     }
 }
+
+export async function fetchUserData(id: number) {
+    try {
+        const response = await fetch(`${baseUrl}/users/${id}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to get user:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        const data = await response.json();
+        return { status: 200, message: "User loaded successfully", data: data };
+
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+}

@@ -14,6 +14,7 @@ import CommentsPreview from "@/app/home/components/CommentPreview";
 import { CommentScroll } from "@/app/home/components/CommentScroll";
 import { Dialog } from "@/components/ui/dialog";
 import {useFeed} from "@/contex/FeedContext";
+import Link from "next/link";
 
 type PostCardProps = {
   postStorage: PostStorage;
@@ -75,10 +76,12 @@ export function PostCard({
   return (
     <Card
       key={post.id}
-      className="max-w-7xl bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl col-span-1 mb-2"
+      className="max-w-7xl bg-gradient-to-br from-gray-800 to-blue-900 text-white shadow-xl col-span-1 mb-2 border-none"
     >
       <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
         <div className="flex items-center space-x-2">
+          
+        <Link href={`/profile?userId=${user?.id}`}>
           <Avatar className="w-10 h-10 border-2 border-blue-400">
             <AvatarImage src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user.id}.png`} />
             <AvatarFallback
@@ -92,10 +95,13 @@ export function PostCard({
               {user?.username ? user.username.substring(0, 2).toUpperCase() : '?'}
             </AvatarFallback>
           </Avatar>
+          </Link>
 
           <div className="flex flex-row space-x-10">
             <div className="flex flex-col">
+            <Link href={`/profile?userId=${user?.id}`}>
               <span className="font-semibold">{user.username}</span>
+              </Link>
               <span className="text-xs text-gray-500">
                 {formatRelativeTime(post.created_at)}
               </span>

@@ -17,7 +17,7 @@ type Props = {
 
 export default function UserProfilePicture ({userDataMock, setIsHovering, isHovering, handleProfilePictureChange}: Props) {
     // TODO accept other formats
-    const {changeUrlImage} = useFeed();
+    const {urlImage,changeUrlImage} = useFeed();
 
     const [imageReload, setImageUrl] = useState(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png`);
 
@@ -50,7 +50,7 @@ export default function UserProfilePicture ({userDataMock, setIsHovering, isHove
                 >
                     <Image
                         key={imageReload}
-                        src={ imageReload }
+                        src={ urlImage }
                         alt={`${userDataMock.first_name}'s picture`}
                         width={100}
                         height={100}

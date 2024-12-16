@@ -44,8 +44,6 @@ const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES =
 export default function ScrollAreaHome({ userData }: Props) {
   const currentUserId = userData.id;
 
-  console.log("USER ID", currentUserId);
-
   const { posts: postsContext, addAllPosts, filters } = useFeed();
 
   // Handle follow/unfollow button click
