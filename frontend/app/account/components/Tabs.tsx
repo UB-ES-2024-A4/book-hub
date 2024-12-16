@@ -7,8 +7,8 @@ import {PropsUser} from "@/app/types/PropsUser";
 import {PostStorage} from "@/app/types/PostStorage";
 
 type Props = {
-  postsUser: PostStorage[],
-  postsLiked: PostStorage[]
+  postsUser: PostStorage[] | null,
+  postsLiked: PostStorage[] | null
 }
 export default function Tabs({ postsUser, postsLiked }: Props) {
   const [activeTab, setActiveTab] = useState('posts');

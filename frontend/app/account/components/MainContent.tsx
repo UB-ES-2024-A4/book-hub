@@ -10,15 +10,24 @@ type Props = {
     userData: User;
 }
 
-export default  async function MainContent({userData}: Props) {
+import {useEffect} from "react";
+
+export default function MainContent({userData}: Props) {
     // Fetch user data
     const [user, setUser] = useState(userData);
+    const [postUser, setPostUser] = useState(null);
+    const [postLiked, setPostLiked] = useState(null);
 
-    // Load user Posts and Liked Posts
-    const response = await loadUserPostsAndLiked();
+    useEffect(() => {
+        const fetchData = async () => {
+            // Load user Posts and Liked Posts
+            const response = await loadUserPostsAndLiked();
+            setPostUser(response.data?.postUser);
+            setPostLiked(response.data?.postLiked);
+        };
 
-    const postUser= response.data?.postUser
-    const postLiked= response.data?.postLiked
+        fetchData();
+    }, []);
 
     return (
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">

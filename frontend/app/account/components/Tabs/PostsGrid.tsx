@@ -11,7 +11,7 @@ import {useFeed} from "@/contex/FeedContext";
 import PostsPreviewHome from "@/app/home/components/PostsPreviewHome";
 import {Filter} from "@/app/types/Filter";
 
-const userPosts = [
+const posts = [
   {
     id: 1,
     likes: 15,
@@ -64,7 +64,7 @@ const postStorageDummy = {
     user: {
         username: "username",
         id: 1,
-        following: false
+        following: true
     },
     post: {
         id: 1,
@@ -108,7 +108,6 @@ type PostsGridProps = {
 
 export default function PostsGrid(  ) {
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
-  const {userLogin} = useFeed();
   const [hoveredPost, setHoveredPost] = useState<number | null>(null);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -119,8 +118,13 @@ export default function PostsGrid(  ) {
   };
 
   return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 pb-8">
-          {userPosts.map((post) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 pb-8">
+        {posts.length === 0 ? (
+          <div className="col-span-full text-center text-gray-500">
+            No posts to display
+          </div>
+        ) : (
+            posts.map((post) => (
               <div
                   key={post.id}
                   className="relative group overflow-hidden rounded-lg"
@@ -159,7 +163,8 @@ export default function PostsGrid(  ) {
                       </div>
                   )}
               </div>
-          ))}
+            ))
+        )}
 
           <PostsPreviewHome
               open={isDialogOpen}
