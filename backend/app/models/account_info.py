@@ -154,7 +154,11 @@ class PostRepository:
             comments_query, params={"user_id": user_id, "user_id_acc": user_id_acc}
         ).fetchall()
 
+        commentsids = set()
+
         for comment in comments_:
+            if comment.comment_id in commentsids:
+                continue
             posts[comment.post_id].comments.append(
                 CommentOutHome(
                     id=comment.comment_id,
@@ -163,6 +167,7 @@ class PostRepository:
                     created_at=comment.created_at,
                 )
             )
+            commentsids.add(comment.comment_id)
             posts[comment.post_id].n_comments += 1
 
 
