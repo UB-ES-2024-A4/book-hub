@@ -6,4 +6,5 @@ export type User = {
   username: string;
   email: string;
   biography: string;
+  following?: boolean;
 };

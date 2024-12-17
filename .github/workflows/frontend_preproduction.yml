@@ -1,6 +1,9 @@
 name: Deploy to Azure Web App
 
 on:
+  push:
+    branches:
+      - "PreProduction"  # Triggers deployment on pushes to the main branch
   workflow_dispatch:  # Triggers deployment on pushes to the main branch
 
 jobs:

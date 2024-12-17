@@ -25,6 +25,7 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
     if (submission.status !== "success") {
         return {status: 400, message: "Invalid Form", Data: null };
     }
+    console.log("FORM DATA", formData);
 
     const userServer = await getSession();
     const accessToken = await getAccessToken();
@@ -85,7 +86,7 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
     if (response.ok) {
       return `${url}?${new Date().getTime()}`;
     } else {
-      return "/book.jpg"; // Default image
+      return "/logo.png"; // Default image
     }
   }
 
@@ -126,7 +127,7 @@ export async function loadPosts(filters: string|undefined = undefined, skip: num
     try {
         const accessToken = await getAccessToken();
 
-        const url = baseUrl + `/${page}` + (filters ? `?filters=${filters}&skip=${skip}&limit=${limit}` :
+        const url = baseUrl + `/${page}` + (filters ? `/?filters=${filters}&skip=${skip}&limit=${limit}` :
             `/?skip=${skip}&limit=${limit}`);
 
         const headers: HeadersInit = {
@@ -363,6 +364,57 @@ export async function unfollowUser(followerId: number, followeeId: number) {
 
 }
 
+export async function likePost(userId: number, postId: number) {
+  try {
+    const response = await fetch(`${baseUrl}/likes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${await getAccessToken()}`,
+    },
+      body: JSON.stringify({
+        user_id: userId,
+        post_id: postId,
+      }),
+    });
+
+    if (response.status !== 200) {
+      const errorData = await response.json();
+      console.error('Failed to like post:', errorData.detail);
+      return { status: response.status, message: errorData.detail };
+    }
+
+    const data = await response.json();
+    return { status: 200, message: 'Post liked successfully', data };
+  } catch (error: any) {
+    console.error('Error while liking post:', error);
+    return { status: 400, message: error.message };
+  }
+}
+
+export async function unlikePost(userId: number, postId: number) {
+    try {
+      const response = await fetch(`${baseUrl}/likes/${postId}&${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${await getAccessToken()}`,
+        },
+      });
+  
+      if (response.status !== 200) {
+        const errorData = await response.json();
+        console.error('Failed to unlike post:', errorData.detail);
+        return { status: response.status, message: errorData.detail };
+      }
+  
+      return { status: 200, message: 'Post unliked successfully' };
+    } catch (error: any) {
+      console.error('Error while unliking post:', error);
+      return { status: 400, message: error.message };
+    }
+}
+  
 //Fetch All Comments by posts ID
 export async function fetchCommentsByPostID(postId: number): Promise<{status: number, message: string, data: CommentUnic[] | null}> {
     try {
@@ -458,5 +510,141 @@ export async function logOut() {
     } catch (error) {
         console.error("Error while logging user out:", error);
         return null;
+    }
+}
+
+export async function fetchUserData(profileId: number, currentId: number | undefined) {
+    try {
+        const response = await fetch(`${baseUrl}/users/${profileId}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to get user:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        const data = await response.json();
+
+        if (currentId != undefined) {
+            const res = await fetch(`${baseUrl}/followers/${currentId}/${profileId}`)
+            const following = await res.json()
+            data['following'] = following['success']
+        }
+        
+        return { status: 200, message: "User loaded successfully", data: data };
+
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+}
+
+export async function searchUsersHandler(search: string) {
+    try {
+        const response = await fetch(`${baseUrl}/search/?query=${search}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to search users:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        const users = await response.json();
+
+        return {status: 200, message: "Users fetched successfully", data: users.users};
+
+    } catch (error: any) {
+        console.error("Error while searching users:", error);
+        return { status: 400, message: error.message, data: null };
+    }
+}
+
+export async function getPostList(userId: number) {
+    try {
+        const response = await fetch(`${baseUrl}/account/${userId}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to get user posts:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        const data = await response.json();
+
+        const userPosts: PostStorage[] = [];
+        data.forEach((post_info: any) => {
+            const postStorage: PostStorage = {
+                user: post_info.user,
+                post: post_info.post,
+                book: post_info.book,
+                filters: post_info.filters,
+                like_set: post_info.like_set,
+                n_comments: post_info.n_comments,
+                comments: post_info.comments
+            }
+            userPosts.push(postStorage);
+        });
+
+        return { status: 200, message: "Posts loaded successfully", data: data };
+        
+    } catch (error) {
+        console.error("Error fetching user posts:", error);
+    }
+}
+
+export async function loadUserPostsAndLiked(user_id: number) {
+    try {
+        const response = await fetch(`${baseUrl}/account/liked/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${await getAccessToken()}`,
+            
+            },
+        });
+
+        if (response.status !== 200 && response.status !== 307) {
+            const errorData = await response.json();
+            console.error("Failed to fetch user liked posts:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        const responsUserPosts = await fetch(`${baseUrl}/account/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (response.status !== 200 && response.status !== 307) {
+            const errorData = await responsUserPosts.json();
+            console.error("Failed to fetch user posts and liked:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+        const datap = {
+            postUser: await responsUserPosts.json(),
+            postLiked: await response.json()
+        }
+        console.log("DATA POSTS AND LIKED", datap);
+
+        return {status: 200, message: "User posts and liked fetched successfully", data: datap};
+
+    } catch (error: any) {
+        console.error("Error while fetching user posts and liked:", error);
+        return { status: 400, message: error.message, data: null };
     }
 }

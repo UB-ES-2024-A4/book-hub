@@ -29,8 +29,6 @@ export default function MainContent ({ userData }: Props){
     useEffect(() => {
         async function fetchPosts() {
 
-            console.log("Fetching Posts");
-
             try {
                 const result = await loadPosts();
 
@@ -47,10 +45,8 @@ export default function MainContent ({ userData }: Props){
                 // Sort the posts by date
                 loadedPosts.sort((a, b) => new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime());
                 addAllPosts(loadedPosts);
-                console.log("POSTS CARGADOS ", loadedPosts);
 
             } catch (error:any) {
-                console.error("Failed to fetch POST", error);
                 setError(error.message);
             }
             // Stop the loading state
@@ -70,10 +66,6 @@ export default function MainContent ({ userData }: Props){
             </div>
         ) : (
             <div className="flex flex-1 flex-col md:flex-row overflow-hidden pt-10 md:pt-0">
-                {/* Sidebar (Search) */}
-                { /*<SearchHome/> */}
-                {/* Feed Section */}
-
                 <ScrollAreaHome userData={userData}/>
             </div>
         )

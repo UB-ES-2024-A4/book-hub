@@ -9,6 +9,10 @@ import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { followUser, unfollowUser } from "@/app/actions";
 import { toast } from "nextjs-toast-notify";
+import PostsPreview from "@/app/home/components/PostsPreviewHome";
+import PostsPreviewHome from "@/app/home/components/PostsPreviewHome";
+import {PostStorage} from "@/app/types/PostStorage";
+import Link from "next/link";
 
 const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
@@ -18,7 +22,7 @@ type Props = {
 };
 
 export default function ScrollAreaExplorer({ userData }: Props) {
-  const { posts: postsContext, filters } = useFeed();
+  const { posts: postsContext, filters, toggleFollowing } = useFeed();
 
   // Group posts by filters
   function groupPostsByFilters(
@@ -50,7 +54,6 @@ export default function ScrollAreaExplorer({ userData }: Props) {
     postUserId: number,
     isCurrentlyFollowing: boolean,
     currentUserId: number,
-    updateFollowingState: (following: boolean) => void
   ) => {
     try {
       if (isCurrentlyFollowing) {
@@ -61,7 +64,7 @@ export default function ScrollAreaExplorer({ userData }: Props) {
         if (result.status !== 200) throw new Error(result.message);
       }
       // Update the local state to reflect the change
-      updateFollowingState(!isCurrentlyFollowing);
+      toggleFollowing(postUserId);
       // Update the following status in the post of PostContext
       postsContext[postUserId].user.following = !isCurrentlyFollowing;
         toast.success("Everything went well", {
@@ -92,7 +95,16 @@ export default function ScrollAreaExplorer({ userData }: Props) {
     }
   };
 
+
   const groupedPosts = groupPostsByFilters(postsContext, filters);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const openDialog = (postID:number) => {
+    setPostStorageIDSelected(postID);
+    setIsDialogOpen(true);
+  };
+  const [postStorageIDSelected, setPostStorageIDSelected] = useState<number>(1);
 
   return (
     <div className="p-10">
@@ -107,8 +119,6 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                   const book = post_user.book;
                   const post = post_user.post;
 
-                  const [following, setFollowing] = useState(user.following);
-
                   return (
                     <div key={post.id} >
                       {userData?.id !== user.id ? (
@@ -118,35 +128,39 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                         >
                           <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
                             <div className="flex items-center space-x-2">
-                              <Avatar className="w-10 h-10 border-2 border-blue-400">
-                                <AvatarImage
-                                  src={`${baseUrl}/${user.id}.png`}
-                                />
-                                <AvatarFallback
-                                  style={{
-                                    backgroundColor: user?.username
-                                      ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
-                                      : "hsl(215, 100%, 50%)",
-                                  }}
-                                  className="text-white font-semibold text-sm flex items-center justify-center"
-                                >
-                                  {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="font-semibold text-blue-300">
-                                @{user?.username || "Unknown User"}
-                              </span>
+                              <Link href={`/profile?userId=${user?.id}`}>
+                                <Avatar className="w-10 h-10 border-2 border-blue-400">
+                                  <AvatarImage
+                                    src={`${baseUrl}/${user.id}.png`}
+                                  />
+                                  <AvatarFallback
+                                    style={{
+                                      backgroundColor: user?.username
+                                        ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
+                                        : "hsl(215, 100%, 50%)",
+                                    }}
+                                    className="text-white font-semibold text-sm flex items-center justify-center"
+                                  >
+                                    {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </Link>
+                              <Link href={`/profile?userId=${user?.id}`}>
+                                <span className="font-semibold text-blue-300">
+                                  @{user?.username || "Unknown User"}
+                                </span>
+                              </Link>
                               {userData ? (
                                 <Button
-                                  variant={following ? "default" : "outline"}
+                                  variant={user.following ? "default" : "outline"}
                                   className={`relative h-8 ${
-                                    following ? "bg-gray-500" : "bg-blue-500"
+                                    user.following ? "bg-gray-500" : "bg-blue-500"
                                   } text-white font-semibold py-2 px-4 rounded-l-md group`}
                                   onClick={() =>
-                                    handleFollowClick(user.id, following, userData.id, setFollowing)
+                                    handleFollowClick(user.id, user.following, userData.id)
                                   }
                                 >
-                                  {following ? "Following" : "Follow"}
+                                  {user.following ? "Following" : "Follow"}
                                 </Button>
                               ) : (
                                 <div></div>
@@ -154,13 +168,15 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                             </div>
                           </CardHeader>
                           <CardContent className="pt-4">
+
                             <div className="grid md:grid-cols-[150px_1fr] gap-4">
                               <Image
                                 alt="Book cover"
-                                className="rounded-lg object-cover shadow-md md:w-[250px] md:h-[250px]"
+                                className="rounded-lg object-cover shadow-md md:w-[250px] md:h-[250px] cursor-pointer"
                                 width={500}
                                 height={500}
                                 src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png` || "logo.png"}
+                                onClick={() => openDialog(post.id)}
                               />
                               <div className="space-y-3 whitespace-normal max-w-full overflow-hidden break-words">
                                 <div>
@@ -192,12 +208,15 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                   );
                 })}
               </div>
+              <PostsPreviewHome open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} postsStorage={postsContext[postStorageIDSelected]} />
             </div>
+
           ) : (
             <p className="text-gray-400">No posts available</p>
           )}
         </div>
       ))}
+
     </div>
   );
 }
