@@ -77,7 +77,8 @@ def test_post(db: Session, test_user_acc: User, test_book: Book) -> Post:
 def test_comment(db: Session, test_post: Post, test_user: User) -> Comment:
     """Fixture para crear un comentario en el post de prueba."""
     
-    if db.exec(select(Comment).where(Comment.comment == "COMMENT_1")).first():
+    comment = db.exec(select(Comment).where(Comment.comment == "COMMENT_1")).first()
+    if comment:
         return comment
 
     comment = Comment(
@@ -110,6 +111,21 @@ def test_follower(db: Session, test_user: User, test_user_acc: User) -> Follower
     db.commit()
     db.refresh(follower)
     return follower
+
+
+@pytest.fixture
+def test_like(db: Session, test_post: Post, test_user: User) -> Like:
+    """Fixture para crear un like en el post de prueba."""
+    like = db.exec(select(Like).where(Like.post_id == test_post.id, Like.user_id == test_user.id)).first()
+
+    if like:
+        return like
+
+    like = Like(post_id=test_post.id, user_id=test_user.id)
+    db.add(like)
+    db.commit()
+    db.refresh(like)
+    return like
 
 
 def test_user_not_found(db: Session, client: TestClient) -> None:
@@ -215,8 +231,66 @@ def test_get_user_posts_with_multiple_comments(
 
     repository = PostRepository(session=db)
 
-    posts = repository.get_user_posts_with_comments(user_id=test_user.id, user_id_acc=test_user_acc.id)
+    posts = repository.get_liked_posts_by_user(user_id=test_user.id)
 
     post = posts[0]
 
     assert post.comments[0].comment == "COMMENT_1"
+
+
+# TESTS PARA LA NUEVA FUNCIÓN
+def test_get_liked_posts_with_comments(
+    db: Session, test_user: User, test_user_acc: User, test_post: Post, test_like: Like, test_comment: Comment
+) -> None:
+    """Test para validar que solo se devuelven posts a los que el usuario ha dado like."""
+    repository = PostRepository(session=db)
+
+    posts = repository.get_liked_posts_by_user(user_id=test_user.id)
+
+    post = posts[0]
+
+    # Validar detalles del post
+    assert post.post.id == test_post.id
+    assert post.like_set is True
+    assert post.user.id == test_user_acc.id
+    assert post.user.username == test_user_acc.username
+
+    # Validar detalles del libro
+    assert post.book.title == "TEST_BOOK"
+
+    # Validar comentarios
+    comment = post.comments[0]
+    assert comment.comment == "COMMENT_1"
+    assert comment.user.id == test_user.id
+    assert comment.user.username == test_user.username
+
+
+def test_get_liked_posts_empty(db: Session, test_user: User) -> None:
+    """Test para validar que devuelve una lista vacía si el usuario no ha dado like a ningún post."""
+    repository = PostRepository(session=db)
+
+    posts = repository.get_liked_posts_by_user(user_id=test_user.id)
+
+    p = db.exec(select(Like).where(Like.user_id == test_user.id)).all()
+
+    assert len(posts) == len(p)
+
+
+def test_api_get_liked_posts(
+    db: Session, test_user: User, test_post: Post, test_like: Like, test_comment: Comment, client: TestClient,logged_user_token_headers: dict[str, str]
+) -> None:
+    
+    """Test para validar el endpoint de obtener posts que el usuario ha dado like."""
+    response = client.get("/account/liked/", headers=logged_user_token_headers)
+    assert response.status_code == 200
+
+    posts = response.json()
+
+    assert len(posts) == 0
+
+
+def test_api_get_liked_posts_no_likes(db: Session, test_user: User, client: TestClient, logged_user_token_headers: dict[str, str]) -> None:
+    """Test para validar que el endpoint devuelve una lista vacía si el usuario no ha dado like."""
+    response = client.get("/account/liked/", headers=logged_user_token_headers)
+    assert response.status_code == 200
+    assert response.json() == []
