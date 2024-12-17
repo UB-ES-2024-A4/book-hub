@@ -4,7 +4,6 @@ import Header from "@/components/Header";
 import MainContent from "@/app/profile/components/MainContent";
 import {User} from "@/app/types/User";
 import {getSession, getAccessToken} from "@/app/lib/authentication";
-import FetchInformationError from "@/app/account/components/Errors/FetchInformationError";
 
 const  ProfilePage = async () => {
     

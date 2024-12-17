@@ -161,7 +161,7 @@ export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostD
 
 return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-[70vw] xl:max-w-[80vw] p-0 border-0">
+        <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-[70vw] xl:max-w-[80vw] p-0 border-0 z-[9999]">
             <DialogClose
                 className="absolute top-10 right-4 md:top-2 text-white bg-black hover:bg-gray-500 rounded-full p-2 z-10"
                 onClick={() => setIsDialogOpen(false)}

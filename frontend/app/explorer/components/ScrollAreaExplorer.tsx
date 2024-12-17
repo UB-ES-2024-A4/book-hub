@@ -22,7 +22,7 @@ type Props = {
 };
 
 export default function ScrollAreaExplorer({ userData }: Props) {
-  const { posts: postsContext, filters, followingState, toggleFollowing } = useFeed();
+  const { posts: postsContext, filters, toggleFollowing } = useFeed();
 
   // Group posts by filters
   function groupPostsByFilters(

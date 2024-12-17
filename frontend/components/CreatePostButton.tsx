@@ -4,7 +4,7 @@ type CreatePostButtonProps = {
 
 export default function CreatePostButton({openDialog}: CreatePostButtonProps) {
     return (<div onClick={openDialog}
-                     className={`path transition-colors duration-300 cursor-pointer text-gray-300`}>
+                     className={`transition-colors duration-300 cursor-pointer text-gray-300 hover:text-blue-600`}>
             Create Post</div>
     );
 }

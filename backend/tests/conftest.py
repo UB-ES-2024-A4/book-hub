@@ -3,7 +3,7 @@ from collections.abc import Generator
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session, select, delete, tuple_
+from sqlmodel import Session, select, tuple_
 
 from .utils import get_user_token_headers
 from app.core.database import engine, init_db, get_session
@@ -64,7 +64,7 @@ def client() -> Generator[TestClient, None, None]:
 
 # Fixture para hacer un override de la función get_session y compartir la sesión
 @pytest.fixture(scope="module", autouse=True)
-def override_get_session(db: Session) -> None:
+def override_get_session(db: Session):
     # Override FastAPI's get_session dependency to use the test session
     def _override_get_session():
         yield db
