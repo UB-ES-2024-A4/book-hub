@@ -44,60 +44,58 @@ export function PostCard({
     console.log("LIKE IN CONTEXT", postContext[post.id].like_set);
     try {
       if (liked) {
-        // Unlike the post
-        const result = await unlikePost(currentUserId, post.id);
-        if (result.status !== 200) {
-          throw new Error(result.message);
-        }
-      } else {
-        // Like the post
-        const result = await likePost(currentUserId, post.id);
-        if (result.status !== 200) {
-          throw new Error(result.message);
-        }
+      // Unlike the post
+      const result = await unlikePost(currentUserId, post.id);
+      if (result.status !== 200) {
+        throw new Error(result.message);
       }
-    } catch (error: any) {
-      console.error("Failed to update like status", error);
-      // Show a toast notification
-      toast.error(error.message, {
-        duration: 4000,
-        progress: true,
-        position: 'top-center',
-        transition: 'swingInverted',
-      });
-    } finally {
+      } else {
+      // Like the post
+      const result = await likePost(currentUserId, post.id);
+      if (result.status !== 200) {
+        throw new Error(result.message);
+      }
+      }
       // Optimistic UI update
       setLiked(!liked);
       setLikesCount(liked ? likesCount - 1 : likesCount + 1);
       postContext[post.id].like_set = !liked;
       postContext[post.id].post.likes = liked ? likesCount - 1 : likesCount + 1;
+    } catch (error: any) {
+      console.error("Failed to update like status", error);
+      // Show a toast notification
+      toast.error(error.message, {
+      duration: 4000,
+      progress: true,
+      position: 'top-center',
+      transition: 'swingInverted',
+      });
     }
   };
 
   return (
     <Card
       key={post.id}
-      className="max-w-7xl bg-gradient-to-br from-gray-900 to-blue-900 text-white shadow-xl col-span-1 mb-2"
+      className="max-w-7xl bg-gradient-to-br from-gray-800 to-blue-900 text-white shadow-xl col-span-1 mb-2 border-none"
     >
       <CardHeader className="flex-row items-center border-b border-blue-800 pb-4">
         <div className="flex items-center space-x-2">
-          <Link href={`/profile?userId=${user?.id}`}>
-            <Avatar className="w-10 h-10 border-2 border-blue-400">
-              <AvatarImage
-                src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user.id}.png`}
-              />
-              <AvatarFallback
-                style={{
-                  backgroundColor: user?.username
-                    ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
-                    : "hsl(215, 100%, 50%)",
-                }}
-                className="text-white font-semibold text-sm flex items-center justify-center"
-              >
-              {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
+          
+        <Link href={`/profile?userId=${user?.id}`}>
+          <Avatar className="w-10 h-10 border-2 border-blue-400">
+            <AvatarImage src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user.id}.png`} />
+            <AvatarFallback
+              style={{
+                backgroundColor: user?.username
+                  ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
+                  : 'hsl(215, 100%, 50%)',
+              }}
+              className="text-white font-semibold text-sm flex items-center justify-center"
+            >
+              {user?.username ? user.username.substring(0, 2).toUpperCase() : '?'}
             </AvatarFallback>
           </Avatar>
-        </Link>
+          </Link>
 
           <div className="flex flex-row space-x-10">
             <div className="flex flex-col">

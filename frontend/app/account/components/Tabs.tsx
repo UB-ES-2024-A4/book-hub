@@ -3,15 +3,19 @@
 
 import { useState } from 'react';
 import PostsGrid from './Tabs/PostsGrid';
-import SavedPostsList from './Tabs/SavedPostsList';
 import {PropsUser} from "@/app/types/PropsUser";
+import {PostStorage} from "@/app/types/PostStorage";
 
+type Props = {
+  postsUser: PostStorage[] | null,
+  postsLiked: PostStorage[] | null
+}
+export default function Tabs({ postsUser, postsLiked }: Props) {
 
-export default function Tabs({ userData, setUser }: PropsUser) {
   const [activeTab, setActiveTab] = useState('posts');
 
   return (
-    <div className="container px-8">
+    <div className="container px-8 bg-[#051B32]">
       <div className="py-2">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -20,24 +24,23 @@ export default function Tabs({ userData, setUser }: PropsUser) {
         </div>
       </div>
         <nav className="flex space-x-8 mb-8">
-          <button
+          {<button
               onClick={() => setActiveTab('posts')}
               className={`path text-gray-600 transition-colors duration-300 
               ${activeTab === 'posts' ? 'active' : ''}`}
           >
             Posts
-          </button>
+          </button>}
           <button
-              onClick={() => setActiveTab('booklist')}
+              onClick={() => setActiveTab('postsLiked')}
               className={`path text-gray-600 transition-colors duration-300 
-              ${activeTab === 'booklist' ? 'active' : ''}`}
+              ${activeTab === 'postsLiked' ? 'active' : ''}`}
           >
-            Book List
+            Liked
           </button>
         </nav>
-
-      {activeTab === 'posts' && <PostsGrid userData={userData} setUser={setUser} />}
-      {activeTab === 'booklist' && <SavedPostsList/>}
+      {activeTab === 'posts' && <PostsGrid  posts={postsUser} />}
+      {activeTab === 'postsLiked' && <PostsGrid posts={postsLiked} />}
 
     </div>
   );

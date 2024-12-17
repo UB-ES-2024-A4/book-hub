@@ -5,9 +5,16 @@ import {User} from "@/app/types/User";
 import ProfileDialog from "@/app/account/components/Dialogs/ProfileDialog";
 
 import {PropsUser} from "@/app/types/PropsUser";
+import {useFeed} from "@/contex/FeedContext";
 
 export default function UserProfileData ({userData, setUser}: PropsUser) {
   const [isEditing, setIsEditing] = useState(false);
+
+  const {userLogin, addUserData} = useFeed();
+  if (!userLogin) {
+      console.log("User not logged in but recover from local storage");
+      addUserData(userData);
+  }
 
   const handleEdit = () => {
     setIsEditing(true);

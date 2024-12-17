@@ -1,9 +1,9 @@
 import {ScrollArea, ScrollBar} from "@/components/ui/scroll-area";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {formatRelativeTime, getColorFromInitials, handleSubmitCommentInPost} from "@/app/lib/hashHelpers";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, memo} from "react";
 import {CommentUnic, PostStorage, UserUnic} from "@/app/types/PostStorage";
-import {fetchCommentsByPostID} from "@/app/actions";
+// import {fetchCommentsByPostID} from "@/app/actions";
 import {getSession} from "@/app/lib/authentication";
 import {useFeed} from "@/contex/FeedContext";
 import {CommentTextArea} from "@/app/home/components/CommentTextArea";
@@ -18,7 +18,7 @@ type CommentProps = {
 
 
 
-export const CommentScroll = ({ postsStorage, slice, smallWindow }: CommentProps) => {
+const CommentScroll = ({ postsStorage, slice, smallWindow }: CommentProps)  => {
 
     const { posts } = useFeed();
     const [ newComment, setNewComment ] = useState('');
@@ -35,15 +35,13 @@ export const CommentScroll = ({ postsStorage, slice, smallWindow }: CommentProps
                 id: user?.id || -1
             });
             setNewComment('');
-            console.log("CommentsSCROLL POSTORAGE: ------------", postsStorage.comments);
 
             // Ordena y actualiza los comentarios
-            const sortedComments = [...postsStorage.comments].sort((a, b) => {
+            const sortedComments = [...postsStorage.comments].sort((a:CommentUnic, b:CommentUnic) => {
                 return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
             });
 
             setComments(sortedComments);
-            console.log("CommentsSCROLL: ------------", comments);
         }
 
         load();
@@ -65,7 +63,7 @@ export const CommentScroll = ({ postsStorage, slice, smallWindow }: CommentProps
               border border-transparent hover:border-blue-800/50"
             >
               <div className="flex items-start space-x-3">
-                <Link href={`/profile?userId=${comment.user?.id}`}>
+                <Link href={comment.user.id === user?.id ? "/account" : `/profile?userId=${comment.user.id}`}>
                   <Avatar className="w-7 h-7 border-2 border-blue-400/50">
                       <AvatarImage
                           src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}/>
@@ -111,4 +109,8 @@ export const CommentScroll = ({ postsStorage, slice, smallWindow }: CommentProps
             )}
             </div>
     );
-}
+};
+
+CommentScroll.displayName = 'CommentScroll';
+
+export { CommentScroll };
