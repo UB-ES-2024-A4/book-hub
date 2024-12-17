@@ -39,8 +39,8 @@ export default function Tabs({ postsUser, postsLiked }: Props) {
             Liked
           </button>
         </nav>
-      {activeTab === 'posts' && <PostsGrid  posts={postsLiked} />}
-      {activeTab === 'postsLiked' && <PostsGrid posts={postsUser} />}
+      {activeTab === 'posts' && <PostsGrid  posts={postsUser} />}
+      {activeTab === 'postsLiked' && <PostsGrid posts={postsLiked} />}
 
     </div>
   );

@@ -18,7 +18,7 @@ type CommentProps = {
 
 
 
-const CommentScroll = memo( ({ postsStorage, slice, smallWindow }: CommentProps)  => {
+const CommentScroll = ({ postsStorage, slice, smallWindow }: CommentProps)  => {
 
     const { posts } = useFeed();
     const [ newComment, setNewComment ] = useState('');
@@ -109,7 +109,7 @@ const CommentScroll = memo( ({ postsStorage, slice, smallWindow }: CommentProps)
             )}
             </div>
     );
-});
+};
 
 CommentScroll.displayName = 'CommentScroll';
 

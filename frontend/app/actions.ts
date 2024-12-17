@@ -568,7 +568,7 @@ export async function searchUsersHandler(search: string) {
 }
 export async function loadUserPostsAndLiked(user_id: number) {
     try {
-        /*const response = await fetch(`${baseUrl}/account/${user_id}`, {
+        const response = await fetch(`${baseUrl}/account/liked/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -577,11 +577,11 @@ export async function loadUserPostsAndLiked(user_id: number) {
             },
         });
 
-        if (!response.ok) {
+        if (response.status !== 200 && response.status !== 307) {
             const errorData = await response.json();
-            console.error("Failed to fetch user posts and liked:", errorData.detail);
+            console.error("Failed to fetch user liked posts:", errorData.detail);
             throw new Error(errorData.detail);
-        }*/
+        }
 
         const responsUserPosts = await fetch(`${baseUrl}/account/${user_id}`, {
             method: 'GET',
@@ -591,17 +591,17 @@ export async function loadUserPostsAndLiked(user_id: number) {
             },
         });
 
-        if(!responsUserPosts.ok) {
+        if (response.status !== 200 && response.status !== 307) {
             const errorData = await responsUserPosts.json();
             console.error("Failed to fetch user posts and liked:", errorData.detail);
             throw new Error(errorData.detail);
         }
 
-       const  dates = await responsUserPosts.json();
         const datap = {
-            postUser: dates,
-            postLiked: dates
+            postUser: await responsUserPosts.json(),
+            postLiked: await response.json()
         }
+        console.log("DATA POSTS AND LIKED", datap);
 
         return {status: 200, message: "User posts and liked fetched successfully", data: datap};
 
