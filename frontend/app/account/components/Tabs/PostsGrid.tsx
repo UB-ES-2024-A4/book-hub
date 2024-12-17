@@ -57,7 +57,7 @@ export default function PostsGrid({ posts }: PostsGridProps) {
 
           {hoveredPost === post.post.id && (
             <div
-              className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-all duration-300 ease-in-out cursor-pointer"
+              className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-all duration-300 ease-in-out"
             >
               <div className="flex items-center text-white space-x-4">
                 <div className="flex items-center">
