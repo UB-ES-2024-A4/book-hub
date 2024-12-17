@@ -278,7 +278,9 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                         searchResults.map((user: User, index) => (
 
                                             user.id !== user_id && (
-                                                <Link href={user_id === user.id ? "/account" : `/profile?userId=${user.id}`}>
+                                                <Link 
+                                                key={user.id} // Add key prop here
+                                                href={user_id === user.id ? "/account" : `/profile?userId=${user.id}`}>
                                             <div
                                                 key={index}
                                                 className="bg-gray-800 rounded-lg p-3 flex items-center hover:bg-gray-700

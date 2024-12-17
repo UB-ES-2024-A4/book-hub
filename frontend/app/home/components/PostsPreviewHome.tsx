@@ -28,6 +28,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
     const [ newComment, setNewComment ] = useState('');
     const [ user, setUser] = useState<UserUnic| null>(null);
     const { posts: postsContext } = useFeed();
+    console.log("POSTS STORAGE", postsStorage);
 
     useEffect(() => {
         const fetchUser = async () => {
