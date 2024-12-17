@@ -42,7 +42,7 @@ export default function PostsGrid( { postsUser }: PostsGridProps ) {
         ) : (
             postsUser?.map((object, index) => (
               <div
-                  key={object.post.id}
+                  key={index}
                   className="relative group overflow-hidden rounded-lg"
                   onMouseEnter={() => setHoveredPost(object.post.id)}
                   onMouseLeave={() => setHoveredPost(null)}
@@ -80,11 +80,11 @@ export default function PostsGrid( { postsUser }: PostsGridProps ) {
             ))
         )}
 
-          <PostsPreviewHome
+          {/* <PostsPreviewHome
               open={isDialogOpen}
               setIsDialogOpen={setIsDialogOpen}
               postsStorage={postsUser[selectedPost]}
-          />
+          /> */}
 
       </div>
   );
