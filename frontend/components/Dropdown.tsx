@@ -12,7 +12,6 @@ interface DropdownProps {
 }
 
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
-const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
 
 export default function Dropdown({item, user_id}: DropdownProps) {
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -34,7 +33,7 @@ export default function Dropdown({item, user_id}: DropdownProps) {
             <div className="relative cursor-pointer">
                 <Avatar className="w-14 h-14 border-2 border-blue-400 bg-white" onClick={toggle}>
                     <AvatarImage src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${user_id}.png`}/>
-                    <Image src={'/logo.png'} alt='' width={40} height={40} />
+                    <Image className='object-cover' src={'/logo.png'} alt='' width={56} height={56} />
                 </Avatar>
                 <div className={`absolute z-30 flex flex-col bg-zinc-400 rounded-md bg-black/40 transition-all duration-500 ease-in-out transform ${transClass} ${
                         isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 -translate-y-2'

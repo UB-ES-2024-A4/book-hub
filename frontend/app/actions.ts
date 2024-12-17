@@ -363,6 +363,57 @@ export async function unfollowUser(followerId: number, followeeId: number) {
 
 }
 
+export async function likePost(userId: number, postId: number) {
+  try {
+    const response = await fetch(`${baseUrl}/likes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${await getAccessToken()}`,
+    },
+      body: JSON.stringify({
+        user_id: userId,
+        post_id: postId,
+      }),
+    });
+
+    if (response.status !== 200) {
+      const errorData = await response.json();
+      console.error('Failed to like post:', errorData.detail);
+      return { status: response.status, message: errorData.detail };
+    }
+
+    const data = await response.json();
+    return { status: 200, message: 'Post liked successfully', data };
+  } catch (error: any) {
+    console.error('Error while liking post:', error);
+    return { status: 400, message: error.message };
+  }
+}
+
+export async function unlikePost(userId: number, postId: number) {
+    try {
+      const response = await fetch(`${baseUrl}/likes/${postId}&${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${await getAccessToken()}`,
+        },
+      });
+  
+      if (response.status !== 200) {
+        const errorData = await response.json();
+        console.error('Failed to unlike post:', errorData.detail);
+        return { status: response.status, message: errorData.detail };
+      }
+  
+      return { status: 200, message: 'Post unliked successfully' };
+    } catch (error: any) {
+      console.error('Error while unliking post:', error);
+      return { status: 400, message: error.message };
+    }
+}
+  
 //Fetch All Comments by posts ID
 export async function fetchCommentsByPostID(postId: number): Promise<{status: number, message: string, data: CommentUnic[] | null}> {
     try {
@@ -458,6 +509,28 @@ export async function logOut() {
     } catch (error) {
         console.error("Error while logging user out:", error);
         return null;
+    }
+}
+
+export async function fetchUserData(id: number) {
+    try {
+        const response = await fetch(`${baseUrl}/users/${id}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to get user:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        const data = await response.json();
+        return { status: 200, message: "User loaded successfully", data: data };
+
+    } catch (error) {
+      console.error("Error fetching user data:", error);
     }
 }
 
