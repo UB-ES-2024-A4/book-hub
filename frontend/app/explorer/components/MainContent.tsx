@@ -61,7 +61,7 @@ export default function MainContent({ userData }: Props){
                 <FetchError errorDetail={fetchError} />
             </div>
         ) : (
-            <div className="flex-1 flex-col md:flex-row overflow-x-auto pt-10  md:pt-4">
+            <div className="flex-1 flex-col md:flex-row overflow-x-auto pt-10  md:pt-4 ">
                 <ScrollAreaExplorer userData={userData}/>
             </div>
         )

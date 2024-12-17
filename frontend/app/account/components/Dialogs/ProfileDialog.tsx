@@ -13,7 +13,7 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isEditing, setIsEditing, 
 
   return (
     <Dialog open={isEditing} onOpenChange={setIsEditing}>
-      <DialogContent>
+      <DialogContent className='z-[9999]'>
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
           <DialogDescription>

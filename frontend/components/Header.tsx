@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
 import { CreatePostDialog } from "@/components/dialog/CreatePostDialog";
 import { Filter } from "@/app/types/Filter";
@@ -42,11 +42,11 @@ const menuItems: MenuItem[] = [
         },
       ],
     },
-];
+  ];
 const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
 export default function Header({accessToken, user_id}: HeaderProps) {
-    const { addAllFilters, filters } = useFeed();
+    const { addAllFilters, filters, changeUrlImage } = useFeed();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const pathname = usePathname();
@@ -123,6 +123,8 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                 });
                 addAllFilters(filtersObject);
             }
+
+            changeUrlImage(baseUrl + `/${user_id}.png?timestamp=${new Date().getTime()}`);
         }
 
         fetchFilters();
@@ -244,6 +246,11 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                     onChange={handleInputChange}
                                     maxLength={28}
                                     autoFocus
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            searchButtonHandler();
+                                        }
+                                    }}
                                 />
                                 <Search
                                     size={20}
@@ -271,32 +278,35 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                         searchResults.map((user: User, index) => (
 
                                             user.id !== user_id && (
+                                                <Link href={user_id === user.id ? "/account" : `/profile?userId=${user.id}`}>
                                             <div
                                                 key={index}
                                                 className="bg-gray-800 rounded-lg p-3 flex items-center hover:bg-gray-700
                                                 transition-colors cursor-pointer space-x-3"
                                                 onClick={() => handleUserSelect(user)}
                                             >
-                                                <Avatar className="w-10 h-10 border-2 border-blue-400">
-                                                    <AvatarImage
-                                                      src={`${baseUrl}/${user.id}.png`}
-                                                    />
-                                                    <AvatarFallback
-                                                      style={{
-                                                        backgroundColor: user?.username
-                                                          ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
-                                                          : "hsl(215, 100%, 50%)",
-                                                      }}
-                                                      className="text-white font-semibold text-sm flex items-center justify-center"
-                                                    >
-                                                      {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
-                                                    </AvatarFallback>
-                                                  </Avatar>
-                                                <div>
-                                                    <p className="text-white font-semibold">{user.username}</p>
-                                                    <p className="text-gray-400 text-sm"> {user.first_name} {user.last_name}</p>
-                                                </div>
+                                                
+                                                    <Avatar className="w-10 h-10 border-2 border-blue-400">
+                                                        <AvatarImage
+                                                        src={`${baseUrl}/${user.id}.png`}
+                                                        />
+                                                        <AvatarFallback
+                                                        style={{
+                                                            backgroundColor: user?.username
+                                                            ? getColorFromInitials(user.username.substring(0, 2).toUpperCase())
+                                                            : "hsl(215, 100%, 50%)",
+                                                        }}
+                                                        className="text-white font-semibold text-sm flex items-center justify-center"
+                                                        >
+                                                        {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <p className="text-white font-semibold">{user.username}</p>
+                                                        <p className="text-gray-400 text-sm"> {user.first_name} {user.last_name}</p>
+                                                    </div>
                                             </div>
+                                            </Link>
                                                 )
                                         ))
                                     ) : (

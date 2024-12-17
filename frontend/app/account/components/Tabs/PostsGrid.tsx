@@ -3,73 +3,94 @@
 
 import Image from 'next/image';
 import { Heart, MessageCircle } from 'lucide-react';
-import PostDialog from "@/app/account/components/Dialogs/PostDialog";
 import React, {useState} from "react";
-import {Post} from "@/app/types/Post";
-import { PropsUser } from '@/app/types/PropsUser';
+import {PostStorage, UserUnic} from "@/app/types/PostStorage";
+import {useFeed} from "@/contex/FeedContext";
+import PostsPreviewHome from "@/app/home/components/PostsPreviewHome";
 
-const userPosts = [
-  {
-    id: 1,
-    likes: 15,
-    book_id: 1,
-    user_id: 1,
-    created_at: "",
-    description: "",
-    filter_ids: [{id: 1, name: "Tag1"}, {id: 2, name: "Tag2"}]
-  },
-  {
-    id: 2,
-    title: "Name of the Book",
-    likes: 30,
-    book_id: 1,
-    user_id: 1,
-    created_at: "",
-    description: "",
-    filter_ids: [{id: 1, name: "Tag1"}, {id: 2, name: "Tag2"}]
-  },
-];
+const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
 
-export default function PostsGrid( {userData}: PropsUser ) {
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+type PostsGridProps = {
+  posts: PostStorage[] | null;
+}
 
-  const openPostDialog = (post: Post) => {
-    setSelectedPost(post)
-  }
-  return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pb-8">
-        {userPosts.map((post) => (
-            <div key={post.id} className="bg-white rounded-lg overflow-hidden
-            shadow-blue-700 shadow-sm hover:shadow-blue-700 hover:shadow-md cursor-pointer"
-            onClick={() => openPostDialog(post)}>
-              <div className="p-4">{/*
-                <div className="flex items-center mb-4">
-                  <Image src={userData.profilePicture || "/book.jpeg"} alt={userData.fullName} width={40} height={40}
-                         className="w-10 h-10 rounded-full mr-3"/>
-                  <span className="font-semibold">{userData.username}</span>
-                </div>*/}
-                <Image
-                    src="/book.jpeg"
-                    alt="Title" width={500} height={500}
-                    className="w-full h-48 object-cover mb-4 cursor-pointer"
-                />
-                <h3 className="font-bold text-lg mb-2"> Title</h3>
-                <p className="text-sm text-gray-600 mb-2"> Author </p>
-                <div className="flex justify-between items-center text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <Heart className="w-4 h-4 mr-1 text-red-600 fill-current"/> {post.likes}
-                  </div>
-                  <div className="flex items-center">
-                    <MessageCircle className="w-4 h-4 mr-1 fill-current"/> 10 comments
-                  </div>
-                </div>
-              </div>
+export default function PostsGrid({ posts }: PostsGridProps) {
+    const { posts: postsContext } = useFeed();
+
+    const [selectedPost, setSelectedPost] = useState<number>(1);
+    const [hoveredPost, setHoveredPost] = useState<number | null>(null);
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const openDialog = (post_ID: number) => {
+      setSelectedPost(post_ID);
+      setIsDialogOpen(true);
+    };
+      
+    if (!posts) {
+        return (
+            <div className="col-span-full text-center text-gray-500">
+                No posts to display
             </div>
-        ))}
-      <PostDialog selectedPost={selectedPost} setSelectedPost={setSelectedPost}/>
+        );
+    }
+    
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 pb-8">
+        {posts.length===0 ? (
+          <div className="col-span-full text-center text-gray-500">
+            No posts to display
+          </div>
+        ) : (
+            posts.map((post, index) => (
+              <div
+                  key={post.post.id}
+                  className="relative group overflow-hidden rounded-lg"
+                  onMouseEnter={() => setHoveredPost(post.post.id)}
+                  onMouseLeave={() => setHoveredPost(null)}
+                  onClick={() => {
+                      openDialog(index);
+                  }}
+              >
+                  {/* Image always visible */}
+                  <div className="flex justify-center items-center h-full bg-gray-300">
+                      <Image
+                          src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${post.book.id}.png`}
+                          alt={post.book.title}
+                          width={500}
+                          height={500}
+                          className="object-contain cursor-pointer"
+                      />
+                  </div>
+
+                  {/* Hover overlay */}
+                  {hoveredPost === post.post.id && (
+                      <div
+                          className="absolute inset-0 bg-black bg-opacity-50 flex items-center
+                          justify-center transition-all duration-300 ease-in-out  cursor-pointer">
+                          <div className="flex items-center text-white space-x-4">
+                              <div className="flex items-center">
+                                  <Heart className="w-6 h-6 mr-2 text-white fill-current"/>
+                                  <span className="text-lg font-semibold">{post.post.likes}</span>
+                              </div>
+                              <div className="flex items-center">
+                                  <MessageCircle className="w-6 h-6 mr-2 text-white fill-current"/>
+                                  <span className="text-lg font-semibold">{post.n_comments}</span>
+                              </div>
+                          </div>
+                      </div>
+                  )}
+              </div>
+            ))
+        )}
+
+          <PostsPreviewHome
+              open={isDialogOpen}
+              setIsDialogOpen={setIsDialogOpen}
+              postsStorage={posts[selectedPost]}
+          />
       </div>
-
-
-)
-  ;
+  )
+      ;
 }

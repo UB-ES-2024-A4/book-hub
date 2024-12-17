@@ -1,9 +1,9 @@
 "use client";
-"use client";
 import Image from "next/image";
 import {Camera} from "lucide-react";
 import React, {useState} from "react";
 import {User} from "@/app/types/User";
+import { useFeed } from "@/contex/FeedContext";
 
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
@@ -16,13 +16,15 @@ type Props = {
 
 export default function UserProfilePicture ({userDataMock, setIsHovering, isHovering, handleProfilePictureChange}: Props) {
     // TODO accept other formats
+    const {urlImage,changeUrlImage} = useFeed();
 
     const [imageReload, setImageUrl] = useState(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png`);
 
     console.log("Image URL", imageReload);
 
     const reloadImage = () => {
-        setImageUrl(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png?time=${new Date().getTime()}`);
+        setImageUrl(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png?timestamp=${new Date().getTime()}`);
+        changeUrlImage(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${userDataMock.id}.png?timestamp=${new Date().getTime()}`);
         console.log("Image reloaded", userDataMock.id);
     }
 
@@ -47,7 +49,7 @@ export default function UserProfilePicture ({userDataMock, setIsHovering, isHove
                 >
                     <Image
                         key={imageReload}
-                        src={ imageReload }
+                        src={ urlImage }
                         alt={`${userDataMock.first_name}'s picture`}
                         width={100}
                         height={100}
