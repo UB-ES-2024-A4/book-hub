@@ -1,4 +1,4 @@
-import {postComment} from "@/app/actions";
+import {followUser, postComment, unfollowUser} from "@/app/actions";
 import {CommentUnic, PostStorage, UserUnic} from "@/app/types/PostStorage";
 import {toast} from "nextjs-toast-notify";
 
@@ -43,7 +43,7 @@ export const formatRelativeTime = (date: Date | string) => {
   }
 };
 
-const errorMessage=(message:string)=>{
+export const errorMessage=(message:string)=>{
     toast.error(message, {
         duration: 4000,
         progress: true,
@@ -57,6 +57,16 @@ const errorMessage=(message:string)=>{
         sonido: true,
     });
 }
+const successMessage=(message:string)=>{
+        toast.success(message, {
+          duration: 3000,
+          progress: true,
+          position: "top-right",
+          transition: "bounceIn",
+          icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
+          sonido: true,
+        });
+}
 
 export const handleSubmitCommentInPost = async (newComment: string,
                                    setComments: React.Dispatch<React.SetStateAction<CommentUnic[]>>,
@@ -64,7 +74,6 @@ export const handleSubmitCommentInPost = async (newComment: string,
                                    postsStorage: PostStorage, addCommentByUser: (comment: CommentUnic, postID: number) => void,
                                    user: UserUnic | null
                                    ) => {
-    console.log("Comments in POST PREVIEW", comments);
     if (newComment.trim() === '') {
         errorMessage("You should enter a comment to submit")
         return;
@@ -83,10 +92,39 @@ export const handleSubmitCommentInPost = async (newComment: string,
                 user: user
             }
 
-            console.log("Comment to ADD", commentToAdd);
             setComments([commentToAdd, ...comments]);
             setNewComment('');
             addCommentByUser(commentToAdd, postsStorage.post.id);
         }
     }
 };
+
+
+  // Handle follow/unfollow button click
+export const handleFollowClick = async (
+    postUserId: number,
+    isCurrentlyFollowing: boolean,
+    currentUserId: number,
+    updateFollowingState: (following: boolean) => void,
+    postsContext: { [key: number]: PostStorage }
+  ) => {
+    try {
+      if (isCurrentlyFollowing) {
+        const result = await unfollowUser(currentUserId, postUserId);
+        if (result.status !== 200) throw new Error(result.message);
+      } else {
+        const result = await followUser(currentUserId, postUserId);
+        if (result.status !== 200) throw new Error(result.message);
+      }
+      // Update the local state to reflect the change
+      updateFollowingState(!isCurrentlyFollowing);
+      // Update the following status in the post of PostContext
+      postsContext[postUserId].user.following = !isCurrentlyFollowing;
+      successMessage("Everything went well");
+
+    } catch (error: any) {
+        console.error("Failed to update following status", error);
+        // Show a toast notification
+        errorMessage(error.message);
+    }
+  };

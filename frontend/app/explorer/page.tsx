@@ -13,9 +13,11 @@ export default async function Explorer() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br bg-[#051B32] flex flex-col pl-0 md:pl-44 lg:pl-52">
-            <Header accessToken={accessToken} user_id={user?.id} />
-            {! accessToken && ( <UserNoLogged /> )}
-            <MainContent userData={user} />
+            <div className={`fixed left-0 top-0 z-[80]`}>
+                <Header accessToken={accessToken} user_id={user?.id}/>
+            </div>
+            {!accessToken && (<UserNoLogged/>)}
+            <MainContent userData={user}/>
         </div>
     );
 }

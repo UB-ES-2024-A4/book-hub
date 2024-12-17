@@ -8,6 +8,7 @@ on:
       - reopened
     branches:
       - "!PreProduction"
+      - "*"
   push:  # Ejecutar solo en ramas específicas
     branches:
       - main

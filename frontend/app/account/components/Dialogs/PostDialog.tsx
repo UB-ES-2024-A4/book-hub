@@ -3,6 +3,7 @@ import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} fro
 import Image from "next/image";
 import {Heart, MessageCircle} from "lucide-react";
 import {Post} from "@/app/types/Post";
+import {useFeed} from "@/contex/FeedContext";
 
 type PostDialogAccountProps = {
   selectedPost: Post | null;
@@ -11,12 +12,13 @@ type PostDialogAccountProps = {
 
 const PostDialog: React.FC<PostDialogAccountProps> = ({ selectedPost, setSelectedPost }) => {
   // Component implementation
+    const {userLogin} = useFeed();
   return (
     <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{"TITLE"}</DialogTitle>
-                    <DialogDescription>{"Author"}</DialogDescription>
+                    <DialogTitle>{userLogin?.username}</DialogTitle>
+                    <DialogDescription>{userLogin?.first_name}</DialogDescription>
                 </DialogHeader>
                 <Image
                     src={'/book.jpg'}

@@ -84,6 +84,31 @@ def check_existence_book_user(book_id: int | None, user_id: int | None, session)
             detail="Book not found.",
         )
 
+def check_post_liked(post_id: int, user_id: int, session, like: bool):
+    statement = select(Like).where(Like.user_id == user_id and Like.post_id == post_id)
+    user_like = session.exec(statement).first()
+
+    if like and user_like != None:
+        raise HTTPException(
+            status_code=400,
+            detail="Post was already liked.",
+        )
+    
+    if not like and user_like == None:
+        raise HTTPException(
+            status_code=400,
+            detail="This post doesn't have your like",
+        )
+
+def check_existence_post(post_id: int, session):
+    post: Post = session.get(Post, post_id)
+
+    if not post:
+        raise HTTPException(
+            status_code=404,
+            detail="Post not found.",
+        )
+
 def check_quantity_likes(likes: int):
     if likes != 0:
         raise HTTPException(
@@ -124,16 +149,17 @@ def post_exists_in_database(post_id: int, session: Session):
 
 
 def check_post_liked(post_id: int, user_id: int, session, like: bool):
-    statement = select(Like).where(Like.user_id == user_id and Like.post_id == post_id)
-    user_like = session.exec(statement).first()
+    # Construir la consulta para verificar si existe el registro
+    statement = select(Like).where((Like.user_id == user_id) & (Like.post_id == post_id))
+    user_like = session.execute(statement).scalar_one_or_none()
 
-    if like and user_like != None:
+    if like and user_like is not None:
         raise HTTPException(
             status_code=400,
             detail="Post was already liked.",
         )
 
-    if not like and user_like == None:
+    if not like and user_like is None:
         raise HTTPException(
             status_code=400,
             detail="This post doesn't have your like",
