@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import Image from "next/image";
 import {Camera} from "lucide-react";
 import React, {useState} from "react";

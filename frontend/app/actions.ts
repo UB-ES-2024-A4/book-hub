@@ -566,13 +566,14 @@ export async function searchUsersHandler(search: string) {
         return { status: 400, message: error.message, data: null };
     }
 }
-export async function loadUserPostsAndLiked() {
+export async function loadUserPostsAndLiked(user_id: number) {
     try {
-        const response = await fetch(`${baseUrl}/users/posts-liked`, {
+        /*const response = await fetch(`${baseUrl}/account/${user_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                authorization: `Bearer ${await getAccessToken()}`,
+                Authorization: `Bearer ${await getAccessToken()}`,
+            
             },
         });
 
@@ -580,27 +581,29 @@ export async function loadUserPostsAndLiked() {
             const errorData = await response.json();
             console.error("Failed to fetch user posts and liked:", errorData.detail);
             throw new Error(errorData.detail);
-        }
+        }*/
 
-        const responsUserPosts = await fetch(`${baseUrl}/users/posts`, {
+        const responsUserPosts = await fetch(`${baseUrl}/account/${user_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                authorization: `Bearer ${await getAccessToken()}`,
+                Authorization: `Bearer ${await getAccessToken()}`,
             },
         });
+
         if(!responsUserPosts.ok) {
             const errorData = await responsUserPosts.json();
             console.error("Failed to fetch user posts and liked:", errorData.detail);
             throw new Error(errorData.detail);
         }
 
-        const data = {
-            postUser: await responsUserPosts.json(),
-            postLiked: await response.json()
+       const  dates = await responsUserPosts.json();
+        const datap = {
+            postUser: dates,
+            postLiked: dates
         }
 
-        return {status: 200, message: "User posts and liked fetched successfully", data: data};
+        return {status: 200, message: "User posts and liked fetched successfully", data: datap};
 
     } catch (error: any) {
         console.error("Error while fetching user posts and liked:", error);

@@ -11,6 +11,7 @@ type Props = {
   postsLiked: PostStorage[] | null
 }
 export default function Tabs({ postsUser, postsLiked }: Props) {
+
   const [activeTab, setActiveTab] = useState('posts');
 
   return (
@@ -23,13 +24,13 @@ export default function Tabs({ postsUser, postsLiked }: Props) {
         </div>
       </div>
         <nav className="flex space-x-8 mb-8">
-          {/*<button
+          {<button
               onClick={() => setActiveTab('posts')}
               className={`path text-gray-600 transition-colors duration-300 
               ${activeTab === 'posts' ? 'active' : ''}`}
           >
             Posts
-          </button>*/}
+          </button>}
           <button
               onClick={() => setActiveTab('postsLiked')}
               className={`path text-gray-600 transition-colors duration-300 
@@ -38,8 +39,8 @@ export default function Tabs({ postsUser, postsLiked }: Props) {
             Liked
           </button>
         </nav>
-      {/*{activeTab === 'posts' && <PostsGrid   />}*/}
-      {activeTab === 'postsLiked' && <PostsGrid   />}
+      {activeTab === 'posts' && <PostsGrid  posts={postsLiked} />}
+      {activeTab === 'postsLiked' && <PostsGrid posts={postsUser} />}
 
     </div>
   );

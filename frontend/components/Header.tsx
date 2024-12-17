@@ -76,8 +76,6 @@ export default function Header({accessToken, user_id}: HeaderProps) {
         setSearchValue(value);
     };
 
-    const router = useRouter();
-
     const handleUserSelect = (user: User) => {
         toggleSearch(); // Close search after selection
     };
@@ -248,6 +246,11 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                     onChange={handleInputChange}
                                     maxLength={28}
                                     autoFocus
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            searchButtonHandler();
+                                        }
+                                    }}
                                 />
                                 <Search
                                     size={20}
