@@ -172,3 +172,160 @@ class PostRepository:
 
 
         return list(posts.values())
+
+
+    def get_liked_posts_by_user(self, user_id: int) -> List[PostOutHome]:
+
+        posts_query = text("""
+            WITH likes_info AS (
+                SELECT 
+                    l.post_id,
+                    TRUE AS user_liked
+                FROM 
+                    `like` l
+                WHERE 
+                    l.user_id = :user_id
+            ),
+            post_filters AS (
+                SELECT 
+                    pf.post_id,
+                    GROUP_CONCAT(DISTINCT pf.filter_id) AS filters
+                FROM 
+                    postfilter pf
+                WHERE 
+                    pf.post_id IN (SELECT post_id FROM likes_info)
+                GROUP BY 
+                    pf.post_id
+            ),
+            follower_info AS (
+                SELECT 
+                    p.user_id AS author_id,
+                    CASE 
+                        WHEN :user_id IS NULL THEN FALSE
+                        WHEN f.follower_id = :user_id THEN TRUE
+                        ELSE FALSE
+                    END AS is_following
+                FROM 
+                    post p
+                LEFT JOIN 
+                    followers f ON p.user_id = f.followee_id
+                GROUP BY 
+                    p.user_id
+            )
+            SELECT 
+                p.id AS post_id,
+                p.user_id AS author_id,
+                u.username AS author_username,
+                p.likes AS post_likes,
+                p.created_at AS post_created_at,
+                p.description AS post_description,
+                li.user_liked,
+                fi.is_following,
+                b.id AS book_id,
+                b.title AS book_title,
+                b.author AS book_author,
+                b.description AS book_description,
+                b.created_at AS book_created_at,
+                pf.filters
+            FROM 
+                likes_info li
+            JOIN 
+                post p ON li.post_id = p.id
+            JOIN 
+                user u ON p.user_id = u.id
+            LEFT JOIN 
+                follower_info fi ON p.user_id = fi.author_id
+            LEFT JOIN 
+                book b ON p.book_id = b.id
+            LEFT JOIN 
+                post_filters pf ON p.id = pf.post_id
+            ORDER BY 
+                p.created_at DESC;
+        """)
+
+        # Query para los comentarios de cada post
+        comments_query = text("""
+            -- Query para obtener los comentarios únicos
+            WITH follower_info AS (
+                SELECT 
+                    f.followee_id,
+                    CASE 
+                        WHEN :user_id IS NULL THEN FALSE
+                        WHEN f.follower_id = :user_id THEN TRUE 
+                        ELSE FALSE 
+                    END AS is_following
+                FROM 
+                    followers f
+            )
+            SELECT DISTINCT
+                c.post_id,
+                c.id AS comment_id,
+                c.user_id AS commenter_id,
+                u.username AS commenter_username,
+                c.comment,
+                c.created_at,
+                COALESCE(fi.is_following, FALSE) AS is_following
+            FROM 
+                comment c
+            JOIN 
+                user u ON c.user_id = u.id
+            LEFT JOIN 
+                follower_info fi ON c.user_id = fi.followee_id
+            WHERE 
+                c.post_id IN :post_ids
+            ORDER BY 
+                c.created_at ASC;
+        """)
+
+        # Ejecutar la query principal para los posts
+        posts_result = self.session.exec(posts_query, params={"user_id": user_id}).fetchall()
+
+        posts = {}
+        for row in posts_result:
+            post_id = row.post_id
+            if post_id not in posts:
+                posts[post_id] = PostOutHome(
+                    user=UserOutHome(
+                        id=row.author_id, 
+                        username=row.author_username, 
+                        following=row.is_following
+                    ),
+                    post=PostOutHomeOnly(
+                        id=row.post_id,
+                        likes=row.post_likes,
+                        description=row.post_description,
+                        created_at=row.post_created_at,
+                    ),
+                    like_set=row.user_liked,
+                    book=Book(
+                        id=row.book_id,
+                        title=row.book_title,
+                        author=row.book_author,
+                        description=row.book_description,
+                        created_at=row.book_created_at,
+                    ),
+                    n_comments=0,
+                    comments=[],
+                    filters=[int(fid) for fid in row.filters.split(",") if row.filters] if row.filters else [],
+                )
+
+        if len(posts) == 0: return []
+        # Ejecutar la query de comentarios
+        comments_result = self.session.exec(comments_query, params={"user_id": user_id, "post_ids": tuple(posts.keys())}).fetchall()
+
+        comments_ids = set()
+        for comment in comments_result:
+            if comment.comment_id in comments_ids:
+                continue
+            posts[comment.post_id].comments.append(
+                CommentOutHome(
+                    id=comment.comment_id,
+                    user=UserOutHome(id=comment.commenter_id, username=comment.commenter_username),
+                    comment=comment.comment,
+                    created_at=comment.created_at,
+                )
+            )
+            comments_ids.add(comment.comment_id)
+            posts[comment.post_id].n_comments += 1
+
+        return list(posts.values())
