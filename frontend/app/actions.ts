@@ -512,9 +512,9 @@ export async function logOut() {
     }
 }
 
-export async function fetchUserData(id: number) {
+export async function fetchUserData(profileId: number, currentId: number | undefined) {
     try {
-        const response = await fetch(`${baseUrl}/users/${id}`, {
+        const response = await fetch(`${baseUrl}/users/${profileId}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -527,6 +527,13 @@ export async function fetchUserData(id: number) {
             throw new Error(errorData.detail);
         }
         const data = await response.json();
+
+        if (currentId != undefined) {
+            const res = await fetch(`${baseUrl}/followers/${currentId}/${profileId}`)
+            const following = await res.json()
+            data['following'] = following['success']
+        }
+        
         return { status: 200, message: "User loaded successfully", data: data };
 
     } catch (error) {
