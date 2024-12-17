@@ -1,15 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import {ScrollArea, ScrollBar} from '@/components/ui/scroll-area';
-import {BookImage, Bookmark, Heart, MessageCircle, Share2} from 'lucide-react';
-import {toast} from "nextjs-toast-notify";
-import {fetchCommentsByPostID, postComment} from "@/app/actions";
+import { Card } from '@/components/ui/card';
+import {ScrollArea} from '@/components/ui/scroll-area';
 import {useFeed} from "@/contex/FeedContext";
 import {CommentUnic, PostStorage, UserUnic} from "@/app/types/PostStorage";
-import CommentsPreview from "@/app/home/components/CommentPreview";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {formatRelativeTime, getColorFromInitials, handleSubmitCommentInPost} from "@/app/lib/hashHelpers";
 import Image from "next/image";
@@ -52,7 +46,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
 
     return (
     <Dialog open={open} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-[95vw] max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] p-0 border-0 rounded-lg overflow-y-auto max-h-[90vh]">
+        <DialogContent className="w-[95vw] max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] p-0 border-0 rounded-lg overflow-y-auto max-h-[90vh] z-[9999]">
             <Card className="w-full flex flex-col md:flex-row border-2 border-[#051B32] bg-[#051B32] rounded-lg">
                 {/* Post Section */}
                 <div className="w-full md:w-1/2 bg-gray-900/70 text-white flex flex-col px-6 md:px-10 lg:px-16 py-4">

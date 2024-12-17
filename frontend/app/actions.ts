@@ -565,3 +565,40 @@ export async function searchUsersHandler(search: string) {
         return { status: 400, message: error.message, data: null };
     }
 }
+
+export async function getPostList(userId: number) {
+    try {
+        const response = await fetch(`${baseUrl}/account/${userId}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to get user posts:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        const data = await response.json();
+
+        const userPosts: PostStorage[] = [];
+        data.forEach((post_info: any) => {
+            const postStorage: PostStorage = {
+                user: post_info.user,
+                post: post_info.post,
+                book: post_info.book,
+                filters: post_info.filters,
+                like_set: post_info.like_set,
+                n_comments: post_info.n_comments,
+                comments: post_info.comments
+            }
+            userPosts.push(postStorage);
+        });
+
+        return { status: 200, message: "Posts loaded successfully", data: data };
+        
+    } catch (error) {
+        console.error("Error fetching user posts:", error);
+    }
+}
