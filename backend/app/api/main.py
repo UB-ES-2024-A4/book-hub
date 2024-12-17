@@ -1,7 +1,6 @@
 """ Main API routes definition """
 from fastapi import APIRouter
-
-from app.api.routes import users, posts, books, filters, followers, home, explorer, comments, likes
+from app.api.routes import users, posts, books, filters, followers, home, explorer, comments, search, account, likes
 
 api_router = APIRouter()
 api_router.include_router(users.router, prefix="/users", tags=["users"])
@@ -13,3 +12,5 @@ api_router.include_router(home.router, prefix="/home", tags=["home"])
 api_router.include_router(likes.router, prefix="/likes", tags=["likes"])
 api_router.include_router(explorer.router, prefix="/explorer", tags=["explorer"])
 api_router.include_router(comments.router, prefix="/comments", tags=["comments"])
+api_router.include_router(search.router, prefix="/search", tags=["search"])
+api_router.include_router(account.router, prefix="/account", tags=["account"])

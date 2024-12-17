@@ -12,6 +12,10 @@ on:
     types:
       - opened
       - synchronize
+    branches:
+      - "!PreProduction"
+      - "!main"
+      - "!dev"
   
 
 jobs:

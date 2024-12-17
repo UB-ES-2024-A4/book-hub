@@ -25,6 +25,7 @@ export async function UpdateUser(prevState: unknown, formData: FormData) {
     if (submission.status !== "success") {
         return {status: 400, message: "Invalid Form", Data: null };
     }
+    console.log("FORM DATA", formData);
 
     const userServer = await getSession();
     const accessToken = await getAccessToken();
@@ -85,7 +86,7 @@ export async function fetchProfilePictureUser(userId: number): Promise<string> {
     if (response.ok) {
       return `${url}?${new Date().getTime()}`;
     } else {
-      return "/book.jpg"; // Default image
+      return "/logo.png"; // Default image
     }
   }
 
@@ -512,9 +513,9 @@ export async function logOut() {
     }
 }
 
-export async function fetchUserData(id: number) {
+export async function fetchUserData(profileId: number, currentId: number | undefined) {
     try {
-        const response = await fetch(`${baseUrl}/users/${id}`, {
+        const response = await fetch(`${baseUrl}/users/${profileId}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -527,9 +528,41 @@ export async function fetchUserData(id: number) {
             throw new Error(errorData.detail);
         }
         const data = await response.json();
+
+        if (currentId != undefined) {
+            const res = await fetch(`${baseUrl}/followers/${currentId}/${profileId}`)
+            const following = await res.json()
+            data['following'] = following['success']
+        }
+        
         return { status: 200, message: "User loaded successfully", data: data };
 
     } catch (error) {
       console.error("Error fetching user data:", error);
+    }
+}
+
+export async function searchUsersHandler(search: string) {
+    try {
+        const response = await fetch(`${baseUrl}/search/?query=${search}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to search users:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+        const users = await response.json();
+
+        return {status: 200, message: "Users fetched successfully", data: users.users};
+
+    } catch (error: any) {
+        console.error("Error while searching users:", error);
+        return { status: 400, message: error.message, data: null };
     }
 }

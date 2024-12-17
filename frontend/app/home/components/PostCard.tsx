@@ -99,8 +99,8 @@ export function PostCard({
 
           <div className="flex flex-row space-x-10">
             <div className="flex flex-col">
-            <Link href={`/profile?userId=${user?.id}`}>
-              <span className="font-semibold">{user.username}</span>
+              <Link href={`/profile?userId=${user?.id}`}>
+                <span className="font-semibold">{user.username}</span>
               </Link>
               <span className="text-xs text-gray-500">
                 {formatRelativeTime(post.created_at)}
