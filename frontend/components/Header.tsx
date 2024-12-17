@@ -76,8 +76,6 @@ export default function Header({accessToken, user_id}: HeaderProps) {
         setSearchValue(value);
     };
 
-    const router = useRouter();
-
     const handleUserSelect = (user: User) => {
         toggleSearch(); // Close search after selection
     };
@@ -248,6 +246,11 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                     onChange={handleInputChange}
                                     maxLength={28}
                                     autoFocus
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            searchButtonHandler();
+                                        }
+                                    }}
                                 />
                                 <Search
                                     size={20}
@@ -275,6 +278,7 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                         searchResults.map((user: User, index) => (
 
                                             user.id !== user_id && (
+                                                <Link href={user_id === user.id ? "/account" : `/profile?userId=${user.id}`}>
                                             <div
                                                 key={index}
                                                 className="bg-gray-800 rounded-lg p-3 flex items-center hover:bg-gray-700
@@ -282,7 +286,6 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                                 onClick={() => handleUserSelect(user)}
                                             >
                                                 
-                                                <Link href={`/profile?userId=${user?.id}`}>
                                                     <Avatar className="w-10 h-10 border-2 border-blue-400">
                                                         <AvatarImage
                                                         src={`${baseUrl}/${user.id}.png`}
@@ -298,14 +301,12 @@ export default function Header({accessToken, user_id}: HeaderProps) {
                                                         {user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                </Link>
-                                                <Link href={`/profile?userId=${user?.id}`}>
                                                     <div>
                                                         <p className="text-white font-semibold">{user.username}</p>
                                                         <p className="text-gray-400 text-sm"> {user.first_name} {user.last_name}</p>
                                                     </div>
-                                                </Link>
                                             </div>
+                                            </Link>
                                                 )
                                         ))
                                     ) : (

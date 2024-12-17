@@ -19,6 +19,7 @@ export default  function FetchInformationError({error}: Props) {
                             src="/detective-book.png" // reemplaza con el URL de una ilustración adecuada
                             alt="Error Illustration"
                             className="w-80 h-80 object-cover"
+                            width={320} height={320}
                         />
                     </div>
 

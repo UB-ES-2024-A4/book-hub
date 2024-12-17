@@ -12,11 +12,12 @@ import Image from "next/image";
 import {toast} from "nextjs-toast-notify";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {redirect} from "next/navigation";
+
 import { useFeed } from "@/contex/FeedContext";
 const NEXT_PUBLIC_STORAGE_PROFILE_PICTURES = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
 export default function SignInForm() {
-    const {changeUrlImage} = useFeed();
+    const { addUserData, changeUrlImage } = useFeed();
     // Using useFormState hook to manage form state and validation
      const [lastResult, action] = useFormState(async (prevState: unknown, formData: FormData) => {
         const result = await SignInValidation(prevState, formData);
@@ -31,6 +32,7 @@ export default function SignInForm() {
             });
         }
         else{
+            addUserData(result.data);
             changeUrlImage(NEXT_PUBLIC_STORAGE_PROFILE_PICTURES + `/${result.data.id}.png?timestamp=${new Date().getTime()}`);
             redirect('/home');
         }

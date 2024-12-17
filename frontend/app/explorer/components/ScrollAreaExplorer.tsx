@@ -9,6 +9,9 @@ import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { followUser, unfollowUser } from "@/app/actions";
 import { toast } from "nextjs-toast-notify";
+import PostsPreview from "@/app/home/components/PostsPreviewHome";
+import PostsPreviewHome from "@/app/home/components/PostsPreviewHome";
+import {PostStorage} from "@/app/types/PostStorage";
 import Link from "next/link";
 
 const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
@@ -92,7 +95,16 @@ export default function ScrollAreaExplorer({ userData }: Props) {
     }
   };
 
+
   const groupedPosts = groupPostsByFilters(postsContext, filters);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const openDialog = (postID:number) => {
+    setPostStorageIDSelected(postID);
+    setIsDialogOpen(true);
+  };
+  const [postStorageIDSelected, setPostStorageIDSelected] = useState<number>(1);
 
   return (
     <div className="p-10">
@@ -156,13 +168,15 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                             </div>
                           </CardHeader>
                           <CardContent className="pt-4">
+
                             <div className="grid md:grid-cols-[150px_1fr] gap-4">
                               <Image
                                 alt="Book cover"
-                                className="rounded-lg object-cover shadow-md md:w-[250px] md:h-[250px]"
+                                className="rounded-lg object-cover shadow-md md:w-[250px] md:h-[250px] cursor-pointer"
                                 width={500}
                                 height={500}
                                 src={`${NEXT_PUBLIC_STORAGE_BOOKS}/${book.id}.png` || "logo.png"}
+                                onClick={() => openDialog(post.id)}
                               />
                               <div className="space-y-3 whitespace-normal max-w-full overflow-hidden break-words">
                                 <div>
@@ -194,12 +208,15 @@ export default function ScrollAreaExplorer({ userData }: Props) {
                   );
                 })}
               </div>
+              <PostsPreviewHome open={isDialogOpen} setIsDialogOpen={setIsDialogOpen} postsStorage={postsContext[postStorageIDSelected]} />
             </div>
+
           ) : (
             <p className="text-gray-400">No posts available</p>
           )}
         </div>
       ))}
+
     </div>
   );
 }

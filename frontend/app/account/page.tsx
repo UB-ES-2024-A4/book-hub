@@ -26,7 +26,7 @@ const  AccountPage = async () => {
             <div className={`fixed left-0 top-0 z-[999]`}>
                 <Header accessToken={accessToken} user_id={user.id}/>
             </div>
-            <main className="container mx-auto pt-16">
+            <main className="container mx-auto pt-8 px-4 md:px-16">
                 <MainContent userData={user}></MainContent>
             </main>
         </div>

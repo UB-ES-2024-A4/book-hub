@@ -566,3 +566,47 @@ export async function searchUsersHandler(search: string) {
         return { status: 400, message: error.message, data: null };
     }
 }
+export async function loadUserPostsAndLiked(user_id: number) {
+    try {
+        /*const response = await fetch(`${baseUrl}/account/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${await getAccessToken()}`,
+            
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to fetch user posts and liked:", errorData.detail);
+            throw new Error(errorData.detail);
+        }*/
+
+        const responsUserPosts = await fetch(`${baseUrl}/account/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${await getAccessToken()}`,
+            },
+        });
+
+        if(!responsUserPosts.ok) {
+            const errorData = await responsUserPosts.json();
+            console.error("Failed to fetch user posts and liked:", errorData.detail);
+            throw new Error(errorData.detail);
+        }
+
+       const  dates = await responsUserPosts.json();
+        const datap = {
+            postUser: dates,
+            postLiked: dates
+        }
+
+        return {status: 200, message: "User posts and liked fetched successfully", data: datap};
+
+    } catch (error: any) {
+        console.error("Error while fetching user posts and liked:", error);
+        return { status: 400, message: error.message, data: null };
+    }
+}
