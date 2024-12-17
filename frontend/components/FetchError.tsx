@@ -10,7 +10,7 @@ type Props = {
 export default function FetchError({errorDetail}: Props) {
     return (
         // Tarjeta de "Error de Conexión"
-        <Card className="bg-white/80 backdrop-blur-sm ">
+        <Card className="bg-white/80 backdrop-blur-sm mx-5">
             <CardContent>
                 <div className="grid md:grid-cols-[200px_1fr] gap-4 pt-5">
                     <Image
