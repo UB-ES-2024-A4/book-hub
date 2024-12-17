@@ -17,11 +17,11 @@ import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import {useFeed} from "@/contex/FeedContext";
 import {Badge} from "@/components/ui/badge";
 import Link from "next/link";
-import {Filter} from "@/app/types/Filter";
 import {Post} from "@/app/types/Post";
 import {AlertCircle, Upload} from "lucide-react";
 import Image from "next/image";
-import {PostStorage} from "@/app/types/PostStorage";
+import imageCompression from "browser-image-compression";
+
 
 // URL de la API de Azure Storage
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
@@ -68,13 +68,24 @@ export function CreatePostDialog({ open, setIsDialogOpen, user_id }: CreatePostD
                     const resultPost: Post = newPostStorage.post;
 
                     const imageFile = fileInputRef.current.files[0];
-
-                    console.log("SASS", NEXT_PUBLIC_AZURE_SAS_STORAGE);
-                    console.log("URL", NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE}`);
+                    
+                    const options = {
+                        maxSizeMB: 0.01, // Tamaño máximo de 1 KB (1 / 1024 MB)
+                        maxWidthOrHeight: 500, // Escala máxima en píxeles
+                        useWebWorker: true, // Usa Web Worker para optimizar
+                        initialQuality: 0.2, // Empieza con una calidad baja
+                    };
+                                
+                    let compressedImage: File | undefined;
+                    if (imageFile && imageFile instanceof File) {
+                        compressedImage = await imageCompression(imageFile, options);
+                    } else {
+                        throw new Error("Invalid file");
+                    }
 
                     const imageUploadResponse = await fetch(NEXT_PUBLIC_STORAGE_BOOKS + `/${resultPost.book_id}.png?${NEXT_PUBLIC_AZURE_SAS_STORAGE}`, {
                         method: 'PUT',
-                        body: imageFile,
+                        body: compressedImage,
                         headers: {
                             'Content-Type': 'image/png',
                             'x-ms-blob-type': 'BlockBlob',
