@@ -51,7 +51,7 @@ export default function PostsGrid({ posts }: PostsGridProps) {
               alt={post.book.title}
               width={500}
               height={500}
-              className="object-contain cursor-pointer"
+              className="object-contain"
             />
           </div>
 
