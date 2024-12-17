@@ -58,7 +58,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
                         <Link href={`/profile?userId=${postsStorage.user?.id}`}>
                             <Avatar className="w-10 h-10 border-2 border-blue-400">
                                 <AvatarImage
-                                    src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${postsStorage.post.id}.png`}/>
+                                    src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${postsStorage.user.id}.png`}/>
                                 <AvatarFallback
                                     style={{
                                         backgroundColor: postsStorage.user.username
@@ -76,7 +76,7 @@ const PostsPreview = ({open, setIsDialogOpen, postsStorage}: PostsPreviewProps) 
 
                         <div className="flex flex-row space-x-6">
                             <div className="flex flex-col">
-                                <Link href={`/profile?userId=${postsStorage.user?.id}`}>
+                                <Link href={`/profile?userId=${postsStorage.user.id}`}>
                                     <span className="font-semibold">{postsStorage.user.username}</span>
                                 </Link>
                                 <span className="text-xs text-gray-500">
