@@ -28,7 +28,7 @@ export default function MainContent({userData}: Props) {
 
             try {
                 if(posts[0]) return;
-                const result = await loadPosts();
+                const result = await loadPosts(undefined, 0, 60, 'explorer');
 
                 if (result.status !== 200) {
                     setError(result.message || "An unknown error occurred");

@@ -43,14 +43,14 @@ export default function PostsGrid({ posts }: PostsGridProps) {
             No posts to display
           </div>
         ) : (
-            posts.map((post) => (
+            posts.map((post, index) => (
               <div
                   key={post.post.id}
                   className="relative group overflow-hidden rounded-lg"
                   onMouseEnter={() => setHoveredPost(post.post.id)}
                   onMouseLeave={() => setHoveredPost(null)}
                   onClick={() => {
-                      openDialog(post.post.id);
+                      openDialog(index);
                   }}
               >
                   {/* Image always visible */}
@@ -88,7 +88,7 @@ export default function PostsGrid({ posts }: PostsGridProps) {
           <PostsPreviewHome
               open={isDialogOpen}
               setIsDialogOpen={setIsDialogOpen}
-              postsStorage={postsContext[selectedPost]}
+              postsStorage={posts[selectedPost]}
           />
       </div>
   )
