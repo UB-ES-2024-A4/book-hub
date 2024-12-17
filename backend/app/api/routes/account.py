@@ -23,7 +23,7 @@ def get_account(user_id : int, session: Session = Depends(get_session), user : U
             dependencies=[Depends(get_current_user), Depends(get_session)])
 def get_posts_liked(session: Session = Depends(get_session), user : User = Depends(get_current_user)):
 
-    # try:
-    return PostRepository(session).get_liked_posts_by_user(user.id)
-    # except Exception:
-    #     raise HTTPException(status_code=500, detail="An error occurred while retrieving posts")
+    try:
+        return PostRepository(session).get_liked_posts_by_user(user.id)
+    except Exception:
+        raise HTTPException(status_code=500, detail="An error occurred while retrieving posts")
