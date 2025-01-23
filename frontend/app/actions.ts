@@ -127,7 +127,7 @@ export async function loadPosts(filters: string|undefined = undefined, skip: num
     try {
         const accessToken = await getAccessToken();
 
-        const url = baseUrl + `/${page}` + (filters ? `/?filters=${filters}&skip=${skip}&limit=${limit}` :
+        const url = baseUrl + `/${page}` + (filters ? `?filters=${filters}&skip=${skip}&limit=${limit}` :
             `/?skip=${skip}&limit=${limit}`);
 
         const headers: HeadersInit = {
