@@ -144,20 +144,4 @@ body {
 .holographic-effect {
   position: relative;
   overflow: hidden;
-  &::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      45deg,
-      rgba(255,107,0,0.1) 0%,
-      rgba(255,107,0,0.05) 50%,
-      rgba(255,107,0,0.1) 100%
-    );
-    transform: rotate(45deg);
-    animation: scan 6s linear infinite;
-  }
 }

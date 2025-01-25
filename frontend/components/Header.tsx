@@ -142,7 +142,7 @@ export default function Header({ accessToken, user_id }: HeaderProps) {
                         transition-all duration-300 relative group`}>
                   <div className="absolute left-0 w-1 h-full bg-[#ff6b00] opacity-0 group-hover:opacity-100 transition-opacity rounded-r"/>
                   <Home className="text-[#ff6b00] w-6 h-6 group-hover:scale-125 transition-transform"/>
-                  <span className="text-[#ff9e66] text-lg font-medium">Dashboard</span>
+                  <span className="text-[#ff9e66] text-lg font-medium">Home</span>
                 </Link>
               )}
 

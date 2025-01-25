@@ -32,8 +32,6 @@ type Props = {
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-// URL of the Azure Storage API
-
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
 
 const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
@@ -46,15 +44,12 @@ export default function ScrollAreaHome({ userData }: Props) {
 
   const { posts: postsContext, addAllPosts, filters } = useFeed();
 
-  // Handle follow/unfollow button click
-
   const handleFollowClick = async (
     postUserId: number,
     isCurrentlyFollowing: boolean
   ) => {
     try {
       if (isCurrentlyFollowing) {
-        // Unfollow the user
 
         const result = await unfollowUser(currentUserId, postUserId);
 
@@ -64,8 +59,6 @@ export default function ScrollAreaHome({ userData }: Props) {
 
         if (result.status !== 200) throw new Error(result.message);
       }
-
-      // Update the following status in the post of PostContext
 
       postsContext[postUserId].user.following = !isCurrentlyFollowing;
 
@@ -84,8 +77,6 @@ export default function ScrollAreaHome({ userData }: Props) {
       });
     } catch (error: any) {
       console.error("Failed to update following status", error);
-
-      // Show a toast notification
 
       toast.error(error.message, {
         duration: 4000,
@@ -121,14 +112,6 @@ export default function ScrollAreaHome({ userData }: Props) {
         : [...prev, filterId]
     );
 
-    // Call the API to get the posts with the selected filters
-
-    // Load Post returns an array of PostStorage
-
-    // So, after loading the posts, we need to add them to the context
-
-    // First, we need to create a string of filters
-
     if (selectedFilters.includes(filterId)) {
       const filters_ID = selectedFilters
         .filter((id) => id !== filterId)
@@ -147,8 +130,6 @@ export default function ScrollAreaHome({ userData }: Props) {
 
     if (result.status !== 200) {
       console.error("Failed to load posts", result.message);
-
-      // Show a toast notification
 
       toast.error(result.message, {
         duration: 4000,
@@ -181,7 +162,6 @@ export default function ScrollAreaHome({ userData }: Props) {
 
   return (
     <div className="container mx-auto">
-      {/* Filter Section */}
 
       <div className="p-4 border-b rounded-t-lg pt-16 md:pt-4">
         <div className="mb-4">
@@ -192,8 +172,6 @@ export default function ScrollAreaHome({ userData }: Props) {
             className="w-full text-white"
           />
         </div>
-
-        {/* Horizontal Scroll of Filters */}
 
         <ScrollArea className="w-full whitespace-nowrap">
           <div className="flex space-x-2 pb-2">

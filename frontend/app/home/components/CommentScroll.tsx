@@ -53,61 +53,74 @@ const CommentScroll = memo( ({ postsStorage, slice, smallWindow }: CommentProps)
     }
 
     return (
-        <div>
-         <ScrollArea className={`rounded-md border bg-gray-800/10 ${smallWindow ? 'h-96' : 'h-52'}`}>
-        <div className="p-4 space-y-2">
-          {(slice ? comments.slice(0, 4) : comments).map((comment: CommentUnic, index: number) => (
-            <div
-              key={index}
-              className="group relative bg-gray-800/40 hover:bg-gray-800/90 transition-all duration-300 rounded-xl p-3
-              border border-transparent hover:border-blue-800/50"
-            >
-              <div className="flex items-start space-x-3">
-                <Link href={comment.user.id === user?.id ? "/account" : `/profile?userId=${comment.user.id}`}>
-                  <Avatar className="w-7 h-7 border-2 border-blue-400/50">
+      <div className="space-y-4">
+        <ScrollArea className={`rounded-lg border border-[#ff6b0033] bg-[#0a0a0a]/80 ${smallWindow ? 'h-96' : 'h-52'}`}>
+          <div className="p-4 space-y-3">
+            {(slice ? comments.slice(0, 4) : comments).map((comment: CommentUnic, index: number) => (
+              <div
+                key={index}
+                className="group relative bg-[#1a1a1a] hover:bg-[#ff6b0011] rounded-xl p-3
+                  border border-[#ff6b0033] transition-all duration-300
+                  hover:border-[#ff6b00] hover:shadow-[0_0_15px_rgba(255,107,0,0.1)]"
+              >
+                <div className="flex items-start space-x-3">
+                  <Link href={comment.user.id === user?.id ? "/account" : `/profile?userId=${comment.user.id}`}
+                        className="hover:opacity-80 transition-opacity">
+                    <Avatar className="w-8 h-8 border-2 border-[#ff6b00] group-hover:scale-105 transition-transform">
                       <AvatarImage
-                          src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}/>
-                    <AvatarFallback
-                      style={{
-                        backgroundColor: getColorFromInitials(
-                          comment.user.username.substring(0, 2).toUpperCase()
-                        ),
-                      }}
-                      className="text-white font-semibold text-xs flex items-center justify-center"
-                    >
-                      {comment.user.username.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-
-                <div className="flex-1">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-semibold text-blue-300">
-                      {comment.user.username}
-                    </span>
-                    <span className="text-xs text-gray-400 ">
-                      {formatRelativeTime(comment.created_at)}
-                    </span>
+                        src={`${NEXT_PUBLIC_STORAGE_PROFILE_PICTURES}/${comment.user.id}.png?timestamp=${new Date().getTime()}`}
+                      />
+                      <AvatarFallback
+                        style={{
+                          backgroundColor: getColorFromInitials(
+                            comment.user.username.substring(0, 2).toUpperCase()
+                          ),
+                        }}
+                        className="text-white font-semibold text-sm"
+                      >
+                        {comment.user.username.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
+  
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-semibold text-[#ff6b00]">
+                        {comment.user.username}
+                      </span>
+                      <span className="text-xs text-[#ff9e66]">
+                        {formatRelativeTime(comment.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-[#ff9e66]">
+                      {comment.comment}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-300 line-clamp-2">
-                    {comment.comment}
-                  </p>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        <ScrollBar
+            ))}
+          </div>
+          <ScrollBar
             orientation="vertical"
-            className="bg-gray-700 rounded-full hover:bg-blue-500 transition-colors duration-300"
+            className="bg-[#ff6b0033] rounded-full hover:bg-[#ff6b00] transition-colors"
           />
-      </ScrollArea>
-            {smallWindow && (
-                <div className="pt-4">
-                <CommentTextArea newComment={newComment} setNewComment={setNewComment} handleSubmitComment={handleSubmit} />
-                    </div>
-            )}
-            </div>
+        </ScrollArea>
+  
+        {smallWindow && (
+          <div className="pt-4 border-t border-[#ff6b0033]">
+            <CommentTextArea 
+              newComment={newComment} 
+              setNewComment={setNewComment} 
+              handleSubmitComment={handleSubmit} 
+              className="bg-[#0a0a0a] border-[#ff6b0033] text-[#ff9e66]
+                placeholder-[#ff6b0066] focus:border-[#ff6b00]
+                hover:shadow-[0_0_15px_rgba(255,107,0,0.1)]"
+              buttonStyle="bg-gradient-to-r from-[#ff6b00] to-[#ff3300] hover:from-[#ff3300] hover:to-[#ff6b00]
+                text-white shadow-[0_0_15px_rgba(255,107,0,0.3)]"
+            />
+          </div>
+        )}
+      </div>
     );
 });
 
