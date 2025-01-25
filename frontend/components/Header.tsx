@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from "next/link";
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
 import { CreatePostDialog } from "@/components/dialog/CreatePostDialog";
 import { Filter } from "@/app/types/Filter";
@@ -12,7 +12,6 @@ import { toast } from "nextjs-toast-notify";
 import { useFeed } from "@/contex/FeedContext";
 import Dropdown from "./Dropdown";
 import { Compass, Home, CirclePlus, Search, X } from 'lucide-react';
-import Image from "next/image";
 import { User } from "@/app/types/User";
 import { errorMessage, getColorFromInitials } from "@/app/lib/hashHelpers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -46,17 +45,6 @@ const menuItems: MenuItem[] = [
 
 const baseUrl = process.env.NEXT_PUBLIC_STORAGE_PROFILE_PICTURES;
 
-<style jsx global>{`
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .smooth-appear {
-    animation: fadeIn 0.3s ease-out forwards;
-  }
-`}</style>
-
 export default function Header({ accessToken, user_id }: HeaderProps) {
   const { addAllFilters, filters, changeUrlImage } = useFeed();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -83,14 +71,15 @@ export default function Header({ accessToken, user_id }: HeaderProps) {
 
   const searchButtonHandler = async () => {
     if (searchValue.length < 3) {
-      toast.info("Please enter at least 3 characters", {
-        duration: 4000, progress: true, position: "top-left", transition: "swingInverted", sonido: true,
+      toast.info("Minimum 3 characters required", {
+        duration: 4000, 
+        style: { background: '#111', border: '1px solid #ff6b00', color: '#ff6b00' }
       });
       return;
     }
     setStatus(true);
     const response = await searchUsersHandler(searchValue);
-    response.status === 200 ? setSearchResults(response.data) : errorMessage("Error searching users");
+    response.status === 200 ? setSearchResults(response.data) : errorMessage("Scan failed");
   };
 
   useEffect(() => {
@@ -112,88 +101,85 @@ export default function Header({ accessToken, user_id }: HeaderProps) {
   return (
     <>
       <header className="flex flex-col md:flex-row h-full">
-        {/* Sidebar */}
-        <div className={`bg-gradient-to-b from-[#051B32] to-[#0A2A50] shadow-lg shadow-blue-400/30 
-          fixed top-0 left-0 flex flex-col md:h-screen transition-all duration-300 ease-in-out 
-          ${isSearchActive ? 'w-20' : 'w-full md:w-52'} hover:shadow-xl hover:shadow-blue-500/20`}>
+        <div className={`bg-[#0a0a0a] border-r border-[#ff6b0033] shadow-[0_0_30px_rgba(255,107,0,0.1)]
+          fixed top-0 left-0 flex flex-col md:h-screen transition-all duration-300
+          ${isSearchActive ? 'w-20' : 'w-full md:w-58'} group holographic-effect`}>
 
-          <div className="container mx-auto flex justify-between items-center pl-4 pt-2 md:flex-col md:items-start">
-            <Link href="/home" className="text-blue-400 text-2xl font-bold md:hidden relative overflow-hidden">
-              <span className="hover:text-blue-300 transition-colors">BookHub</span>
-              <span className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-20 transition-opacity"/>
+          <div className="container mx-auto flex justify-between items-center p-4 md:flex-col md:items-start">
+            <Link href="/home" className="text-[#ff6b00] font-bold text-2xl md:text-3xl 
+              hover:text-[#ff3300] transition-all duration-300 relative z-10">
+              <span className="text-shadow-[0_0_15px_rgba(255,107,0,0.5)]">BookHub</span>
+              <div className="absolute inset-0 bg-[#ff6b00] opacity-0 group-hover:opacity-10 transition-opacity rounded-full blur-md"/>
             </Link>
 
             <button 
-              className="md:hidden flex items-center text-gray-400 hover:bg-white/10 rounded-full p-1 transition-colors pr-4"
+              className="md:hidden text-[#ff6b00] hover:text-[#ff3300] transition-colors z-10"
               onClick={toggleMenu}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 hover:rotate-90 transition-transform" 
-                   fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7"/>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" 
+                   viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                      d="M4 6h16M4 12h16M4 18h16" className="stroke-[#ff6b00]"/>
               </svg>
             </button>
           </div>
 
-          <nav className={`${isMenuOpen ? 'flex' : 'hidden'} h-full md:flex flex-col space-y-4 p-4 flex-grow`}>
-            <div className="flex flex-col space-y-6">
+          <nav className={`${isMenuOpen ? 'flex' : 'hidden'} h-full md:flex flex-col space-y-6 p-4`}>
+            <div className="flex flex-col space-y-8">
               {!accessToken ? null : (
-                <div className="flex gap-8 items-center text-white">
-                  {menuItems.map((item) => (
-                    <div key={item.title}><Dropdown item={item} user_id={user_id}/></div>
-                  ))}
+                <div className="cyber-border rounded-lg">
+                  <div className="bg-[#1a1a1a] rounded-lg p-2">
+                    {menuItems.map((item) => (
+                      <div key={item.title}><Dropdown item={item} user_id={user_id}/></div>
+                    ))}
+                  </div>
                 </div>
               )}
               
               {accessToken && (
                 <Link href="/home"
-                      className={`group transition-colors duration-300 flex items-center space-x-2 
-                        ${pathname === '/home' ? 'text-blue-400' : 'text-gray-300'}`}
-                      onClick={() => setIsMenuOpen(false)}>
-                  <Home size={24} className="group-hover:scale-125 transition-transform"/>
-                  <span className={`${isSearchActive ? 'hidden' : 'block'} transition-all duration-400 
-                    group-hover:underline underline-offset-4`}>Home</span>
+                      className={`flex items-center space-x-3 p-3 rounded-lg
+                        ${pathname === '/home' ? 'bg-[#ff6b0022]' : 'hover:bg-[#ff6b0011]'}
+                        transition-all duration-300 relative group`}>
+                  <div className="absolute left-0 w-1 h-full bg-[#ff6b00] opacity-0 group-hover:opacity-100 transition-opacity rounded-r"/>
+                  <Home className="text-[#ff6b00] w-6 h-6 group-hover:scale-125 transition-transform"/>
+                  <span className="text-[#ff9e66] text-lg font-medium">Dashboard</span>
                 </Link>
               )}
 
               <Link href="/explorer"
-                    className={`group transition-colors duration-300 flex items-center space-x-2 
-                      ${pathname === '/explorer' ? 'text-blue-400' : 'text-gray-300'}`}
-                    onClick={() => setIsMenuOpen(false)}>
-                <Compass size={24} className="group-hover:scale-125 transition-transform"/>
-                <span className={`${isSearchActive ? 'hidden' : 'block'} transition-all duration-400 
-                  group-hover:underline underline-offset-4`}>Explorer</span>
+                    className={`flex items-center space-x-3 p-3 rounded-lg
+                      ${pathname === '/explorer' ? 'bg-[#ff6b0022]' : 'hover:bg-[#ff6b0011]'}
+                      transition-all duration-300 relative group`}>
+                <div className="absolute left-0 w-1 h-full bg-[#ff6b00] opacity-0 group-hover:opacity-100 transition-opacity rounded-r"/>
+                <Compass className="text-[#ff6b00] w-6 h-6 hover:animate-neonPulse"/>
+                <span className="text-[#ff9e66] text-lg font-medium">Explorer</span>
               </Link>
 
               <button
-                className={`group flex items-center space-x-2 focus:outline-none 
-                  ${isSearchActive ? 'text-blue-400' : 'text-gray-300'}`}
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-[#ff6b0011]
+                  transition-all duration-300 group relative"
                 onClick={toggleSearch}>
+                <div className="absolute left-0 w-1 h-full bg-[#ff6b00] opacity-0 group-hover:opacity-100 transition-opacity rounded-r"/>
                 {isSearchActive ? (
-                  <X size={24} className="group-hover:rotate-90 transition-transform"/>
+                  <X className="text-[#ff6b00] w-6 h-6 group-hover:rotate-90 transition-transform"/>
                 ) : (
-                  <Search size={24} className="group-hover:scale-125 transition-transform"/>
+                  <Search className="text-[#ff6b00] w-6 h-6 group-hover:scale-125 transition-transform"/>
                 )}
-                <span className={`${isSearchActive ? 'hidden' : 'block'} transition-all duration-400 
-                  group-hover:underline underline-offset-4`}>Search</span>
+                <span className="text-[#ff9e66] text-lg font-medium">Scan</span>
               </button>
 
               {accessToken && (
-                <div className="group transition-colors duration-300 flex items-center space-x-2 text-gray-300">
-                  <CirclePlus size={24} className="group-hover:scale-125 transition-transform"/>
-                  <span className={`${isSearchActive ? 'hidden' : 'block'} transition-all duration-400 
-                    group-hover:underline underline-offset-4`}>
+                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-[#ff6b0011]
+                  transition-all duration-300 relative group">
+                  <div className="absolute left-0 w-1 h-full bg-[#ff6b00] opacity-0 group-hover:opacity-100 transition-opacity rounded-r"/>
+                  <CirclePlus className="text-[#ff6b00] w-6 h-6 hover:animate-neonPulse"/>
+                  <span className="text-[#ff9e66] text-lg font-medium">
                     <CreatePostButton openDialog={openDialog}/>
                   </span>
                 </div>
               )}
             </div>
           </nav>
-
-          <div className={`p-4 mt-auto text-left md:text-left ${isSearchActive ? 'hidden' : 'block'}`}>
-            <Link href="/home" className="text-blue-400 text-2xl font-bold hidden md:block lg:inline 
-              hover:text-blue-300 transition-colors">
-              BookHub
-            </Link>
-          </div>
         </div>
 
         {isSearchActive && (
