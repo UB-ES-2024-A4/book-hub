@@ -180,7 +180,6 @@ export function PostCard({
 
           <Button 
             variant="ghost" 
-            onClick={() => setShowComments(true)}
             className="flex items-center gap-2 text-[#ff9e66] hover:bg-[#ff6b0011] group"
           >
             <MessageCircle className="w-6 h-6 text-[#ff6b00] group-hover:scale-125 transition-transform" />
