@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import CreatePostButton from "@/components/CreatePostButton";
 import { CreatePostDialog } from "@/components/dialog/CreatePostDialog";
-import { Filter } from "@/app/types/Filter";
 import { loadFilters, searchUsersHandler } from "@/app/actions";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 import { toast } from "nextjs-toast-notify";
