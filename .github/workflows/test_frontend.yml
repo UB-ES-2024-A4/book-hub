@@ -1,12 +1,12 @@
 name: Frontend Tests
 
 on:
-  pull_request:  # Ejecutar en todas las Pull Requests
+  pull_request:
     types:
       - opened
       - synchronize
       - reopened
-  push:  # Ejecutar solo en ramas específicas
+  push:
     branches:
       - main
       - dev
@@ -20,7 +20,6 @@ env:
   DB_NAME: bookhubdb
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
     services:
@@ -38,57 +37,83 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
-    
+
     permissions:
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
       pull-requests: write
-      # Gives the action the necessary permissions for pushing data to the
-      # python-coverage-comment-action branch, and for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
       contents: write
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11.x'
-    - uses: Gr1N/setup-poetry@v8
-    - run: poetry --version
-    - name: Install dependencies
-      run: |
-        cd backend          
-        poetry lock
-        poetry install
-        poetry run alembic upgrade head & > /dev/null
-        poetry add selenium
-        poetry export --dev --all-extras --without-hashes --format=requirements.txt 1> requirements.txt
-        python3 -m pip install --upgrade pip
-        python3 -m pip install -r requirements.txt
-        
-    - name: Start backend
-      run: |
-        cd backend
-        poetry run uvicorn app.main:app & > /dev/null
-    
-    - name: Run user that must be created
-      run: |
-          curl -X 'POST' 'http://127.0.0.1:8000/users/' -H 'accept: application/json' -H 'Content-Type: application/json' \
-          -d '{"email": "user_test@test.com", "username": "user_test", "first_name": "user_test", "last_name": "user_test",
-          "biography": "string", "password": "contraseña"}'
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Run frontend
-      run: |
-        cd frontend
-        npm install
-        npm run dev & > /dev/null
-    
-    - name: Run tests
-      run: |
-        cd frontend
-        pytest tests
-      continue-on-error: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.x"
+
+      - uses: Gr1N/setup-poetry@v8
+
+      - name: Poetry Version
+        run: poetry --version
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          poetry lock
+          poetry install
+          # Apply migrations in the foreground (no ampersand),
+          # so the step completes only once migrations are done.
+          poetry run alembic upgrade head
+          
+          # Install Selenium if needed; if it’s already in your pyproject.toml, you can skip
+          poetry add selenium
+          poetry export --dev --all-extras --without-hashes --format=requirements.txt > requirements.txt
+
+          # Make sure pip is up to date, then install from the exported requirements
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Start backend
+        run: |
+          cd backend
+          # Run uvicorn in the background, discard output
+          nohup poetry run uvicorn app.main:app > /dev/null 2>&1 &
+
+      # (Optional) Wait a few seconds for the backend to come up
+      - name: Wait for backend
+        run: |
+          sleep 5
+          # Or use a custom action to wait for port 8000
+
+      - name: Run user creation
+        run: |
+          # Create a new user via the API
+          curl -X POST 'http://127.0.0.1:8000/users/' \
+            -H 'accept: application/json' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "email": "user_test@test.com",
+              "username": "user_test",
+              "first_name": "user_test",
+              "last_name": "user_test",
+              "biography": "string",
+              "password": "contraseña"
+            }'
+
+      - name: Run frontend
+        run: |
+          cd frontend
+          npm install
+          # Run dev in the background
+          nohup npm run dev > /dev/null 2>&1 &
+
+      - name: Wait for frontend
+        run: sleep 5
+
+      - name: Run tests
+        run: |
+          cd frontend
+          pytest tests
+        continue-on-error: true
