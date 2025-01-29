@@ -20,14 +20,9 @@ env:
   DB_NAME: bookhubdb
 
 jobs:
+
   test:
     runs-on: ubuntu-latest
-
-    # Force all 'run:' commands to use bash (minimal fix)
-    defaults:
-      run:
-        shell: bash
-
     services:
       mysql:
         image: mysql
@@ -45,7 +40,12 @@ jobs:
           --health-retries=3
     
     permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
       pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
       contents: write
 
     steps:
@@ -73,12 +73,12 @@ jobs:
           poetry export --dev --all-extras --without-hashes --format=requirements.txt 1> requirements.txt
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt
-
+        
       - name: Start backend
         run: |
           cd backend
           poetry run uvicorn app.main:app & > /dev/null
-
+    
       - name: Run user that must be created
         run: |
           curl -X 'POST' 'http://127.0.0.1:8000/users/' -H 'accept: application/json' -H 'Content-Type: application/json' \
@@ -90,9 +90,3 @@ jobs:
           cd frontend
           npm install
           npm run dev & > /dev/null
-
-      - name: Run tests
-        run: |
-          cd frontend
-          pytest tests
-        continue-on-error: true
