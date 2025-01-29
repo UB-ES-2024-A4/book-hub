@@ -1,12 +1,12 @@
 name: Frontend Tests
 
 on:
-  pull_request:
+  pull_request:  # Ejecutar en todas las Pull Requests
     types:
       - opened
       - synchronize
       - reopened
-  push:
+  push:  # Ejecutar solo en ramas específicas
     branches:
       - main
       - dev
@@ -22,6 +22,12 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    # Force all 'run:' commands to use bash (minimal fix)
+    defaults:
+      run:
+        shell: bash
+
     services:
       mysql:
         image: mysql
@@ -37,7 +43,7 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
-
+    
     permissions:
       pull-requests: write
       contents: write
@@ -51,66 +57,39 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11.x"
+          python-version: '3.11.x'
 
       - uses: Gr1N/setup-poetry@v8
 
-      - name: Poetry Version
-        run: poetry --version
+      - run: poetry --version
 
       - name: Install dependencies
         run: |
-          cd backend
+          cd backend          
           poetry lock
           poetry install
-          # Apply migrations in the foreground (no ampersand),
-          # so the step completes only once migrations are done.
-          poetry run alembic upgrade head
-          
-          # Install Selenium if needed; if it’s already in your pyproject.toml, you can skip
+          poetry run alembic upgrade head & > /dev/null
           poetry add selenium
-          poetry export --dev --all-extras --without-hashes --format=requirements.txt > requirements.txt
-
-          # Make sure pip is up to date, then install from the exported requirements
+          poetry export --dev --all-extras --without-hashes --format=requirements.txt 1> requirements.txt
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt
 
       - name: Start backend
         run: |
           cd backend
-          # Run uvicorn in the background, discard output
-          nohup poetry run uvicorn app.main:app > /dev/null 2>&1 &
+          poetry run uvicorn app.main:app & > /dev/null
 
-      # (Optional) Wait a few seconds for the backend to come up
-      - name: Wait for backend
+      - name: Run user that must be created
         run: |
-          sleep 5
-          # Or use a custom action to wait for port 8000
-
-      - name: Run user creation
-        run: |
-          # Create a new user via the API
-          curl -X POST 'http://127.0.0.1:8000/users/' \
-            -H 'accept: application/json' \
-            -H 'Content-Type: application/json' \
-            -d '{
-              "email": "user_test@test.com",
-              "username": "user_test",
-              "first_name": "user_test",
-              "last_name": "user_test",
-              "biography": "string",
-              "password": "contraseña"
-            }'
+          curl -X 'POST' 'http://127.0.0.1:8000/users/' -H 'accept: application/json' -H 'Content-Type: application/json' \
+          -d '{"email": "user_test@test.com", "username": "user_test", "first_name": "user_test", "last_name": "user_test",
+          "biography": "string", "password": "contraseña"}'
 
       - name: Run frontend
         run: |
           cd frontend
           npm install
-          # Run dev in the background
-          nohup npm run dev > /dev/null 2>&1 &
-
-      - name: Wait for frontend
-        run: sleep 5
+          npm run dev & > /dev/null
 
       - name: Run tests
         run: |
