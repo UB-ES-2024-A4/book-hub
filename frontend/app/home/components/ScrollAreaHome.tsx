@@ -32,8 +32,6 @@ type Props = {
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-// URL of the Azure Storage API
-
 const NEXT_PUBLIC_STORAGE_BOOKS = process.env.NEXT_PUBLIC_STORAGE_BOOKS;
 
 const NEXT_PUBLIC_AZURE_SAS_STORAGE = process.env.NEXT_PUBLIC_AZURE_SAS_STORAGE;
@@ -46,15 +44,12 @@ export default function ScrollAreaHome({ userData }: Props) {
 
   const { posts: postsContext, addAllPosts, filters } = useFeed();
 
-  // Handle follow/unfollow button click
-
   const handleFollowClick = async (
     postUserId: number,
     isCurrentlyFollowing: boolean
   ) => {
     try {
       if (isCurrentlyFollowing) {
-        // Unfollow the user
 
         const result = await unfollowUser(currentUserId, postUserId);
 
@@ -64,8 +59,6 @@ export default function ScrollAreaHome({ userData }: Props) {
 
         if (result.status !== 200) throw new Error(result.message);
       }
-
-      // Update the following status in the post of PostContext
 
       postsContext[postUserId].user.following = !isCurrentlyFollowing;
 
@@ -84,8 +77,6 @@ export default function ScrollAreaHome({ userData }: Props) {
       });
     } catch (error: any) {
       console.error("Failed to update following status", error);
-
-      // Show a toast notification
 
       toast.error(error.message, {
         duration: 4000,
@@ -110,8 +101,6 @@ export default function ScrollAreaHome({ userData }: Props) {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [showComments, setShowComments] = useState(false);
-
   const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
 
   const handleFilterToggle = async (filterId: number) => {
@@ -120,14 +109,6 @@ export default function ScrollAreaHome({ userData }: Props) {
         ? prev.filter((id) => id !== filterId)
         : [...prev, filterId]
     );
-
-    // Call the API to get the posts with the selected filters
-
-    // Load Post returns an array of PostStorage
-
-    // So, after loading the posts, we need to add them to the context
-
-    // First, we need to create a string of filters
 
     if (selectedFilters.includes(filterId)) {
       const filters_ID = selectedFilters
@@ -147,8 +128,6 @@ export default function ScrollAreaHome({ userData }: Props) {
 
     if (result.status !== 200) {
       console.error("Failed to load posts", result.message);
-
-      // Show a toast notification
 
       toast.error(result.message, {
         duration: 4000,
@@ -181,42 +160,40 @@ export default function ScrollAreaHome({ userData }: Props) {
 
   return (
     <div className="container mx-auto">
-      {/* Filter Section */}
-
-      <div className="p-4 border-b rounded-t-lg pt-16 md:pt-4">
+      <div className="p-4 border-b border-[#ff6b0033] rounded-t-lg pt-16 md:pt-4 bg-[#0a0a0a]">
         <div className="mb-4">
           <Input
             placeholder="Search a Filter..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full text-white"
+            className="w-full bg-[#0a0a0a] border-[#ff6b0033] text-[#ff9e66] placeholder-[#ff6b0066] focus:border-[#ff6b00] hover:shadow-[0_0_15px_rgba(255,107,0,0.1)]"
           />
         </div>
 
-        {/* Horizontal Scroll of Filters */}
-
-        <ScrollArea className="w-full whitespace-nowrap">
+        <ScrollArea className="w-full whitespace-nowrap holographic-effect">
           <div className="flex space-x-2 pb-2">
             {filteredFilters.map(([id, filterName]) => (
               <Badge
                 key={id}
                 onClick={() => handleFilterToggle(Number(id))}
-                className={`cursor-pointer hover:bg-blue-400 transition-colors text-gray-100 bg-gray-600 ${
-                  selectedFilters.includes(Number(id))
-                    ? "bg-gradient-to-br from-blue-100 via-gray-300 to-blue-400 text-black"
-                    : ""
-                }`}
+                className={`cursor-pointer border border-[#ff6b0033] transition-all duration-300 hover:scale-105
+                  ${
+                    selectedFilters.includes(Number(id))
+                      ? "bg-[#ff6b0011] border-[#ff6b00] text-[#ff6b00] shadow-[0_0_15px_rgba(255,107,0,0.2)]"
+                      : "bg-[#0a0a0a] text-[#ff9e66] hover:bg-[#ff6b0011] hover:border-[#ff6b00]"
+                  }`}
               >
                 {filterName}
-
                 {selectedFilters.includes(Number(id)) && (
-                  <X className="ml-2 w-4 h-4" />
+                  <X className="ml-2 w-4 h-4 text-[#ff6b00]" />
                 )}
               </Badge>
             ))}
           </div>
-
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar 
+            orientation="horizontal" 
+            className="bg-[#ff6b0033] hover:bg-[#ff6b00] transition-colors"
+          />
         </ScrollArea>
       </div>
 
