@@ -200,11 +200,13 @@ class PostRepository:
             follower_info AS (
                 SELECT 
                     p.user_id AS author_id,
-                    CASE 
-                        WHEN :user_id IS NULL THEN FALSE
-                        WHEN f.follower_id = :user_id THEN TRUE
-                        ELSE FALSE
-                    END AS is_following
+                    MAX(  -- Aggregate here
+                        CASE 
+                            WHEN :user_id IS NULL THEN FALSE
+                            WHEN f.follower_id = :user_id THEN TRUE
+                            ELSE FALSE
+                        END
+                    ) AS is_following
                 FROM 
                     post p
                 LEFT JOIN 
