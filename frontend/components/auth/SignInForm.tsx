@@ -54,9 +54,8 @@ export default function SignInForm() {
         shouldRevalidate: "onInput", // Revalidate when the user inputs or modifies the form
     });
 
-
     return (
-        <div className="w-full h-full  flex flex-col justify-center md:py12 py-4">
+        <div className="w-full h-full flex flex-col justify-center md:py12 py-4">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
                     <Link href="/explorer">
